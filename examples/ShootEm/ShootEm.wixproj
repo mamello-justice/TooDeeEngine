@@ -1,0 +1,25 @@
+<Project Sdk="WixToolset.Sdk/6.0.0">
+    <PropertyGroup>
+        <ProductVersion>0.0.1</ProductVersion>
+        <ProjectGuid>{88888888-8888-8888-8888-888888888888}</ProjectGuid>
+        <OutputName>ShootEm</OutputName>
+        <Platforms>x64</Platforms>
+        <InstallerPlatform>x64</InstallerPlatform>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+        <DefineConstants>Debug</DefineConstants>
+        <OutputPath>bin\Debug\</OutputPath>
+        <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+        <OutputPath>bin\Release\</OutputPath>
+        <IntermediateOutputPath>obj\Release\</IntermediateOutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <BindPath Condition="'$(Configuration)' == 'Debug'">build\bin\Debug</BindPath>
+        <BindPath Condition="'$(Configuration)' == 'Release'">build\bin\Release</BindPath>
+    </PropertyGroup>
+</Project>

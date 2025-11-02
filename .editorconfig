@@ -1,0 +1,10 @@
+root = true
+
+[*]
+insert_final_newline = true
+
+[*.{cpp,h,hpp}]
+cpp_new_line_before_open_brace_namespace=new_line
+cpp_new_line_before_open_brace_type=same_line
+cpp_new_line_before_open_brace_function=same_line
+cpp_new_line_close_brace_same_line_empty_function=true
