@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.28)
+
+project(sfml)
+
+# Options
+set(SFML_BUILD_NETWORK FALSE)
+set(SFML_BUILD_AUDIO FALSE)
+set(SFML_BUILD_GRAPHICS TRUE)
+set(SFML_BUILD_WINDOW TRUE)
+set(SFML_BUILD_EXAMPLES FALSE)
+set(SFML_BUILD_TEST_SUITE FALSE)
+set(SFML_BUILD_DOC FALSE)
+set(SFML_USE_STATIC_STD_LIBS FALSE)
+set(SFML_GENERATE_PDB TRUE)
+set(SFML_USE_SYSTEM_DEPS FALSE)
+
+# Fetch
+include(FetchContent)
+
+FetchContent_Declare(SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 0fa201c969e48ecc253581c5841ce73f44d42f49 # 3.0.2
+)
+
+FetchContent_MakeAvailable(SFML)

@@ -1,0 +1,5 @@
+add_subdirectory(core)
+add_subdirectory(imgui)
+add_subdirectory(imgui-sfml)
+add_subdirectory(inih)
+add_subdirectory(sfml)

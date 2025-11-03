@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(INIH)
 
-# Include FetchContent if not already included
+# Fetch
 include(FetchContent)
 
 FetchContent_Declare(INIH
@@ -12,9 +12,9 @@ FetchContent_Declare(INIH
 
 FetchContent_MakeAvailable(INIH)
 
+# Library Target
 add_library(INIH STATIC)
 
-# Set the source files for the C++ implementation
 target_sources(INIH
     PRIVATE
     ${inih_SOURCE_DIR}/ini.c
@@ -24,7 +24,6 @@ target_sources(INIH
     ${inih_SOURCE_DIR}/cpp/INIReader.h
 )
 
-# Add include directories
 target_include_directories(INIH
     PUBLIC
     ${inih_SOURCE_DIR}
