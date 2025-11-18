@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Animation.hpp"
-#include "Core.hpp"
+#include "Vec2.hpp"
 
 CTransform::CTransform(const Vec2f& p) : pos(p) {}
 

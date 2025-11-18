@@ -1,4 +1,4 @@
-#include "Scene_Menu.hpp"
+#include "ShootEm_Menu.hpp"
 
 #include <functional>
 #include <memory>
@@ -6,18 +6,18 @@
 
 #include "Action.hpp"
 #include "Assets.hpp"
-#include "Button.hpp"
+#include "Components/Button.hpp"
 #include "Core.hpp"
-#include "Flex.hpp"
 #include "GameEngine.hpp"
+#include "Layout/Flex.hpp"
 #include "Scene.hpp"
-#include "Scene_Play.hpp"
+#include "ShootEm_Play.hpp"
 
-Scene_Menu::Scene_Menu(std::shared_ptr<GameEngine> gameEngine) : Scene(gameEngine) {
+ShootEm_Menu::ShootEm_Menu(std::shared_ptr<GameEngine> gameEngine) : Scene(gameEngine) {
 	init();
 }
 
-void Scene_Menu::init() {
+void ShootEm_Menu::init() {
 	registerAction(sf::Keyboard::Scancode::W, "UP");
 	registerAction(sf::Keyboard::Scancode::S, "DOWN");
 	registerAction(sf::Keyboard::Scancode::D, "PLAY");
@@ -75,23 +75,23 @@ void Scene_Menu::init() {
 	m_menuBox->setBackgroundColor(sf::Color(0, 0, 0, 100));
 }
 
-void Scene_Menu::update() {
+void ShootEm_Menu::update() {
 	sRender();
 }
 
-void Scene_Menu::onEnd() {
+void ShootEm_Menu::onEnd() {
 	m_gameEngine->quit();
 }
 
-void Scene_Menu::sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) {
+void ShootEm_Menu::sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) {
 	m_clickListener.onClick(mPos, button);
 }
 
-void Scene_Menu::sHoverHandler(const Vec2f& mPos) {
+void ShootEm_Menu::sHoverHandler(const Vec2f& mPos) {
 	m_hoverListener.onHover(mPos);
 }
 
-void Scene_Menu::sDoAction(const Action& action) {
+void ShootEm_Menu::sDoAction(const Action& action) {
 	if (action.type() == "START")
 	{
 		if (action.name() == "UP")
@@ -112,7 +112,7 @@ void Scene_Menu::sDoAction(const Action& action) {
 		else if (action.name() == "PLAY")
 		{
 			m_gameEngine->changeScene(
-				"PLAY", std::make_shared<Scene_Play>(m_gameEngine));
+				"PLAY", std::make_shared<ShootEm_Play>(m_gameEngine));
 		}
 		else if (action.name() == "QUIT")
 		{
@@ -124,7 +124,7 @@ void Scene_Menu::sDoAction(const Action& action) {
 	}
 }
 
-void Scene_Menu::sRender() {
+void ShootEm_Menu::sRender() {
 	m_gameEngine->window().clear(sf::Color(11, 16, 38));
 
 	auto titleX = (m_gameEngine->window().getSize().x - m_title->getGlobalBounds().size.x) / 2.f;

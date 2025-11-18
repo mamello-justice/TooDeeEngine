@@ -6,11 +6,11 @@
 
 #include "Action.hpp"
 #include "Core.hpp"
-#include "Flex.hpp"
+#include "Layout/Flex.hpp"
 #include "GameEngine.hpp"
 #include "Scene.hpp"
 
-class Scene_Menu : public Scene
+class ShootEm_Menu : public Scene
 {
 	std::vector<std::string> m_levelPaths;
 	std::vector<std::string> m_menuStrings;
@@ -27,14 +27,14 @@ protected:
 
 	void onEnd();
 
-	void sClickHandler(const Vec2f &mPos, const sf::Mouse::Button &button) override;
-	void sHoverHandler(const Vec2f &mPos) override;
-	void sDoAction(const Action &action) override;
+	void sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) override;
+	void sHoverHandler(const Vec2f& mPos) override;
+	void sDoAction(const Action& action) override;
 	void sRender() override;
 
 public:
-	Scene_Menu(std::shared_ptr<GameEngine> gameEngine);
+	ShootEm_Menu(std::shared_ptr<GameEngine> gameEngine);
 };
 
-template void GameEngine::changeScene<Scene_Menu>(
-	const std::string &, std::shared_ptr<Scene_Menu>);
+template void GameEngine::changeScene<ShootEm_Menu>(
+	const std::string&, std::shared_ptr<ShootEm_Menu>);

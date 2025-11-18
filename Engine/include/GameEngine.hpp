@@ -1,11 +1,13 @@
 #pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 #include <SFML/Graphics.hpp>
 
-class Scene;
+#include "Scene.hpp"
 
 typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
 
@@ -17,6 +19,7 @@ protected:
 	size_t              m_simulationSpeed = 1;
 	bool                m_running = true;
 	sf::Clock           m_deltaClock;
+	std::vector<std::function<void()>> m_systems;
 
 public:
 	GameEngine();
@@ -28,8 +31,6 @@ public:
 
 	template <class T>
 	void changeScene(const std::string& name, std::shared_ptr<T> scene) {
-		m_window.setView(m_window.getDefaultView());
-
 		m_currentScene = name;
 		if (m_sceneMap.find(name) == m_sceneMap.end())
 		{
@@ -38,6 +39,10 @@ public:
 	}
 
 	std::shared_ptr<Scene> currentScene();
+
+	bool hasScenes();
+
+	bool hasScene(const std::string& name);
 
 	sf::RenderWindow& window();
 

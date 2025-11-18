@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.28)
 
 project(imgui)
 
-# Options
-set(IMGUI_DIR ${imgui_SOURCE_DIR} PARENT_SCOPE)
-
 # Fetch
 include(FetchContent)
 
@@ -14,6 +11,9 @@ FetchContent_Declare(imgui
 )
 
 FetchContent_MakeAvailable(imgui)
+
+# Options
+set(IMGUI_DIR ${imgui_SOURCE_DIR} PARENT_SCOPE)
 
 # Library Target
 add_library(imgui STATIC)

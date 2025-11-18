@@ -5,77 +5,60 @@
 #include <SFML/Graphics.hpp>
 
 #include "Scene.hpp"
+#include "Vec2.hpp"
 
-GameEngine::GameEngine() {
-	init();
-}
+GameEngine::GameEngine() { init(); }
 
 void GameEngine::init() {
-	m_window.create(sf::VideoMode::getDesktopMode(), "Game Engine", sf::State::Fullscreen);
-	m_window.setFramerateLimit(60);
+	// Register Systems
+	m_systems.push_back(std::bind(&GameEngine::sUserInput, this));
 }
 
-void GameEngine::run() {
-	while (m_running)
-	{
-		update();
-	}
-}
+void GameEngine::run() { while (m_running) { update(); } }
 
 void GameEngine::update() {
-	if (!m_running)
-	{
-		return;
-	}
+	if (!m_running) { return; }
 
-	if (m_sceneMap.empty())
-	{
-		return;
-	}
+	if (m_sceneMap.empty()) { return; }
 
-	sUserInput();
+	for (auto system : m_systems) { system(); }
 
-	m_window.clear();
 	currentScene()->update();
-	m_window.display();
 }
 
-void GameEngine::quit() {
-	m_running = false;
-}
+void GameEngine::quit() { m_running = false; }
+
+sf::RenderWindow& GameEngine::window() { return m_window; }
 
 std::shared_ptr<Scene> GameEngine::currentScene() {
-	return m_sceneMap.at(m_currentScene);
+	return hasScene(m_currentScene) ? m_sceneMap.at(m_currentScene) : nullptr;
 }
 
-sf::RenderWindow& GameEngine::window() {
-	return m_window;
+bool GameEngine::hasScenes() {
+	return m_sceneMap.empty();
+}
+
+bool GameEngine::hasScene(const std::string& name) {
+	return m_sceneMap.find(name) != m_sceneMap.end();
 }
 
 void GameEngine::sUserInput() {
-	while (auto event = m_window.pollEvent())
-	{
+	while (auto event = m_window.pollEvent()) {
 		if (event->is<sf::Event::Closed>()) { quit(); }
 
 		// this event is triggered when a key is pressed
-		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-		{
+		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
 			auto it = currentScene()->getActionMap().find(keyPressed->scancode);
-			if (it == currentScene()->getActionMap().end())
-			{
-				continue;
-			}
+			if (it == currentScene()->getActionMap().end()) { continue; }
 
 			Action action(it->second, "START");
 			currentScene()->sDoAction(action);
 		}
 
 		// this event is triggered when a key is released
-		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
-		{
+		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>()) {
 			auto it = currentScene()->getActionMap().find(keyReleased->scancode);
-			if (it == currentScene()->getActionMap().end())
-			{
+			if (it == currentScene()->getActionMap().end()) {
 				continue;
 			}
 

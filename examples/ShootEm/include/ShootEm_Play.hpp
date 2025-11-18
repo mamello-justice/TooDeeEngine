@@ -9,7 +9,7 @@
 #include "GameEngine.hpp"
 #include "Scene.hpp"
 
-class Scene_Play : public Scene
+class ShootEm_Play : public Scene
 {
 protected:
 	sf::Text m_scoreText;
@@ -45,7 +45,7 @@ protected:
 	void sRender() override;
 
 public:
-	Scene_Play(std::shared_ptr<GameEngine> gameEngine);
+	ShootEm_Play(std::shared_ptr<GameEngine> gameEngine);
 
 	Vec2f gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
 
@@ -56,5 +56,5 @@ public:
 	void spawnSpecialWeapon(std::shared_ptr<Entity>);
 };
 
-template void GameEngine::changeScene<Scene_Play>(
-	const std::string&, std::shared_ptr<Scene_Play>);
+template void GameEngine::changeScene<ShootEm_Play>(
+	const std::string&, std::shared_ptr<ShootEm_Play>);

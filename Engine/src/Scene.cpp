@@ -21,3 +21,7 @@ void Scene::registerAction(const sf::Keyboard::Scan& scancode, const std::string
 const std::map<sf::Keyboard::Scan, std::string>& Scene::getActionMap() const {
 	return m_actionMap;
 }
+
+const EntityManager& Scene::getEntityManager() const {
+	return m_entityManager;
+}

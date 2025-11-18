@@ -29,7 +29,7 @@ void Assets::addTexture(const std::string& textureName, const std::string& path,
 	}
 	else {
 		m_textureMap[textureName].setSmooth(smooth);
-		std::cout << "Loaded Texture: " << path << std::endl;
+		std::cout << "Loaded Texture: [" << textureName << "] = " << path << std::endl;
 	}
 }
 
@@ -50,28 +50,36 @@ void Assets::addFont(const std::string& fontName, const std::string& path) {
 		m_fontMap.erase(fontName);
 	}
 	else {
-		std::cout << "Loaded Font: " << path << std::endl;
+		std::cout << "Loaded Font: [" << fontName << "] = " << path << std::endl;
 	}
 }
 
 void Assets::loadFromFile(const std::string& config) {
 	INIReader reader(config);
 
-	for (auto section : reader.Sections()) {
+	auto sections = reader.Sections();
+
+	for (auto section : sections) {
 		if (section.starts_with("texture.")) {
 			auto name = section.substr(8, section.size());
 			auto path = reader.GetString(section, "file", "");
 			auto smooth = reader.GetBoolean(section, "smooth", false);
 			addTexture(name, path, smooth);
 		}
-		else if (section.starts_with("animation.")) {
+	}
+
+	for (auto section : sections) {
+		if (section.starts_with("animation.")) {
 			auto name = section.substr(10, section.size());
 			auto texture = reader.GetString(section, "texture", "");
 			auto frames = reader.GetInteger(section, "frames", 1);
 			auto speed = reader.GetInteger(section, "speed", 0);
 			addAnimation(name, texture, frames, speed);
 		}
-		else if (section.starts_with("font.")) {
+	}
+
+	for (auto section : sections) {
+		if (section.starts_with("font.")) {
 			auto name = section.substr(5, section.size());
 			auto path = reader.GetString(section, "file", "");
 			addFont(name, path);
@@ -83,7 +91,6 @@ void Assets::loadFromFile(const std::string& config) {
 // Getters
 const sf::Texture& Assets::getTexture(const std::string& name) const {
 	auto it = m_textureMap.find(name);
-	std::cout << "Looking for texture: " << name << std::endl;
 	assert(it != m_textureMap.end());
 	return it->second;
 }

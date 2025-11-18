@@ -28,7 +28,13 @@ target_link_libraries(TooDeeEditor
     sfml-graphics
     imgui
     ImGui-SFML::ImGui-SFML
-    INIH
     Core
+    INIH
     GameEngine
+    debug GridExample
+    debug HelloWorld
+    debug MegaMario_Menu
+    debug MegaMario_Play
+    debug ShootEm_Menu
+    debug ShootEm_Play
 )

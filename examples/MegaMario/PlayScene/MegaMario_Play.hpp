@@ -9,7 +9,7 @@
 #include "Scene.hpp"
 #include "Vec2.hpp"
 
-class Scene_Play : public Scene
+class MegaMario_Play : public Scene
 {
 	struct PlayerConfig
 	{
@@ -47,7 +47,7 @@ protected:
 	void sRender() override;
 
 public:
-	Scene_Play(std::shared_ptr<GameEngine> gameEngine, const std::string& levelPath);
+	MegaMario_Play(std::shared_ptr<GameEngine> gameEngine, const std::string& levelPath);
 
 	Vec2f gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
 	void spawnPlayer();

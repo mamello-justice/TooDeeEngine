@@ -2,31 +2,34 @@ cmake_minimum_required(VERSION 3.28)
 
 project(MegaMario LANGUAGES CXX)
 
+add_subdirectory(MenuScene)
+add_subdirectory(PlayScene)
+
 # Executable Target
 add_executable(MegaMario)
 
 target_compile_features(MegaMario
-    PRIVATE
+    PUBLIC
     cxx_std_23
 )
 
 target_sources(MegaMario
-    PRIVATE
+    PUBLIC
     src/main.cpp
-    src/Scene_Menu.cpp
-    src/Scene_Play.cpp
 )
 
 target_include_directories(MegaMario
-    PRIVATE
+    PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(MegaMario
-    PRIVATE
+    PUBLIC
     sfml-system
     sfml-window
     sfml-graphics
     Core
     GameEngine
+    MegaMario_Menu
+    MegaMario_Play
 )

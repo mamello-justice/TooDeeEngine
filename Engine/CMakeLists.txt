@@ -33,7 +33,6 @@ target_link_libraries(GameEngine
     sfml-system
     sfml-window
     sfml-graphics
-    ImGui-SFML::ImGui-SFML
     Core
     INIH
 )

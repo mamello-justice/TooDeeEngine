@@ -5,8 +5,13 @@
 
 #include <SFML/Graphics.hpp>
 
-struct MenuState
-{
+#include "GameEngine.hpp"
+
+struct AppState {
+    bool DarkTheme = true;
+};
+
+struct MenuState {
     // Examples Apps (accessible from the "Examples" menu)
     bool ShowMainMenuBar = false;
     bool ShowAppAssetsBrowser = false;
@@ -35,12 +40,16 @@ struct MenuState
 };
 
 class Editor {
-    sf::RenderWindow m_window;
     sf::Clock m_deltaClock;
     bool m_running = true;
-    std::vector<std::function<void()>> m_systems;
 
+    AppState m_appState;
     MenuState m_menuState;
+
+    std::shared_ptr<GameEngine> m_gameEngine;
+    sf::View m_view;
+
+    std::vector<std::function<void()>> m_systems;
 
     void init();
 
@@ -50,6 +59,10 @@ public:
     void run();
     void update();
     void quit();
+
+    void updateStyles();
+    void toggleTheme();
+    sf::RenderWindow& window();
 
     void sUserInput();
     void sGUI();

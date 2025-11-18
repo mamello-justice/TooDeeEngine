@@ -1,4 +1,4 @@
-#include "Scene_Play.hpp"
+#include "ShootEm_Play.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -8,16 +8,16 @@
 #include "GameConfig.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
-#include "Scene_Menu.hpp"
+#include "ShootEm_Menu.hpp"
 
-Scene_Play::Scene_Play(std::shared_ptr<GameEngine> gameEngine)
+ShootEm_Play::ShootEm_Play(std::shared_ptr<GameEngine> gameEngine)
 	:
 	Scene(gameEngine),
 	m_scoreText(Assets::Instance().getFont("orbitron"), "Deafult", 24) {
 	init();
 }
 
-void Scene_Play::init() {
+void ShootEm_Play::init() {
 	registerAction(sf::Keyboard::Scancode::P, "PAUSE");
 	registerAction(sf::Keyboard::Scancode::Escape, "QUIT");
 	registerAction(sf::Keyboard::Scancode::W, "UP");
@@ -41,7 +41,7 @@ void Scene_Play::init() {
 	loadLevel();
 }
 
-void Scene_Play::update() {
+void ShootEm_Play::update() {
 	m_entityManager.update();
 
 	sEnemySpawner();
@@ -53,20 +53,20 @@ void Scene_Play::update() {
 	m_currentFrame++;
 }
 
-void Scene_Play::loadLevel() {
+void ShootEm_Play::loadLevel() {
 	m_entityManager = EntityManager();
 	spawnPlayer();
 }
 
-void Scene_Play::onEnd() {
-	m_gameEngine->changeScene("Scene_Menu", std::make_shared<Scene_Menu>(m_gameEngine));
+void ShootEm_Play::onEnd() {
+	m_gameEngine->changeScene("ShootEm_Menu", std::make_shared<ShootEm_Menu>(m_gameEngine));
 }
 
-void Scene_Play::sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) {
+void ShootEm_Play::sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) {
 	spawnBullet(m_player, mPos);
 }
 
-void Scene_Play::sCollision() {
+void ShootEm_Play::sCollision() {
 	if (m_paused) { return; }
 
 	auto wSize = m_gameEngine->window().getSize();
@@ -147,7 +147,7 @@ void Scene_Play::sCollision() {
 	}
 }
 
-void Scene_Play::sDoAction(const Action& action) {
+void ShootEm_Play::sDoAction(const Action& action) {
 	if (action.type() == "START") {
 		if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
 		else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
@@ -167,7 +167,7 @@ void Scene_Play::sDoAction(const Action& action) {
 	}
 }
 
-void Scene_Play::sEnemySpawner() {
+void ShootEm_Play::sEnemySpawner() {
 	if (m_paused or !m_isEnemySpawnerActive) { return; }
 
 	auto mEnemyConfig = GameConfig::getInstance().Enemy;
@@ -176,7 +176,7 @@ void Scene_Play::sEnemySpawner() {
 	}
 }
 
-void Scene_Play::sMovement() {
+void ShootEm_Play::sMovement() {
 	if (m_paused || !m_isMovementActive) { return; }
 
 	{
@@ -224,7 +224,7 @@ void Scene_Play::sMovement() {
 	}
 }
 
-void Scene_Play::sLifespan() {
+void ShootEm_Play::sLifespan() {
 	if (m_paused || !m_isLifespanActive) { return; }
 
 	for (auto& e : m_entityManager.getEntities()) {
@@ -250,7 +250,7 @@ void Scene_Play::sLifespan() {
 	}
 }
 
-void Scene_Play::sRender() {
+void ShootEm_Play::sRender() {
 	if (!m_gameEngine->window().isOpen()) { return; }
 
 	m_gameEngine->window().clear();
@@ -275,7 +275,7 @@ void Scene_Play::sRender() {
 	m_gameEngine->window().draw(m_scoreText);
 }
 
-Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity) {
+Vec2f ShootEm_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity) {
 	// TODO: This function takes in a grid (x,y) position and an Entity
 	//		 Return a Vec2 indicating where the CENTER position of the Entity should be
 	//		 You must use the Entity's Animation size to position it correctly
@@ -288,7 +288,7 @@ Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entit
 	return Vec2f(0, 0);
 }
 
-void Scene_Play::spawnPlayer() {
+void ShootEm_Play::spawnPlayer() {
 	// check to see if a player already exists before adding a new one
 	// if it already exists, just overwrite the values of the existing one
 	if (!m_player) {
@@ -317,7 +317,7 @@ void Scene_Play::spawnPlayer() {
 }
 
 // spawn an enemy at a random position
-void Scene_Play::spawnEnemy() {
+void ShootEm_Play::spawnEnemy() {
 	auto e = m_entityManager.addEntity("enemy");
 
 	auto m = m_gameEngine->window().getSize();
@@ -352,7 +352,7 @@ void Scene_Play::spawnEnemy() {
 }
 
 // spawns the small enemies when a big one (input entity e) explodes
-void Scene_Play::spawnSmallEnemies(std::shared_ptr<Entity> e) {
+void ShootEm_Play::spawnSmallEnemies(std::shared_ptr<Entity> e) {
 	auto& cTransform = e->get<CTransform>();
 	auto& cScore = e->get<CScore>();
 	auto& eCircle = e->get<CShape>().circle;
@@ -387,7 +387,7 @@ void Scene_Play::spawnSmallEnemies(std::shared_ptr<Entity> e) {
 }
 
 // spawns a bullet from a given entity to a target location
-void Scene_Play::spawnBullet(std::shared_ptr<Entity> e, const Vec2f& target) {
+void ShootEm_Play::spawnBullet(std::shared_ptr<Entity> e, const Vec2f& target) {
 	auto& ePosition = e->get<CTransform>().pos;
 
 	auto b = m_entityManager.addEntity("bullet");
@@ -414,6 +414,6 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> e, const Vec2f& target) {
 	b->add<CLifespan>(mBulletConfig.Lifespan);
 }
 
-void Scene_Play::spawnSpecialWeapon(std::shared_ptr<Entity> e) {
+void ShootEm_Play::spawnSpecialWeapon(std::shared_ptr<Entity> e) {
 	// TODO: implement your own speacial weapon
 }

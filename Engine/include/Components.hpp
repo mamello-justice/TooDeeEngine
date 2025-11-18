@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Animation.hpp"
-#include "Core.hpp"
+#include "Vec2.hpp"
 
 class Component
 {
@@ -14,15 +14,15 @@ public:
 class CTransform : public Component
 {
 public:
-	Vec2f pos = {0.0, 0.0};
-	Vec2f prevPos = {0.0, 0.0};
-	Vec2f scale = {1.0, 1.0};
-	Vec2f velocity = {0.0, 0.0};
+	Vec2f pos = { 0.0, 0.0 };
+	Vec2f prevPos = { 0.0, 0.0 };
+	Vec2f scale = { 1.0, 1.0 };
+	Vec2f velocity = { 0.0, 0.0 };
 	float angle = 0;
 
 	CTransform() = default;
-	CTransform(const Vec2f &p);
-	CTransform(const Vec2f &p, const Vec2f &v, const Vec2f &s, float a);
+	CTransform(const Vec2f& p);
+	CTransform(const Vec2f& p, const Vec2f& v, const Vec2f& s, float a);
 };
 
 class CShape : public Component
@@ -31,7 +31,7 @@ public:
 	sf::CircleShape circle;
 
 	CShape() = default;
-	CShape(float radius, size_t points, const sf::Color &fill, const sf::Color &outline, float thickness);
+	CShape(float radius, size_t points, const sf::Color& fill, const sf::Color& outline, float thickness);
 };
 
 class CScore : public Component
@@ -73,7 +73,7 @@ public:
 	Vec2f halfSize;
 
 	CBoundingBox() = default;
-	CBoundingBox(const Vec2f &s);
+	CBoundingBox(const Vec2f& s);
 };
 
 class CBoundingCircle : public Component
@@ -92,7 +92,7 @@ public:
 	bool repeat = false;
 
 	CAnimation() = default;
-	CAnimation(const Animation &anim, bool r);
+	CAnimation(const Animation& anim, bool r);
 };
 
 class CGravity : public Component
@@ -110,7 +110,7 @@ public:
 	std::string state = "jumping";
 
 	CState() = default;
-	CState(const std::string &s);
+	CState(const std::string& s);
 };
 
 static_assert(std::is_default_constructible_v<CTransform>);

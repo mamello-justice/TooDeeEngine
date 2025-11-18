@@ -1,4 +1,4 @@
-#include "Scene_Play.hpp"
+#include "MegaMario_Play.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -7,9 +7,10 @@
 #include "Components.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
-#include "Scene_Menu.hpp"
 
-Scene_Play::Scene_Play(std::shared_ptr<GameEngine> gameEngine, const std::string& levelPath)
+class MegaMario_Menu;
+
+MegaMario_Play::MegaMario_Play(std::shared_ptr<GameEngine> gameEngine, const std::string& levelPath)
 	:
 	Scene(gameEngine),
 	m_levelPath(levelPath),
@@ -17,7 +18,10 @@ Scene_Play::Scene_Play(std::shared_ptr<GameEngine> gameEngine, const std::string
 	init(m_levelPath);
 }
 
-void Scene_Play::init(const std::string& levelPath) {
+void MegaMario_Play::init(const std::string& levelPath) {
+	Assets::Instance().loadFromFile("bin/MegaMario/config.ini");
+
+	// Register Actions
 	registerAction(sf::Keyboard::Scancode::P, "PAUSE");
 	registerAction(sf::Keyboard::Scancode::Escape, "QUIT");
 	registerAction(sf::Keyboard::Scancode::T, "TOGGLE_TEXTURE");
@@ -30,14 +34,12 @@ void Scene_Play::init(const std::string& levelPath) {
 	registerAction(sf::Keyboard::Scancode::S, "DOWN");
 	registerAction(sf::Keyboard::Scancode::D, "RIGHT");
 
-	// TODO: Register all other gameplay Actions
-
 	loadLevel(levelPath);
 
 	setPaused(false);
 }
 
-void Scene_Play::update() {
+void MegaMario_Play::update() {
 	m_entityManager.update();
 
 	// TODO: implement pause functionality
@@ -49,7 +51,7 @@ void Scene_Play::update() {
 	sRender();
 }
 
-void Scene_Play::loadLevel(const std::string& filename) {
+void MegaMario_Play::loadLevel(const std::string& filename) {
 	// reset the entity manager every time we load a level
 	m_entityManager = EntityManager();
 
@@ -86,11 +88,13 @@ void Scene_Play::loadLevel(const std::string& filename) {
 	}
 }
 
-void Scene_Play::onEnd() {
-	m_gameEngine->changeScene("Scene_Menu", std::make_shared<Scene_Menu>(m_gameEngine));
+void MegaMario_Play::onEnd() {
+#ifdef MEGA_MARIO_IMPL
+	m_gameEngine->changeScene("MegaMario_Menu", std::make_shared<MegaMario_Menu>(m_gameEngine));
+#endif
 }
 
-void Scene_Play::sAnimation() {
+void MegaMario_Play::sAnimation() {
 	for (auto e : m_entityManager.getEntities()) {
 		if (e->has<CAnimation>()) {
 			auto& cAnim = e->get<CAnimation>();
@@ -122,7 +126,7 @@ void Scene_Play::sAnimation() {
 	}
 }
 
-void Scene_Play::sCollision() {
+void MegaMario_Play::sCollision() {
 	// REMEMBER: SFML's (0,0) position is on the TOP-LEFT corner
 	//			 This means jumping will have a negative y�component
 	//			 and gravity will have a positive y - component
@@ -167,7 +171,7 @@ void Scene_Play::sCollision() {
 	}
 }
 
-void Scene_Play::sDoAction(const Action& action) {
+void MegaMario_Play::sDoAction(const Action& action) {
 	if (action.type() == "START")
 	{
 		if (action.name() == "TOGGLE_TEXTURE")
@@ -232,13 +236,13 @@ void Scene_Play::sDoAction(const Action& action) {
 	}
 }
 
-void Scene_Play::sEnemySpawner() {}
+void MegaMario_Play::sEnemySpawner() {}
 
-void Scene_Play::sLifespan() {
+void MegaMario_Play::sLifespan() {
 	// TODO: Check lifespan of entities that have them, and destroy them if they go over
 }
 
-void Scene_Play::sMovement() {
+void MegaMario_Play::sMovement() {
 	// Gravity component
 	for (auto& e : m_entityManager.getEntities()) {
 		if (e->has<CGravity>()) {
@@ -279,7 +283,7 @@ void Scene_Play::sMovement() {
 	}
 }
 
-void Scene_Play::sRender() {
+void MegaMario_Play::sRender() {
 	// color the background darker so you know that the game is paused
 	m_gameEngine->window().clear(m_paused ? sf::Color(50, 50, 150) : sf::Color(97, 133, 248));
 
@@ -370,14 +374,14 @@ void Scene_Play::sRender() {
 	}
 }
 
-Vec2f Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity) {
+Vec2f MegaMario_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity) {
 	auto size = entity->get<CAnimation>().animation.getRect().size;
 	return Vec2f(
 		gridX * m_gridSize.x + size.x,
 		m_gameEngine->window().getSize().y - (gridY * m_gridSize.y + size.y));
 }
 
-void Scene_Play::spawnPlayer() {
+void MegaMario_Play::spawnPlayer() {
 	// check to see if a player already exists before adding a new one
 	// if it already exists, just overwrite the values of the existing one
 	if (!m_player)
@@ -397,12 +401,12 @@ void Scene_Play::spawnPlayer() {
 	// TODO: be sure to add the remaining components to the player
 }
 
-void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity) {
+void MegaMario_Play::spawnBullet(std::shared_ptr<Entity> entity) {
 	// TODO: this should spawn a bullet at the given entity,
 	//		 going in the direction the entity is facing
 }
 
-void Scene_Play::addTile(const std::string& animName, const Vec2f& gridPos) {
+void MegaMario_Play::addTile(const std::string& animName, const Vec2f& gridPos) {
 	auto tile = m_entityManager.addEntity("tile");
 
 	std::cout << "Adding tile @ (" << gridPos.x << ", " << gridPos.y << ") with Animation: " << animName << std::endl;
@@ -412,8 +416,8 @@ void Scene_Play::addTile(const std::string& animName, const Vec2f& gridPos) {
 	tile->add<CBoundingBox>(sf::Vector2f(anim.getRect().size));
 }
 
-void Scene_Play::addDecoration(const std::string& animName, const Vec2f& gridPos) {
+void MegaMario_Play::addDecoration(const std::string& animName, const Vec2f& gridPos) {
 
 }
 
-void Scene_Play::onFrame() {}
+void MegaMario_Play::onFrame() {}

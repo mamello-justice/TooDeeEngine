@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "Core.hpp"
 #include "Entity.hpp"
+#include "Vec2.hpp"
 
 namespace Physics
 {

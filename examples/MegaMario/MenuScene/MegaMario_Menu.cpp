@@ -1,4 +1,4 @@
-#include "Scene_Menu.hpp"
+#include "MegaMario_Menu.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -6,32 +6,47 @@
 #include "Assets.hpp"
 #include "GameEngine.hpp"
 #include "Scene.hpp"
-#include "Scene_Play.hpp"
 
-Scene_Menu::Scene_Menu(std::shared_ptr<GameEngine> gameEngine) : Scene(gameEngine) {
+class MegaMario_Play;
+
+MegaMario_Menu::MegaMario_Menu(std::shared_ptr<GameEngine> gameEngine)
+	: Scene(gameEngine) {
 	init();
 }
 
-void Scene_Menu::init() {
+void MegaMario_Menu::init() {
+	Assets::Instance().loadFromFile("bin/MegaMario/config.ini");
+
+	// Register Actions
 	registerAction(sf::Keyboard::Scancode::W, "UP");
 	registerAction(sf::Keyboard::Scancode::S, "DOWN");
 	registerAction(sf::Keyboard::Scancode::D, "PLAY");
 	registerAction(sf::Keyboard::Scancode::Escape, "QUIT");
 
+	// Register Levels
 	registerLevel("Level 1", "level1.txt");
 	registerLevel("Level 2", "level2.txt");
 	registerLevel("Level 3", "level3.txt");
+
+	// Register Systems
+	m_systems.push_back(std::bind(&MegaMario_Menu::sRender, this));
 }
 
-void Scene_Menu::update() {
-	sRender();
+void MegaMario_Menu::update() {
+	for (auto system : m_systems) { system(); }
 }
 
-void Scene_Menu::onEnd() {
+void MegaMario_Menu::onEnd() {
 	m_gameEngine->quit();
 }
 
-void Scene_Menu::sDoAction(const Action& action) {
+void MegaMario_Menu::registerLevel(const std::string& name, const std::string& path) {
+	m_menuStrings.push_back(name);
+	m_levelPaths.push_back(path);
+}
+
+// Systesm
+void MegaMario_Menu::sDoAction(const Action& action) {
 	if (action.type() == "START")
 	{
 		if (action.name() == "UP")
@@ -51,9 +66,11 @@ void Scene_Menu::sDoAction(const Action& action) {
 		}
 		else if (action.name() == "PLAY")
 		{
-			m_gameEngine->changeScene("PLAY", std::make_shared<Scene_Play>(
+#ifdef MEGA_MARIO_IMPL
+			m_gameEngine->changeScene("PLAY", std::make_shared<MegaMario_Play>(
 				m_gameEngine,
 				m_levelPaths[m_selectedMenuIndex]));
+#endif
 		}
 		else if (action.name() == "QUIT")
 		{
@@ -65,10 +82,10 @@ void Scene_Menu::sDoAction(const Action& action) {
 	}
 }
 
-void Scene_Menu::sRender() {
+void MegaMario_Menu::sRender() {
 	m_gameEngine->window().clear(sf::Color(97, 133, 248));
 
-	sf::Text title(Assets::Instance().getFont("Mario"), "MEGA MARIO", 100);
+	sf::Text title(Assets::Instance().getFont("mario"), "MEGA MARIO", 100);
 	title.setFillColor(sf::Color::White);
 
 	sf::RectangleShape titleBox(
@@ -91,7 +108,7 @@ void Scene_Menu::sRender() {
 	for (size_t i = 0; i < m_menuStrings.size(); i++) {
 		auto level = m_menuStrings[i];
 
-		sf::Text text(Assets::Instance().getFont("Mario"), level, 75);
+		sf::Text text(Assets::Instance().getFont("mario"), level, 75);
 		text.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color::Black);
 		text.setPosition(
 			Vec2f(
@@ -99,9 +116,4 @@ void Scene_Menu::sRender() {
 				offsetY + (text.getLocalBounds().size.y + 20.f) * i));
 		m_gameEngine->window().draw(text);
 	}
-}
-
-void Scene_Menu::registerLevel(const std::string& name, const std::string& path) {
-	m_menuStrings.push_back(name);
-	m_levelPaths.push_back(path);
 }

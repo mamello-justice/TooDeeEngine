@@ -8,8 +8,9 @@
 #include "GameEngine.hpp"
 #include "Scene.hpp"
 
-class Scene_Menu : public Scene
+class MegaMario_Menu : public Scene
 {
+	std::vector<std::function<void()>> m_systems;
 	std::vector<std::string> m_levelPaths;
 	std::vector<std::string> m_menuStrings;
 	size_t m_selectedMenuIndex = 0;
@@ -26,5 +27,5 @@ protected:
 	void registerLevel(const std::string& name, const std::string& path);
 
 public:
-	Scene_Menu(std::shared_ptr<GameEngine> gameEngine);
+	MegaMario_Menu(std::shared_ptr<GameEngine> gameEngine);
 };
