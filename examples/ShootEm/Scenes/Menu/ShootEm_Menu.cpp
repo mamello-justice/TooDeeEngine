@@ -11,7 +11,8 @@
 #include "GameEngine.hpp"
 #include "Layout/Flex.hpp"
 #include "Scene.hpp"
-#include "ShootEm_Play.hpp"
+
+class ShootEm_Play;
 
 ShootEm_Menu::ShootEm_Menu(std::shared_ptr<GameEngine> gameEngine) : Scene(gameEngine) {
 	init();
@@ -111,8 +112,10 @@ void ShootEm_Menu::sDoAction(const Action& action) {
 		}
 		else if (action.name() == "PLAY")
 		{
+#ifdef SHOOT_EM_IML
 			m_gameEngine->changeScene(
 				"PLAY", std::make_shared<ShootEm_Play>(m_gameEngine));
+#endif
 		}
 		else if (action.name() == "QUIT")
 		{
@@ -125,18 +128,18 @@ void ShootEm_Menu::sDoAction(const Action& action) {
 }
 
 void ShootEm_Menu::sRender() {
-	m_gameEngine->window().clear(sf::Color(11, 16, 38));
+	m_gameEngine->renderTarget().clear(sf::Color(11, 16, 38));
 
-	auto titleX = (m_gameEngine->window().getSize().x - m_title->getGlobalBounds().size.x) / 2.f;
+	auto titleX = (m_gameEngine->renderTarget().getSize().x - m_title->getGlobalBounds().size.x) / 2.f;
 	m_title->setPosition(Vec2f(titleX, 100.f));
 
-	auto x = (m_gameEngine->window().getSize().x - m_menuBox->getSize().x) / 2.f;
-	auto y = (m_gameEngine->window().getSize().y
+	auto x = (m_gameEngine->renderTarget().getSize().x - m_menuBox->getSize().x) / 2.f;
+	auto y = (m_gameEngine->renderTarget().getSize().y
 		+ m_title->getGlobalBounds().size.y
 		+ m_title->getGlobalBounds().position.y
 		- m_menuBox->getSize().y) / 2.f;
 	m_menuBox->setPosition_({ x, y });
 
-	m_gameEngine->window().draw(*m_menuBox);
-	m_gameEngine->window().draw(*m_title);
+	m_gameEngine->renderTarget().draw(*m_menuBox);
+	m_gameEngine->renderTarget().draw(*m_title);
 }

@@ -83,7 +83,7 @@ void MegaMario_Menu::sDoAction(const Action& action) {
 }
 
 void MegaMario_Menu::sRender() {
-	m_gameEngine->window().clear(sf::Color(97, 133, 248));
+	m_gameEngine->renderTarget().clear(sf::Color(97, 133, 248));
 
 	sf::Text title(Assets::Instance().getFont("mario"), "MEGA MARIO", 100);
 	title.setFillColor(sf::Color::White);
@@ -93,17 +93,17 @@ void MegaMario_Menu::sRender() {
 	titleBox.setFillColor(sf::Color(184, 64, 4));
 	titleBox.setPosition(
 		Vec2f(
-			(m_gameEngine->window().getSize().x - titleBox.getSize().x) / 2.f - 20.f,
+			(m_gameEngine->renderTarget().getSize().x - titleBox.getSize().x) / 2.f - 20.f,
 			40.f));
 	title.setPosition(
 		Vec2f(
-			(m_gameEngine->window().getSize().x - title.getLocalBounds().size.x) / 2.f - 20.f,
+			(m_gameEngine->renderTarget().getSize().x - title.getLocalBounds().size.x) / 2.f - 20.f,
 			(titleBox.getGlobalBounds().size.y - title.getLocalBounds().size.y) / 2.f + 20.f));
 
-	m_gameEngine->window().draw(titleBox);
-	m_gameEngine->window().draw(title);
+	m_gameEngine->renderTarget().draw(titleBox);
+	m_gameEngine->renderTarget().draw(title);
 
-	auto offsetY = (m_gameEngine->window().getSize().y - (75.f * m_menuStrings.size())) / 2.f;
+	auto offsetY = (m_gameEngine->renderTarget().getSize().y - (75.f * m_menuStrings.size())) / 2.f;
 
 	for (size_t i = 0; i < m_menuStrings.size(); i++) {
 		auto level = m_menuStrings[i];
@@ -112,8 +112,8 @@ void MegaMario_Menu::sRender() {
 		text.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color::Black);
 		text.setPosition(
 			Vec2f(
-				(m_gameEngine->window().getSize().x - text.getLocalBounds().size.x) / 2.f - 20.f,
+				(m_gameEngine->renderTarget().getSize().x - text.getLocalBounds().size.x) / 2.f - 20.f,
 				offsetY + (text.getLocalBounds().size.y + 20.f) * i));
-		m_gameEngine->window().draw(text);
+		m_gameEngine->renderTarget().draw(text);
 	}
 }

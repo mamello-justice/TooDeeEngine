@@ -26,8 +26,8 @@ void HelloWorld::update() {
 void HelloWorld::sRender() {
     sf::Text text(Assets::Instance().getFont("tech"), "Hello World!", 100);
     text.setPosition({
-        (m_gameEngine->window().getSize().x - text.getLocalBounds().size.x) / 2.f,
-        (m_gameEngine->window().getSize().y - text.getLocalBounds().size.y) / 2.f });
+        (m_gameEngine->renderTarget().getSize().x - text.getLocalBounds().size.x) / 2.f,
+        (m_gameEngine->renderTarget().getSize().y - text.getLocalBounds().size.y) / 2.f });
 
-    m_gameEngine->window().draw(text);
+    m_gameEngine->renderTarget().draw(text);
 }

@@ -8,7 +8,8 @@
 #include "GameConfig.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
-#include "ShootEm_Menu.hpp"
+
+class ShootEm_Menu;
 
 ShootEm_Play::ShootEm_Play(std::shared_ptr<GameEngine> gameEngine)
 	:
@@ -59,7 +60,9 @@ void ShootEm_Play::loadLevel() {
 }
 
 void ShootEm_Play::onEnd() {
+#ifdef SHOOT_EM_IML
 	m_gameEngine->changeScene("ShootEm_Menu", std::make_shared<ShootEm_Menu>(m_gameEngine));
+#endif
 }
 
 void ShootEm_Play::sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) {
@@ -69,7 +72,7 @@ void ShootEm_Play::sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& but
 void ShootEm_Play::sCollision() {
 	if (m_paused) { return; }
 
-	auto wSize = m_gameEngine->window().getSize();
+	auto wSize = m_gameEngine->renderTarget().getSize();
 
 	// Wall Collision
 	{
@@ -251,9 +254,7 @@ void ShootEm_Play::sLifespan() {
 }
 
 void ShootEm_Play::sRender() {
-	if (!m_gameEngine->window().isOpen()) { return; }
-
-	m_gameEngine->window().clear();
+	m_gameEngine->renderTarget().clear();
 
 	for (auto& e : m_entityManager.getEntities()) {
 		auto& cShape = e->get<CShape>();
@@ -267,12 +268,12 @@ void ShootEm_Play::sRender() {
 		cShape.circle.setRotation(sf::degrees(cTransform.angle));
 
 		// draw the entity's sf::CircleShape
-		m_gameEngine->window().draw(cShape.circle);
+		m_gameEngine->renderTarget().draw(cShape.circle);
 	}
 
 	// draw score
 	m_scoreText.setString(std::format("SCORE: {}", m_score));
-	m_gameEngine->window().draw(m_scoreText);
+	m_gameEngine->renderTarget().draw(m_scoreText);
 }
 
 Vec2f ShootEm_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity) {
@@ -284,7 +285,7 @@ Vec2f ShootEm_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Ent
 	//		 The bottom-left corner of the Animation should align with the bottom left of the grid cell
 	//
 	//		 Remember that SFML has (0,0) in the top left, while grid coordinates are specified from bottom-left
-	//		 You can get the size of the SFML window via m_game.window().getSize();
+	//		 You can get the size of the SFML renderTarget via m_game.renderTarget().getSize();
 	return Vec2f(0, 0);
 }
 
@@ -295,7 +296,7 @@ void ShootEm_Play::spawnPlayer() {
 		m_player = m_entityManager.addEntity("player");
 	}
 
-	auto w = m_gameEngine->window().getSize();
+	auto w = m_gameEngine->renderTarget().getSize();
 	auto mPlayerConfig = GameConfig::getInstance().Player;
 
 	m_player->add<CTransform>(Vec2f((float)w.x / 2, (float)w.y / 2), Vec2f(0.0f, 0.0f), Vec2f(1.f, 1.f), 0.0f);
@@ -320,7 +321,7 @@ void ShootEm_Play::spawnPlayer() {
 void ShootEm_Play::spawnEnemy() {
 	auto e = m_entityManager.addEntity("enemy");
 
-	auto m = m_gameEngine->window().getSize();
+	auto m = m_gameEngine->renderTarget().getSize();
 	auto mEnemyConfig = GameConfig::getInstance().Enemy;
 
 	float minSpawnX = mEnemyConfig.CollisionRadius;

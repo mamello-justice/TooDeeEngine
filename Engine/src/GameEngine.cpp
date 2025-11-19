@@ -14,8 +14,6 @@ void GameEngine::init() {
 	m_systems.push_back(std::bind(&GameEngine::sUserInput, this));
 }
 
-void GameEngine::run() { while (m_running) { update(); } }
-
 void GameEngine::update() {
 	if (!m_running) { return; }
 
@@ -23,12 +21,20 @@ void GameEngine::update() {
 
 	for (auto system : m_systems) { system(); }
 
+	m_renderTarget.clear();
 	currentScene()->update();
+	m_renderTarget.display();
 }
 
 void GameEngine::quit() { m_running = false; }
 
-sf::RenderWindow& GameEngine::window() { return m_window; }
+sf::RenderTexture& GameEngine::renderTarget() {
+	return m_renderTarget;
+}
+
+sf::RenderWindow& GameEngine::window() {
+	return m_window;
+}
 
 std::shared_ptr<Scene> GameEngine::currentScene() {
 	return hasScene(m_currentScene) ? m_sceneMap.at(m_currentScene) : nullptr;

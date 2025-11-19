@@ -2,13 +2,13 @@
 
 #include "GameEngine.hpp"
 
-class ShootEm {
+class MegaMario {
     bool                        m_running = true;
     std::shared_ptr<GameEngine> m_gameEngine;
 
     void init();
 public:
-    ShootEm();
+    MegaMario();
 
     void run();
     void update();

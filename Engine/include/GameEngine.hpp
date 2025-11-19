@@ -15,6 +15,7 @@ class GameEngine {
 protected:
 	SceneMap            m_sceneMap;
 	sf::RenderWindow    m_window;
+	sf::RenderTexture	m_renderTarget;
 	std::string         m_currentScene;
 	size_t              m_simulationSpeed = 1;
 	bool                m_running = true;
@@ -25,7 +26,6 @@ public:
 	GameEngine();
 
 	void init();
-	void run();
 	void update();
 	void quit();
 
@@ -43,6 +43,8 @@ public:
 	bool hasScenes();
 
 	bool hasScene(const std::string& name);
+
+	sf::RenderTexture& renderTarget();
 
 	sf::RenderWindow& window();
 

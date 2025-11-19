@@ -55,6 +55,3 @@ public:
 	void spawnBullet(std::shared_ptr<Entity>, const Vec2f&);
 	void spawnSpecialWeapon(std::shared_ptr<Entity>);
 };
-
-template void GameEngine::changeScene<ShootEm_Play>(
-	const std::string&, std::shared_ptr<ShootEm_Play>);

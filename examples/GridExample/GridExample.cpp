@@ -23,17 +23,17 @@ void GridExample::update() {
 
 // Systems
 void GridExample::sRender() {
-    auto wWidth = m_gameEngine->window().getSize().x;
-    auto wHeight = m_gameEngine->window().getSize().y;
+    auto wWidth = m_gameEngine->renderTarget().getSize().x;
+    auto wHeight = m_gameEngine->renderTarget().getSize().y;
 
     sf::Text text(Assets::Instance().getFont("tech"), "Hello World!", 100);
     text.setPosition({
         (wWidth - text.getLocalBounds().size.x) / 2.f,
         (wHeight - text.getLocalBounds().size.y) / 2.f });
 
-    m_gameEngine->window().draw(text);
+    m_gameEngine->renderTarget().draw(text);
 
-    float leftX = float(m_gameEngine->window().getView().getCenter().x) - wWidth / 2.0f;
+    float leftX = float(m_gameEngine->renderTarget().getView().getCenter().x) - wWidth / 2.0f;
     float rightX = leftX + wWidth + m_gridSize.x;
     float nextGridX = leftX - float((int)leftX % (int)m_gridSize.x);
 
@@ -43,7 +43,7 @@ void GridExample::sRender() {
                 sf::Vertex{Vec2f(x, wHeight)}
         };
 
-        m_gameEngine->window().draw(line, 2, sf::PrimitiveType::Lines);
+        m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
     }
 
     for (float y = 0; y < wHeight; y += float(m_gridSize.y)) {
@@ -52,14 +52,14 @@ void GridExample::sRender() {
                 sf::Vertex{Vec2f(rightX, wHeight - y)}
         };
 
-        m_gameEngine->window().draw(line, 2, sf::PrimitiveType::Lines);
+        m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
 
         for (float x = nextGridX; x < rightX; x += float(m_gridSize.x)) {
             std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
             std::string yCell = std::to_string((int)y / (int)m_gridSize.y);
             m_gridText.setString("(" + xCell + "," + yCell + ")");
             m_gridText.setPosition({ x + 3, wHeight - y - m_gridSize.y + 2 });
-            m_gameEngine->window().draw(m_gridText);
+            m_gameEngine->renderTarget().draw(m_gridText);
         }
     }
 }

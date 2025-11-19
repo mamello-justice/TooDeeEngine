@@ -5,6 +5,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "imgui.h"
+
 #include "GameEngine.hpp"
 
 struct AppState {
@@ -40,14 +42,14 @@ struct MenuState {
 };
 
 class Editor {
-    sf::Clock m_deltaClock;
-    bool m_running = true;
+    bool                        m_running = true;
 
-    AppState m_appState;
-    MenuState m_menuState;
+    AppState                    m_appState;
+    MenuState                   m_menuState;
 
+    sf::Clock                   m_deltaClock;
     std::shared_ptr<GameEngine> m_gameEngine;
-    sf::View m_view;
+    ImVec2                      m_viewportSize;
 
     std::vector<std::function<void()>> m_systems;
 
@@ -64,6 +66,7 @@ public:
     void toggleTheme();
     sf::RenderWindow& window();
 
+    void sViewport();
     void sUserInput();
     void sGUI();
 };

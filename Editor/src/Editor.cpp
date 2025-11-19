@@ -20,25 +20,6 @@
 #include "Examples.hpp"
 #endif
 
-static sf::FloatRect getViewport(const Vec2f& size) {
-    auto menuHeight = 19.f;
-    auto leftPinWidth = 500.f;
-    auto rightPinWidth = 400.f;
-    auto bottomPinWidth = 350.f;
-
-    auto scalingX = 1.f - ((leftPinWidth + rightPinWidth) / size.x);
-    auto scalingY = 1.f - ((menuHeight + bottomPinWidth) / size.y);
-    auto scaling = std::min({ scalingX, scalingY });
-
-    auto viewPosOffsetX = scaling < scalingX ? (scalingX - scaling) / 2 : 0;
-    auto viewPosX = leftPinWidth / size.x + viewPosOffsetX;
-
-    auto viewPosOffsetY = scaling < scalingY ? (scalingY - scaling) / 2 : 0;
-    auto viewPosY = menuHeight / size.y + viewPosOffsetY;
-
-    return sf::FloatRect({ viewPosX, viewPosY }, { scaling, scaling });
-}
-
 Editor::Editor() :
     m_gameEngine(std::make_shared<GameEngine>()) {
     init();
@@ -53,8 +34,6 @@ void Editor::init() {
     );
     window().setFramerateLimit(60);
 
-    m_view = window().getDefaultView();
-
     // Initialize ImGui
     if (!ImGui::SFML::Init(window())) {
         std::cerr << "Failed to initialize ImGui" << std::endl;
@@ -65,6 +44,7 @@ void Editor::init() {
     updateStyles();
 
     // Register Systems
+    m_systems.push_back(std::bind(&Editor::sViewport, this));
     m_systems.push_back(std::bind(&Editor::sUserInput, this));
     m_systems.push_back(std::bind(&Editor::sGUI, this));
 }
@@ -74,13 +54,9 @@ void Editor::run() {
 }
 
 void Editor::update() {
-
     ImGui::SFML::Update(window(), m_deltaClock.restart());
 
     window().clear();
-
-    m_view.setViewport(getViewport(m_view.getSize()));
-    window().setView(m_view);
 
     for (auto system : m_systems) { system(); }
 
@@ -105,6 +81,10 @@ void Editor::toggleTheme() {
 
 sf::RenderWindow& Editor::window() {
     return m_gameEngine->window();
+}
+
+void Editor::sViewport() {
+    if (m_gameEngine->renderTarget().resize({ (unsigned int)m_viewportSize.x, (unsigned int)m_viewportSize.y })) {}
 }
 
 void Editor::sUserInput() {
@@ -215,6 +195,12 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
+    }
+
+    if (ImGui::Begin("Viewport")) {
+        m_viewportSize = ImGui::GetWindowSize();
+        ImGui::Image(m_gameEngine->renderTarget());
+        ImGui::End();
     }
 
     if (ImGui::Begin("Scene")) {

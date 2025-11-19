@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project(MegaMario LANGUAGES CXX)
 
-add_subdirectory(MenuScene)
-add_subdirectory(PlayScene)
+add_subdirectory(Scenes/Menu)
+add_subdirectory(Scenes/Play)
 
 # Executable Target
 add_executable(MegaMario)
@@ -16,6 +16,7 @@ target_compile_features(MegaMario
 target_sources(MegaMario
     PUBLIC
     src/main.cpp
+    src/MegaMario.cpp
 )
 
 target_include_directories(MegaMario

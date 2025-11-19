@@ -285,10 +285,10 @@ void MegaMario_Play::sMovement() {
 
 void MegaMario_Play::sRender() {
 	// color the background darker so you know that the game is paused
-	m_gameEngine->window().clear(m_paused ? sf::Color(50, 50, 150) : sf::Color(97, 133, 248));
+	m_gameEngine->renderTarget().clear(m_paused ? sf::Color(50, 50, 150) : sf::Color(97, 133, 248));
 
-	auto wWidth = m_gameEngine->window().getSize().x;
-	auto wHeight = m_gameEngine->window().getSize().y;
+	auto wWidth = m_gameEngine->renderTarget().getSize().x;
+	auto wHeight = m_gameEngine->renderTarget().getSize().y;
 
 	// set the viewport of the window to be centered on the player if it's far enough right
 	auto& pos = m_player->get<CTransform>().pos;
@@ -306,7 +306,7 @@ void MegaMario_Play::sRender() {
 				anim.getSprite()->setRotation(sf::radians(cTrans.angle));
 				anim.getSprite()->setPosition({ cTrans.pos.x, cTrans.pos.y });
 				anim.getSprite()->setScale({ cTrans.scale.x, cTrans.scale.y });
-				m_gameEngine->window().draw(*anim.getSprite());
+				m_gameEngine->renderTarget().draw(*anim.getSprite());
 			}
 		}
 	}
@@ -323,7 +323,7 @@ void MegaMario_Play::sRender() {
 				rect.setFillColor(sf::Color(0, 0, 0, 0));
 				rect.setOutlineColor(sf::Color::White);
 				rect.setOutlineThickness(1);
-				m_gameEngine->window().draw(rect);
+				m_gameEngine->renderTarget().draw(rect);
 			}
 		}
 	}
@@ -335,14 +335,14 @@ void MegaMario_Play::sRender() {
 				auto& anim = e->get<CAnimation>().animation;
 				sf::Text name(Assets::Instance().getFont("Tech"), anim.getName());
 				name.setPosition({ cTrans.pos.x, cTrans.pos.y });
-				m_gameEngine->window().draw(name);
+				m_gameEngine->renderTarget().draw(name);
 			}
 		}
 	}
 
 	// draw the grid so that can easily debug
 	if (m_drawGrid) {
-		float leftX = float(m_gameEngine->window().getView().getCenter().x) - wWidth / 2.0f;
+		float leftX = float(m_gameEngine->renderTarget().getView().getCenter().x) - wWidth / 2.0f;
 		float rightX = leftX + wWidth + m_gridSize.x;
 		float nextGridX = leftX - float((int)leftX % (int)m_gridSize.x);
 
@@ -352,7 +352,7 @@ void MegaMario_Play::sRender() {
 					sf::Vertex{Vec2f(x, wHeight)}
 			};
 
-			m_gameEngine->window().draw(line, 2, sf::PrimitiveType::Lines);
+			m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
 		}
 
 		for (float y = 0; y < wHeight; y += float(m_gridSize.y)) {
@@ -361,14 +361,14 @@ void MegaMario_Play::sRender() {
 					sf::Vertex{Vec2f(rightX, wHeight - y)}
 			};
 
-			m_gameEngine->window().draw(line, 2, sf::PrimitiveType::Lines);
+			m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
 
 			for (float x = nextGridX; x < rightX; x += float(m_gridSize.x)) {
 				std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
 				std::string yCell = std::to_string((int)y / (int)m_gridSize.y);
 				m_gridText.setString("(" + xCell + "," + yCell + ")");
 				m_gridText.setPosition({ x + 3, wHeight - y - m_gridSize.y + 2 });
-				m_gameEngine->window().draw(m_gridText);
+				m_gameEngine->renderTarget().draw(m_gridText);
 			}
 		}
 	}
@@ -378,7 +378,7 @@ Vec2f MegaMario_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<E
 	auto size = entity->get<CAnimation>().animation.getRect().size;
 	return Vec2f(
 		gridX * m_gridSize.x + size.x,
-		m_gameEngine->window().getSize().y - (gridY * m_gridSize.y + size.y));
+		m_gameEngine->renderTarget().getSize().y - (gridY * m_gridSize.y + size.y));
 }
 
 void MegaMario_Play::spawnPlayer() {

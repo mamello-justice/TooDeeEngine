@@ -35,6 +35,3 @@ protected:
 public:
 	ShootEm_Menu(std::shared_ptr<GameEngine> gameEngine);
 };
-
-template void GameEngine::changeScene<ShootEm_Menu>(
-	const std::string&, std::shared_ptr<ShootEm_Menu>);
