@@ -60,16 +60,6 @@ just build
 just build-release
 ```
 
-### Running Examples
-
-#### Run an Example
-```bash
-just example HelloWorld
-just example MegaMario
-just example ShootEm
-just example GridExample
-```
-
 #### Launch the Editor
 ```bash
 just edit
