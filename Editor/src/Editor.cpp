@@ -29,9 +29,7 @@ void Editor::init() {
     std::srand((unsigned int)time(NULL));
 
     // Initialize Window
-    window().create(
-        sf::VideoMode::getDesktopMode(), "TooDeeEditor", sf::State::Fullscreen
-    );
+    window().create(sf::VideoMode::getDesktopMode(), "TooDeeEditor");
     window().setFramerateLimit(60);
 
     // Initialize ImGui
@@ -42,6 +40,8 @@ void Editor::init() {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui::GetIO().ConfigFlags |= ImGuiDockNodeFlags_PassthruCentralNode;
     updateStyles();
+
+    Assets::Instance().loadFromFile("bin/editor/config.ini");
 
     // Register Systems
     m_systems.push_back(std::bind(&Editor::sViewport, this));
@@ -137,7 +137,6 @@ void Editor::sGUI() {
 #ifdef _DEBUG
         if (ImGui::BeginMenu("Examples")) {
             if (ImGui::MenuItem("HelloWorld")) {
-                Assets::Instance().loadFromFile("bin/Editor/config.ini");
                 m_gameEngine->changeScene(
                     "HelloWorld",
                     std::make_shared<HelloWorld>(m_gameEngine)
@@ -145,21 +144,30 @@ void Editor::sGUI() {
             }
 
             if (ImGui::MenuItem("GridExample")) {
-                Assets::Instance().loadFromFile("bin/Editor/config.ini");
                 m_gameEngine->changeScene(
                     "GridExample",
                     std::make_shared<GridExample>(m_gameEngine)
                 );
             }
 
+            if (ImGui::MenuItem("MovingShapes")) {
+                Assets::Instance().loadFromFile("bin/moving_shapes/config.ini");
+                m_gameEngine->changeScene(
+                    "MovingShapes",
+                    std::make_shared<MovingShapes>(m_gameEngine)
+                );
+            }
+
             if (ImGui::BeginMenu("MegaMario")) {
                 if (ImGui::MenuItem("Menu##MegaMario")) {
+                    Assets::Instance().loadFromFile("bin/mega_mario/config.ini");
                     m_gameEngine->changeScene(
                         "MegaMario_Menu",
                         std::make_shared<MegaMario_Menu>(m_gameEngine)
                     );
                 }
                 if (ImGui::MenuItem("Play##MegaMario")) {
+                    Assets::Instance().loadFromFile("bin/mega_mario/config.ini");
                     std::string levelPath;
                     m_gameEngine->changeScene(
                         "MegaMario_Play",
@@ -170,14 +178,14 @@ void Editor::sGUI() {
             }
             if (ImGui::BeginMenu("ShootEm")) {
                 if (ImGui::MenuItem("Menu##ShootEm")) {
-                    GameConfig::getInstance().loadFromFile("bin/ShootEm/config.ini");
+                    GameConfig::getInstance().loadFromFile("bin/shoot_em/config.ini");
                     m_gameEngine->changeScene(
                         "ShootEm_Menu",
                         std::make_shared<ShootEm_Menu>(m_gameEngine)
                     );
                 }
                 if (ImGui::MenuItem("Play##ShootEm")) {
-                    GameConfig::getInstance().loadFromFile("bin/ShootEm/config.ini");
+                    GameConfig::getInstance().loadFromFile("bin/shoot_em/config.ini");
                     m_gameEngine->changeScene(
                         "ShootEm_Play",
                         std::make_shared<ShootEm_Play>(m_gameEngine)

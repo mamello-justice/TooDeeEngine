@@ -14,13 +14,11 @@ MegaMario_Play::MegaMario_Play(std::shared_ptr<GameEngine> gameEngine, const std
 	:
 	Scene(gameEngine),
 	m_levelPath(levelPath),
-	m_gridText(Assets::Instance().getFont("Tech"), "", 10) {
+	m_gridText(Assets::Instance().getFont("tech"), "", 10) {
 	init(m_levelPath);
 }
 
 void MegaMario_Play::init(const std::string& levelPath) {
-	Assets::Instance().loadFromFile("bin/MegaMario/config.ini");
-
 	// Register Actions
 	registerAction(sf::Keyboard::Scancode::P, "PAUSE");
 	registerAction(sf::Keyboard::Scancode::Escape, "QUIT");
@@ -35,8 +33,6 @@ void MegaMario_Play::init(const std::string& levelPath) {
 	registerAction(sf::Keyboard::Scancode::D, "RIGHT");
 
 	loadLevel(levelPath);
-
-	setPaused(false);
 }
 
 void MegaMario_Play::update() {
@@ -95,6 +91,8 @@ void MegaMario_Play::onEnd() {
 }
 
 void MegaMario_Play::sAnimation() {
+	if (m_paused) { return; }
+
 	for (auto e : m_entityManager.getEntities()) {
 		if (e->has<CAnimation>()) {
 			auto& cAnim = e->get<CAnimation>();
@@ -127,6 +125,8 @@ void MegaMario_Play::sAnimation() {
 }
 
 void MegaMario_Play::sCollision() {
+	if (m_paused) { return; }
+
 	// REMEMBER: SFML's (0,0) position is on the TOP-LEFT corner
 	//			 This means jumping will have a negative y�component
 	//			 and gravity will have a positive y - component
@@ -162,7 +162,6 @@ void MegaMario_Play::sCollision() {
 		}
 	}
 
-
 	if (inAir) {
 		m_player->get<CState>().state = "air";
 	}
@@ -172,77 +171,40 @@ void MegaMario_Play::sCollision() {
 }
 
 void MegaMario_Play::sDoAction(const Action& action) {
-	if (action.type() == "START")
-	{
-		if (action.name() == "TOGGLE_TEXTURE")
-		{
-			m_drawTextures = !m_drawTextures;
-		}
-		else if (action.name() == "TOGGLE_COLLISION")
-		{
-			m_drawCollision = !m_drawCollision;
-		}
-		else if (action.name() == "TOGGLE_GRID")
-		{
-			m_drawGrid = !m_drawGrid;
-		}
-		else if (action.name() == "TOGGLE_ANIM_NAME")
-		{
-			m_drawAnimName = !m_drawAnimName;
-		}
-		else if (action.name() == "PAUSE")
-		{
-			setPaused(!m_paused);
-		}
-		else if (action.name() == "QUIT")
-		{
-			onEnd();
-		}
-		else if (action.name() == "UP")
-		{
-			m_player->get<CInput>().up = true;
-		}
-		else if (action.name() == "LEFT")
-		{
-			m_player->get<CInput>().left = true;
-		}
-		else if (action.name() == "DOWN")
-		{
-			m_player->get<CInput>().down = true;
-		}
-		else if (action.name() == "RIGHT")
-		{
-			m_player->get<CInput>().right = true;
-		}
+	if (action.type() == "START") {
+		if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
+		else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
+		else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
+		else if (action.name() == "TOGGLE_ANIM_NAME") { m_drawAnimName = !m_drawAnimName; }
+		else if (action.name() == "PAUSE") { setPaused(!m_paused); }
+		else if (action.name() == "QUIT") { onEnd(); }
+		else if (action.name() == "UP" && m_player) { m_player->get<CInput>().up = true; }
+		else if (action.name() == "LEFT" && m_player) { m_player->get<CInput>().left = true; }
+		else if (action.name() == "DOWN" && m_player) { m_player->get<CInput>().down = true; }
+		else if (action.name() == "RIGHT" && m_player) { m_player->get<CInput>().right = true; }
 	}
-	else if (action.type() == "END")
-	{
-		if (action.name() == "UP")
-		{
-			m_player->get<CInput>().up = false;
-		}
-		else if (action.name() == "LEFT")
-		{
-			m_player->get<CInput>().left = false;
-		}
-		else if (action.name() == "DOWN")
-		{
-			m_player->get<CInput>().down = false;
-		}
-		else if (action.name() == "RIGHT")
-		{
-			m_player->get<CInput>().right = false;
-		}
+	else if (action.type() == "END") {
+		if (action.name() == "UP" && m_player) { m_player->get<CInput>().up = false; }
+		else if (action.name() == "LEFT" && m_player) { m_player->get<CInput>().left = false; }
+		else if (action.name() == "DOWN" && m_player) { m_player->get<CInput>().down = false; }
+		else if (action.name() == "RIGHT" && m_player) { m_player->get<CInput>().right = false; }
 	}
 }
 
-void MegaMario_Play::sEnemySpawner() {}
+void MegaMario_Play::sEnemySpawner() {
+	if (m_paused) { return; }
+
+}
 
 void MegaMario_Play::sLifespan() {
+	if (m_paused) { return; }
+
 	// TODO: Check lifespan of entities that have them, and destroy them if they go over
 }
 
 void MegaMario_Play::sMovement() {
+	if (m_paused) { return; }
+
 	// Gravity component
 	for (auto& e : m_entityManager.getEntities()) {
 		if (e->has<CGravity>()) {
@@ -291,11 +253,13 @@ void MegaMario_Play::sRender() {
 	auto wHeight = m_gameEngine->renderTarget().getSize().y;
 
 	// set the viewport of the window to be centered on the player if it's far enough right
-	auto& pos = m_player->get<CTransform>().pos;
-	float windowCenterX = std::max((float)wWidth / 2.0f, pos.x);
-	sf::View view = m_gameEngine->window().getView();
-	view.setCenter({ windowCenterX, (float)wHeight - view.getCenter().y });
-	m_gameEngine->window().setView(view);
+	if (m_player) {
+		auto& pos = m_player->get<CTransform>().pos;
+		float windowCenterX = std::max((float)wWidth / 2.0f, pos.x);
+		sf::View view = m_gameEngine->window().getView();
+		view.setCenter({ windowCenterX, (float)wHeight - view.getCenter().y });
+		m_gameEngine->window().setView(view);
+	}
 
 	// draw all Entity textures / animations
 	if (m_drawTextures) {
@@ -333,7 +297,7 @@ void MegaMario_Play::sRender() {
 			if (e->has<CAnimation>() && e->has<CTransform>()) {
 				auto& cTrans = e->get<CTransform>();
 				auto& anim = e->get<CAnimation>().animation;
-				sf::Text name(Assets::Instance().getFont("Tech"), anim.getName());
+				sf::Text name(Assets::Instance().getFont("tech"), anim.getName());
 				name.setPosition({ cTrans.pos.x, cTrans.pos.y });
 				m_gameEngine->renderTarget().draw(name);
 			}
@@ -384,8 +348,7 @@ Vec2f MegaMario_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<E
 void MegaMario_Play::spawnPlayer() {
 	// check to see if a player already exists before adding a new one
 	// if it already exists, just overwrite the values of the existing one
-	if (!m_player)
-	{
+	if (!m_player) {
 		m_player = m_entityManager.addEntity("player");
 	}
 

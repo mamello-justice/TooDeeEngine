@@ -65,7 +65,7 @@ just example ShootEm
 
 ## Configuration
 
-Game settings are configured in `bin/ShootEm/config.ini`:
+Game settings are configured in `bin/shoot_em/config.ini`:
 ```ini
 [window]
 width=1200

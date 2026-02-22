@@ -28,14 +28,14 @@ public:
 	 *
 	 * @param v SFML vector to convert from
 	 */
-	Vec2(const sf::Vector2<T> &v) : x(v.x), y(v.y) {}
+	Vec2(const sf::Vector2<T>& v) : x(v.x), y(v.y) {}
 
 	/**
 	 * @brief Constructor to convert from sf::Vector2i
 	 *
 	 * @param v SFML integer vector to convert from
 	 */
-	Vec2(const sf::Vector2i &v)
+	Vec2(const sf::Vector2i& v)
 		: x(static_cast<T>(v.x)), y(static_cast<T>(v.y)) {}
 
 	/**
@@ -58,8 +58,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return Vec2 Resulting vector after addition
 	 */
-	inline Vec2 operator+(const Vec2 &rhs) const
-	{
+	inline Vec2 operator+(const Vec2& rhs) const {
 		return Vec2(x + rhs.x, y + rhs.y);
 	}
 
@@ -69,8 +68,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return Vec2 Resulting vector after subtraction
 	 */
-	inline Vec2 operator-(const Vec2 &rhs) const
-	{
+	inline Vec2 operator-(const Vec2& rhs) const {
 		return Vec2(x - rhs.x, y - rhs.y);
 	}
 
@@ -80,8 +78,7 @@ public:
 	 * @param val Scalar value to divide by
 	 * @return Vec2 Resulting vector after division
 	 */
-	inline Vec2 operator/(T val) const
-	{
+	inline Vec2 operator/(T val) const {
 		return Vec2(x / val, y / val);
 	}
 
@@ -91,8 +88,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return Vec2 Resulting vector after component-wise division
 	 */
-	inline Vec2 operator/(const Vec2 &rhs) const
-	{
+	inline Vec2 operator/(const Vec2& rhs) const {
 		return Vec2(x / rhs.x, y / rhs.y);
 	}
 
@@ -102,8 +98,7 @@ public:
 	 * @param val Scalar value to multiply by
 	 * @return Vec2 Resulting vector after multiplication
 	 */
-	inline Vec2 operator*(T val) const
-	{
+	inline Vec2 operator*(T val) const {
 		return Vec2(x * val, y * val);
 	}
 
@@ -113,8 +108,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return Vec2 Resulting vector after component-wise multiplication
 	 */
-	inline Vec2 operator*(const Vec2 &rhs)
-	{
+	inline Vec2 operator*(const Vec2& rhs) {
 		return Vec2(x * rhs.x, y * rhs.y);
 	}
 
@@ -124,8 +118,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return true if vectors are equal
 	 */
-	inline bool operator==(const Vec2 &rhs) const
-	{
+	inline bool operator==(const Vec2& rhs) const {
 		return x == rhs.x && y == rhs.y;
 	}
 
@@ -135,8 +128,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return true if vectors are not equal
 	 */
-	inline bool operator!=(const Vec2 &rhs) const
-	{
+	inline bool operator!=(const Vec2& rhs) const {
 		return !(*this == rhs);
 	}
 
@@ -145,8 +137,7 @@ public:
 	 *
 	 * @param rhs Right-hand side vector
 	 */
-	inline void operator+=(const Vec2 &rhs)
-	{
+	inline void operator+=(const Vec2& rhs) {
 		x += rhs.x;
 		y += rhs.y;
 	}
@@ -156,8 +147,7 @@ public:
 	 *
 	 * @param rhs Right-hand side vector
 	 */
-	inline void operator-=(const Vec2 &rhs)
-	{
+	inline void operator-=(const Vec2& rhs) {
 		x -= rhs.x;
 		y -= rhs.y;
 	}
@@ -167,8 +157,7 @@ public:
 	 *
 	 * @param val Scalar value to multiply by
 	 */
-	inline void operator*=(T val)
-	{
+	inline void operator*=(T val) {
 		x *= val;
 		y *= val;
 	}
@@ -178,8 +167,7 @@ public:
 	 *
 	 * @param val Scalar value to divide by
 	 */
-	inline void operator/=(T val)
-	{
+	inline void operator/=(T val) {
 		x /= val;
 		y /= val;
 	}
@@ -189,9 +177,8 @@ public:
 	 *
 	 * @return true if either x or y is non-zero
 	 */
-	inline operator bool() const
-	{
-		return x or y;
+	inline operator bool() const {
+		return x || y;
 	}
 
 	/**
@@ -200,8 +187,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return Distance to the other vector
 	 */
-	inline T dist(const Vec2 &rhs) const
-	{
+	inline T dist(const Vec2& rhs) const {
 		return sqrt(distSq(rhs));
 	}
 
@@ -211,8 +197,7 @@ public:
 	 * @param rhs Right-hand side vector
 	 * @return Squared distance to the other vector
 	 */
-	inline T distSq(const Vec2 &rhs) const
-	{
+	inline T distSq(const Vec2& rhs) const {
 		return (x - rhs.x) * (x - rhs.x) + (y - rhs.y) * (y - rhs.y);
 	}
 
@@ -221,8 +206,7 @@ public:
 	 *
 	 * @return Length of the vector
 	 */
-	inline T length() const
-	{
+	inline T length() const {
 		return sqrt(x * x + y * y);
 	}
 
@@ -231,8 +215,7 @@ public:
 	 *
 	 * @return Normalized vector
 	 */
-	inline Vec2 normalize() const
-	{
+	inline Vec2 normalize() const {
 		T l = length();
 		return Vec2(x / l, y / l);
 	}
@@ -242,8 +225,7 @@ public:
 	 *
 	 * @return Vector with absolute component values
 	 */
-	inline Vec2 abs() const
-	{
+	inline Vec2 abs() const {
 		return Vec2(x < 0 ? -x : x, y < 0 ? -y : y);
 	}
 };

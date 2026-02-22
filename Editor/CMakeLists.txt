@@ -35,6 +35,7 @@ target_link_libraries(TooDeeEditor
     debug HelloWorld
     debug MegaMario_Menu
     debug MegaMario_Play
+    debug MovingShapes
     debug ShootEm_Menu
     debug ShootEm_Play
 )

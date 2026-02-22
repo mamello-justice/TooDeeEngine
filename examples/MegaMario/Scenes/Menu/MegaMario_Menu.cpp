@@ -15,8 +15,6 @@ MegaMario_Menu::MegaMario_Menu(std::shared_ptr<GameEngine> gameEngine)
 }
 
 void MegaMario_Menu::init() {
-	Assets::Instance().loadFromFile("bin/MegaMario/config.ini");
-
 	// Register Actions
 	registerAction(sf::Keyboard::Scancode::W, "UP");
 	registerAction(sf::Keyboard::Scancode::S, "DOWN");
@@ -76,11 +74,11 @@ void MegaMario_Menu::sDoAction(const Action& action) {
 		{
 			onEnd();
 		}
-	}
+		}
 	else if (action.type() == "END")
 	{
 	}
-}
+	}
 
 void MegaMario_Menu::sRender() {
 	m_gameEngine->renderTarget().clear(sf::Color(97, 133, 248));

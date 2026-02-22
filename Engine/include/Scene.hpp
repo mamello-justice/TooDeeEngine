@@ -18,7 +18,7 @@ protected:
 	EntityManager m_entityManager;
 	int m_frame;
 	std::map<sf::Keyboard::Scan, std::string> m_actionMap;
-	bool m_paused;
+	bool m_paused = true;
 
 public:
 	Scene(std::shared_ptr<GameEngine> gameEngine);

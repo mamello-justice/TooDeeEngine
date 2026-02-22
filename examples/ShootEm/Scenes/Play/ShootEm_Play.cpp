@@ -66,6 +66,7 @@ void ShootEm_Play::onEnd() {
 }
 
 void ShootEm_Play::sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) {
+	if (m_paused) { return; }
 	spawnBullet(m_player, mPos);
 }
 
@@ -99,13 +100,13 @@ void ShootEm_Play::sCollision() {
 			auto& cTransform = e->get<CTransform>();
 			auto& cCollision = e->get<CBoundingCircle>();
 			// Vertical
-			if (cTransform.pos.y <= cCollision.radius and cTransform.velocity.y < 0
-				or cTransform.pos.y >= wSize.y - cCollision.radius and cTransform.velocity.y > 0) {
+			if (cTransform.pos.y <= cCollision.radius && cTransform.velocity.y < 0
+				|| cTransform.pos.y >= wSize.y - cCollision.radius && cTransform.velocity.y > 0) {
 				cTransform.velocity.y *= -1;
 			}
 			// Horizontal
-			if (cTransform.pos.x <= cCollision.radius and cTransform.velocity.x < 0
-				or cTransform.pos.x >= wSize.x - cCollision.radius and cTransform.velocity.x > 0) {
+			if (cTransform.pos.x <= cCollision.radius && cTransform.velocity.x < 0
+				|| cTransform.pos.x >= wSize.x - cCollision.radius && cTransform.velocity.x > 0) {
 				cTransform.velocity.x *= -1;
 			}
 		}
@@ -171,7 +172,7 @@ void ShootEm_Play::sDoAction(const Action& action) {
 }
 
 void ShootEm_Play::sEnemySpawner() {
-	if (m_paused or !m_isEnemySpawnerActive) { return; }
+	if (m_paused || !m_isEnemySpawnerActive) { return; }
 
 	auto mEnemyConfig = GameConfig::getInstance().Enemy;
 	if (m_currentFrame - m_lastEnemySpawnTime > mEnemyConfig.SpawnInterval) {
@@ -240,8 +241,8 @@ void ShootEm_Play::sLifespan() {
 				e->destroy();
 			}
 
-			if (e->has<CShape>()) {
-				auto& cShape = e->get<CShape>();
+			if (e->has<CCircle>()) {
+				auto& cShape = e->get<CCircle>();
 				auto FC = cShape.circle.getFillColor();
 				auto OC = cShape.circle.getOutlineColor();
 				auto alpha = (int)(((float)cLifespan.remaining / cLifespan.lifespan) * 255);
@@ -257,7 +258,7 @@ void ShootEm_Play::sRender() {
 	m_gameEngine->renderTarget().clear();
 
 	for (auto& e : m_entityManager.getEntities()) {
-		auto& cShape = e->get<CShape>();
+		auto& cShape = e->get<CCircle>();
 		auto& cTransform = e->get<CTransform>();
 
 		// set the position of the shape based on the entity's transform->pos
@@ -300,7 +301,7 @@ void ShootEm_Play::spawnPlayer() {
 	auto mPlayerConfig = GameConfig::getInstance().Player;
 
 	m_player->add<CTransform>(Vec2f((float)w.x / 2, (float)w.y / 2), Vec2f(0.0f, 0.0f), Vec2f(1.f, 1.f), 0.0f);
-	m_player->add<CShape>(
+	m_player->add<CCircle>(
 		mPlayerConfig.ShapeRadius,
 		mPlayerConfig.Vertices,
 		sf::Color(
@@ -338,7 +339,7 @@ void ShootEm_Play::spawnEnemy() {
 			Random::between(mEnemyConfig.SpeedMin, mEnemyConfig.SpeedMax) * Random::sign()),
 		Vec2f(1.f, 1.f),
 		0.0f);
-	e->add<CShape>(
+	e->add<CCircle>(
 		mEnemyConfig.ShapeRadius,
 		vertices,
 		sf::Color(Random::between(30, 255), Random::between(30, 255), Random::between(30, 255)),
@@ -356,7 +357,7 @@ void ShootEm_Play::spawnEnemy() {
 void ShootEm_Play::spawnSmallEnemies(std::shared_ptr<Entity> e) {
 	auto& cTransform = e->get<CTransform>();
 	auto& cScore = e->get<CScore>();
-	auto& eCircle = e->get<CShape>().circle;
+	auto& eCircle = e->get<CCircle>().circle;
 	float SMALL_SPEED = 5;
 	float deltaAngle = (float)360 / eCircle.getPointCount();
 
@@ -374,7 +375,7 @@ void ShootEm_Play::spawnSmallEnemies(std::shared_ptr<Entity> e) {
 			Vec2f(1.f, 1.f),
 			0.0f
 		);
-		s->add<CShape>(
+		s->add<CCircle>(
 			mEnemyConfig.ShapeRadius / 2,
 			eCircle.getPointCount(),
 			eCircle.getFillColor(),
@@ -404,7 +405,7 @@ void ShootEm_Play::spawnBullet(std::shared_ptr<Entity> e, const Vec2f& target) {
 		Vec2f(1.f, 1.f),
 		0.0f
 	);
-	b->add<CShape>(
+	b->add<CCircle>(
 		mBulletConfig.ShapeRadius,
 		mBulletConfig.Vertices,
 		sf::Color(mBulletConfig.FillRed, mBulletConfig.FillGreen, mBulletConfig.FillBlue),

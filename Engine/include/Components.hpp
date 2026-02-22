@@ -5,14 +5,20 @@
 #include "Animation.hpp"
 #include "Vec2.hpp"
 
-class Component
-{
+class Component {
 public:
 	bool exists = false;
 };
 
-class CTransform : public Component
-{
+class CLabel : public Component {
+public:
+	std::string label = "";
+
+	CLabel();
+	CLabel(const std::string& l);
+};
+
+class CTransform : public Component {
 public:
 	Vec2f pos = { 0.0, 0.0 };
 	Vec2f prevPos = { 0.0, 0.0 };
@@ -22,20 +28,27 @@ public:
 
 	CTransform() = default;
 	CTransform(const Vec2f& p);
+	CTransform(const Vec2f& p, const Vec2f& v);
 	CTransform(const Vec2f& p, const Vec2f& v, const Vec2f& s, float a);
 };
 
-class CShape : public Component
-{
+class CCircle : public Component {
 public:
 	sf::CircleShape circle;
 
-	CShape() = default;
-	CShape(float radius, size_t points, const sf::Color& fill, const sf::Color& outline, float thickness);
+	CCircle() = default;
+	CCircle(float radius, size_t points, const sf::Color& fill, const sf::Color& outline, float thickness);
 };
 
-class CScore : public Component
-{
+class CRectangle : public Component {
+public:
+	sf::RectangleShape rect;
+
+	CRectangle() = default;
+	CRectangle(const Vec2f& size, const sf::Color& fill, const sf::Color& outline, float thickness);
+};
+
+class CScore : public Component {
 public:
 	int score = 0;
 
@@ -43,8 +56,7 @@ public:
 	CScore(int s);
 };
 
-class CLifespan : public Component
-{
+class CLifespan : public Component {
 public:
 	int lifespan = 0;
 	int remaining = 0;
@@ -52,8 +64,7 @@ public:
 	CLifespan(int totalLifespan);
 };
 
-class CInput : public Component
-{
+class CInput : public Component {
 public:
 	bool up = false;
 	bool left = false;
@@ -66,8 +77,7 @@ public:
 	CInput() = default;
 };
 
-class CBoundingBox : public Component
-{
+class CBoundingBox : public Component {
 public:
 	Vec2f size;
 	Vec2f halfSize;
@@ -76,8 +86,7 @@ public:
 	CBoundingBox(const Vec2f& s);
 };
 
-class CBoundingCircle : public Component
-{
+class CBoundingCircle : public Component {
 public:
 	float radius = 0;
 
@@ -85,8 +94,7 @@ public:
 	CBoundingCircle(float r);
 };
 
-class CAnimation : public Component
-{
+class CAnimation : public Component {
 public:
 	Animation animation;
 	bool repeat = false;
@@ -95,8 +103,7 @@ public:
 	CAnimation(const Animation& anim, bool r);
 };
 
-class CGravity : public Component
-{
+class CGravity : public Component {
 public:
 	float gravity = 0;
 
@@ -104,8 +111,7 @@ public:
 	CGravity(float g);
 };
 
-class CState : public Component
-{
+class CState : public Component {
 public:
 	std::string state = "jumping";
 
@@ -113,10 +119,15 @@ public:
 	CState(const std::string& s);
 };
 
-static_assert(std::is_default_constructible_v<CTransform>);
-static_assert(std::is_default_constructible_v<CLifespan>);
-static_assert(std::is_default_constructible_v<CInput>);
-static_assert(std::is_default_constructible_v<CBoundingBox>);
 static_assert(std::is_default_constructible_v<CAnimation>);
+static_assert(std::is_default_constructible_v<CBoundingBox>);
+static_assert(std::is_default_constructible_v<CBoundingCircle>);
+static_assert(std::is_default_constructible_v<CCircle>);
 static_assert(std::is_default_constructible_v<CGravity>);
+static_assert(std::is_default_constructible_v<CInput>);
+static_assert(std::is_default_constructible_v<CLabel>);
+static_assert(std::is_default_constructible_v<CLifespan>);
+static_assert(std::is_default_constructible_v<CRectangle>);
+static_assert(std::is_default_constructible_v<CScore>);
 static_assert(std::is_default_constructible_v<CState>);
+static_assert(std::is_default_constructible_v<CTransform>);

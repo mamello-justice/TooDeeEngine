@@ -11,11 +11,13 @@ using ComponentTuple = std::tuple<
 	CAnimation,
 	CBoundingBox,
 	CBoundingCircle,
+	CCircle,
 	CGravity,
 	CInput,
+	CLabel,
 	CLifespan,
+	CRectangle,
 	CScore,
-	CShape,
 	CState,
 	CTransform>;
 
@@ -29,39 +31,34 @@ class Entity
 	std::string mTag = "default";
 	bool mAlive = true;
 	Entity() {}
-	Entity(const size_t &id, const std::string &tag);
+	Entity(const size_t& id, const std::string& tag);
 
 public:
 	template <typename T, typename... TArgs>
-	T &add(TArgs &&...args)
-	{
-		auto &component = get<T>();
+	T& add(TArgs &&...args) {
+		auto& component = get<T>();
 		component = T(std::forward<TArgs>(args)...);
 		component.exists = true;
 		return component;
 	}
 
 	template <typename T>
-	T &get()
-	{
+	T& get() {
 		return std::get<T>(mComponents);
 	}
 
 	template <typename T>
-	const T &get() const
-	{
+	const T& get() const {
 		return std::get<T>(mComponents);
 	}
 
 	template <typename T>
-	bool has() const
-	{
+	bool has() const {
 		return get<T>().exists;
 	}
 
 	template <typename T>
-	void remove()
-	{
+	void remove() {
 		get<T>() = T();
 	}
 
@@ -71,5 +68,5 @@ public:
 
 	void destroy();
 
-	const std::string &tag() const;
+	const std::string& tag() const;
 };

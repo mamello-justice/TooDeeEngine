@@ -12,8 +12,6 @@ HelloWorld::HelloWorld(std::shared_ptr<GameEngine> gameEngine)
 }
 
 void HelloWorld::init() {
-    Assets::Instance().loadFromFile("bin/Editor/config.ini");
-
     // Register Systems
     m_systems.push_back(std::bind(&HelloWorld::sRender, this));
 }
