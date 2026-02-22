@@ -470,3 +470,6 @@ FodyWeavers.xsd
 
 # Build output folder
 /build
+
+# Environment variables
+.env
