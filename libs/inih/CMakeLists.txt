@@ -8,6 +8,7 @@ include(FetchContent)
 FetchContent_Declare(INIH
     GIT_REPOSITORY https://github.com/benhoyt/inih.git
     GIT_TAG 26254ee9de7681f8825433415443e7116ff24b98 # v62
+    GIT_PROGRESS ${GIT_PROGRESS}
 )
 
 FetchContent_MakeAvailable(INIH)

@@ -13,11 +13,17 @@ A lightweight, high-performance 2D game engine built with C++ using **SFML** for
 - **Asset Management**: Centralized loading and management of game assets
 
 ### Editor
+
+> Set `TOO_DEE_ENGINE_BUILD_EDITOR=true` in `.env` file to build editor
+
 - **Built-in Editor**: Real-time game editor powered by ImGui
 - **Configuration Files**: Support for `.ini` configuration files
 - **Font Support**: Flexible font rendering and management
 
 ### Examples
+
+> Set `TOO_DEE_ENGINE_BUILD_EXAMPLES=true` in `.env` file to build examples
+
 - **HelloWorld**: Basic engine setup and rendering
 - **GridExample**: Grid-based game mechanics
 - **MegaMario**: Full-featured platformer game

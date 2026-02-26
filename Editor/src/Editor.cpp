@@ -16,7 +16,7 @@
 #include "Styles.hpp"
 #include "Vec2.hpp"
 
-#ifdef _DEBUG
+#ifdef BUILD_EXAMPLES
 #include "Examples.hpp"
 #endif
 
@@ -134,7 +134,7 @@ void Editor::sGUI() {
             ImGui::EndMenu();
         }
 
-#ifdef _DEBUG
+#ifdef BUILD_EXAMPLES
         if (ImGui::BeginMenu("Examples")) {
             if (ImGui::MenuItem("HelloWorld")) {
                 m_gameEngine->changeScene(
