@@ -25,7 +25,7 @@ target_link_libraries(MovingShapes
     sfml-system
     sfml-window
     sfml-graphics
-    Core
-    GameEngine
+    TooDeeCore
+    TooDeeEngine
     INIH
 )

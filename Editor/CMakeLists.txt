@@ -30,9 +30,9 @@ target_link_libraries(TooDeeEditor
     sfml-graphics
     imgui
     ImGui-SFML::ImGui-SFML
-    Core
     INIH
-    GameEngine
+    TooDeeCore
+    TooDeeEngine
 )
 
 # Conditionally link example targets only if they were built

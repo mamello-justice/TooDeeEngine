@@ -25,6 +25,6 @@ target_link_libraries(GridExample
     sfml-system
     sfml-window
     sfml-graphics
-    Core
-    GameEngine
+    TooDeeCore
+    TooDeeEngine
 )

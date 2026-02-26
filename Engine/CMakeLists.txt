@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.28)
 
-message(STATUS "Building GameEngine")
+message(STATUS "Building TooDeeEngine")
 
-project(GameEngine)
+project(TooDeeEngine)
 
 # Library Target
-add_library(GameEngine STATIC)
+add_library(TooDeeEngine STATIC)
 
-target_compile_features(GameEngine
+target_compile_features(TooDeeEngine
     PRIVATE
     cxx_std_23
 )
 
-target_sources(GameEngine
+target_sources(TooDeeEngine
     PRIVATE
     src/Action.cpp
     src/Animation.cpp
@@ -25,16 +25,16 @@ target_sources(GameEngine
     src/Scene.cpp
 )
 
-target_include_directories(GameEngine
+target_include_directories(TooDeeEngine
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(GameEngine
+target_link_libraries(TooDeeEngine
     PRIVATE
     sfml-system
     sfml-window
     sfml-graphics
-    Core
+    TooDeeCore
     INIH
 )

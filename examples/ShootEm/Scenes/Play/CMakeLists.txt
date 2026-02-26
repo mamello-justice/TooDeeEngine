@@ -26,7 +26,7 @@ target_link_libraries(ShootEm_Play
     sfml-system
     sfml-window
     sfml-graphics
-    Core
+    TooDeeCore
     INIH
-    GameEngine
+    TooDeeEngine
 )

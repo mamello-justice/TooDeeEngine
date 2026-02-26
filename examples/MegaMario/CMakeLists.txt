@@ -29,8 +29,8 @@ target_link_libraries(MegaMario
     sfml-system
     sfml-window
     sfml-graphics
-    Core
-    GameEngine
+    TooDeeCore
+    TooDeeEngine
     MegaMario_Menu
     MegaMario_Play
 )

@@ -31,8 +31,8 @@ target_link_libraries(ShootEm
     sfml-window
     sfml-graphics
     INIH
-    Core
-    GameEngine
+    TooDeeCore
+    TooDeeEngine
     ShootEm_Menu
     ShootEm_Play
 )

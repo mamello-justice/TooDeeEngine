@@ -26,5 +26,5 @@ target_link_libraries(ShootEm_Shared
     sfml-system
     sfml-window
     sfml-graphics
-    Core
+    TooDeeCore
 )

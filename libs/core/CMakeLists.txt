@@ -1,26 +1,26 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(Core)
+project(TooDeeCore)
 
 # Library Target
-add_library(Core STATIC)
+add_library(TooDeeCore STATIC)
 
-target_sources(Core
+target_sources(TooDeeCore
     PUBLIC
     src/ClickListener.cpp
     src/HoverListener.cpp
     src/Random.cpp
 )
 
-target_compile_features(Core
+target_compile_features(TooDeeCore
     PRIVATE
     cxx_std_23)
 
-target_include_directories(Core
+target_include_directories(TooDeeCore
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(Core
+target_link_libraries(TooDeeCore
     PRIVATE
     sfml-system)

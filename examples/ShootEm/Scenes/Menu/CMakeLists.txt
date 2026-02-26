@@ -25,7 +25,7 @@ target_link_libraries(ShootEm_Menu
     sfml-system
     sfml-window
     sfml-graphics
-    Core
-    GameEngine
+    TooDeeCore
+    TooDeeEngine
     ShootEm_Shared
 )
