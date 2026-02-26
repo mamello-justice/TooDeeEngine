@@ -40,9 +40,11 @@ public:
 
 	std::shared_ptr<Scene> currentScene();
 
-	bool hasScenes();
+	bool getIsRunning() const;
 
-	bool hasScene(const std::string& name);
+	bool hasScenes() const;
+
+	bool hasScene(const std::string& name) const;
 
 	sf::RenderTexture& renderTarget();
 

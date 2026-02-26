@@ -40,11 +40,15 @@ std::shared_ptr<Scene> GameEngine::currentScene() {
 	return hasScene(m_currentScene) ? m_sceneMap.at(m_currentScene) : nullptr;
 }
 
-bool GameEngine::hasScenes() {
+bool GameEngine::getIsRunning() const {
+	return m_running;
+}
+
+bool GameEngine::hasScenes() const {
 	return m_sceneMap.empty();
 }
 
-bool GameEngine::hasScene(const std::string& name) {
+bool GameEngine::hasScene(const std::string& name) const {
 	return m_sceneMap.find(name) != m_sceneMap.end();
 }
 
