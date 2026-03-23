@@ -164,8 +164,8 @@ void Editor::sUserInput() {
             }
         }
 
-        m_gameEngine->sHandleEvent(event);
-        }
+        if (m_gameEngine->currentScene()) m_gameEngine->sHandleEvent(event);
+    }
 }
 
 void Editor::sRender() {
@@ -362,7 +362,7 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
-    }
+        }
 
     if (ImGui::Begin("Viewport")) {
         auto cursorPos = ImGui::GetCursorScreenPos();
@@ -570,6 +570,6 @@ void Editor::sGUI() {
 
         ImGui::End(); // ImGui::Begin("Project Assets")
     }
-}
+    }
 
 
