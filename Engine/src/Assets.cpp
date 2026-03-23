@@ -114,3 +114,7 @@ const std::map<std::string, sf::Texture>& Assets::getTextures() const {
 std::map<std::string, Animation>& Assets::getAnimations() {
 	return m_animationMap;
 }
+
+std::map<std::string, sf::Font>& Assets::getFonts() {
+	return m_fontMap;
+}

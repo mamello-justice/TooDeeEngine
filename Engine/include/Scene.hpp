@@ -29,7 +29,7 @@ public:
 
 	const std::map<sf::Keyboard::Scan, std::string>& getActionMap() const;
 
-	const EntityManager& getEntityManager() const;
+	EntityManager& getEntityManager();
 
 	virtual void sClickHandler(const Vec2f& mPos, const sf::Mouse::Button& button) {}
 

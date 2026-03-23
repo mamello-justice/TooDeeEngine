@@ -9,14 +9,17 @@
 namespace Physics
 {
 	Vec2f GetOverlap(std::shared_ptr<Entity> a, std::shared_ptr<Entity>b) {
-		// TODO: return the overlap rectangle size of the boudning boxes of entity a and b
-		return Vec2f(0, 0);
+		Vec2f delta(
+			abs(a->get<CTransform>().pos.x - b->get<CTransform>().pos.x),
+			abs(a->get<CTransform>().pos.y - b->get<CTransform>().pos.y));
+		return a->get<CBoundingBox>().halfSize + b->get<CBoundingBox>().halfSize - delta;
 	}
 
 	Vec2f GetPreviousOverlap(std::shared_ptr<Entity> a, std::shared_ptr<Entity>b) {
-		// TODO: return the previous overlap rectangle size of the bouding boxes of entity a and b
-		//		 previous overlap uses the entity's previous position
-		return Vec2f(0, 0);
+		Vec2f delta(
+			abs(a->get<CTransform>().prevPos.x - b->get<CTransform>().prevPos.x),
+			abs(a->get<CTransform>().prevPos.y - b->get<CTransform>().prevPos.y));
+		return a->get<CBoundingBox>().halfSize + b->get<CBoundingBox>().halfSize - delta;
 	}
 
 

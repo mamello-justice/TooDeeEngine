@@ -1,9 +1,14 @@
 #pragma once
 
+#include <array>
+#include <memory>
+
 #include <SFML/Graphics.hpp>
 
 #include "Animation.hpp"
 #include "Vec2.hpp"
+
+class Entity;
 
 class Component {
 public:
@@ -118,6 +123,78 @@ public:
 	CState() = default;
 	CState(const std::string& s);
 };
+
+enum class ComponentEnum {
+	Animation,
+	BoundingBox,
+	BoundingCircle,
+	Circle,
+	Gravity,
+	Input,
+	Label,
+	Lifespan,
+	Rectangle,
+	Score,
+	State,
+	Transform
+};
+
+constexpr std::array<ComponentEnum, 12> COMPONENTS = {
+	ComponentEnum::Animation,
+	ComponentEnum::BoundingBox,
+	ComponentEnum::BoundingCircle,
+	ComponentEnum::Circle,
+	ComponentEnum::Gravity,
+	ComponentEnum::Input,
+	ComponentEnum::Label,
+	ComponentEnum::Lifespan,
+	ComponentEnum::Rectangle,
+	ComponentEnum::Score,
+	ComponentEnum::State,
+	ComponentEnum::Transform
+};
+
+std::string getComponentName(ComponentEnum c);
+
+const char* const* getComponentNames();
+
+void addComponentByEnum(std::shared_ptr<Entity> entity, ComponentEnum comp);
+
+inline constexpr int getComponentCount() {
+	return static_cast<int>(COMPONENTS.size());
+}
+
+template<typename EntityType>
+bool hasComponentByEnum(const EntityType& entity, ComponentEnum comp) {
+	switch (comp) {
+	case ComponentEnum::Animation:
+		return entity.template has<CAnimation>();
+	case ComponentEnum::BoundingBox:
+		return entity.template has<CBoundingBox>();
+	case ComponentEnum::BoundingCircle:
+		return entity.template has<CBoundingCircle>();
+	case ComponentEnum::Circle:
+		return entity.template has<CCircle>();
+	case ComponentEnum::Gravity:
+		return entity.template has<CGravity>();
+	case ComponentEnum::Input:
+		return entity.template has<CInput>();
+	case ComponentEnum::Label:
+		return entity.template has<CLabel>();
+	case ComponentEnum::Lifespan:
+		return entity.template has<CLifespan>();
+	case ComponentEnum::Rectangle:
+		return entity.template has<CRectangle>();
+	case ComponentEnum::Score:
+		return entity.template has<CScore>();
+	case ComponentEnum::State:
+		return entity.template has<CState>();
+	case ComponentEnum::Transform:
+		return entity.template has<CTransform>();
+	default:
+		return false;
+	}
+}
 
 static_assert(std::is_default_constructible_v<CAnimation>);
 static_assert(std::is_default_constructible_v<CBoundingBox>);

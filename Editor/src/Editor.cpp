@@ -54,6 +54,10 @@ void Editor::run() {
 }
 
 void Editor::update() {
+    if (m_gameEngine->currentScene()) {
+        m_gameEngine->currentScene()->getEntityManager().update();
+    }
+
     ImGui::SFML::Update(window(), m_deltaClock.restart());
 
     window().clear();
@@ -211,46 +215,194 @@ void Editor::sGUI() {
         ImGui::End();
     }
 
-    if (ImGui::Begin("Scene")) {
-        if (m_gameEngine->currentScene() && ImGui::TreeNode("Entities")) {
-            for (auto& [tag, entities] : m_gameEngine->currentScene()->getEntityManager().getEntityMap()) {
-                if (ImGui::TreeNode(tag.c_str())) {
-                    for (auto& e : entities) {
-                        if (ImGui::Button(std::format("D##{}{}", tag, e->id()).c_str())) {
-                            e->destroy();
-                        }
-                        ImGui::SameLine();
-                        ImGui::Text(std::format("{}", e->id()).c_str());
-                        ImGui::SameLine();
-                        ImGui::Text(std::format("{}", e->tag()).c_str());
-                        ImGui::SameLine();
-                        if (e->has<CTransform>()) {
-                            auto& cTrans = e->get<CTransform>();
-                            auto pos = cTrans.pos;
-                            ImGui::Text(std::format("({},{})", pos.x, pos.y).c_str());
-                        }
-                    }
-                    ImGui::TreePop();
-                }
+    if (ImGui::Begin("Hierarchy")) {
+        if (m_gameEngine->currentScene()) {
+            if (ImGui::Button("Add Entity")) {
+                auto e = m_gameEngine->currentScene()->getEntityManager().addEntity("default");
+                m_consoleText.append(std::format("[INFO] Added Entity - {}\n", e->id()));
             }
-            ImGui::TreePop();
+
+            ImGui::SetNextItemOpen(true);
+            if (ImGui::TreeNode("Entities")) {
+                for (auto& [tag, entities] : m_gameEngine->currentScene()->getEntityManager().getEntityMap()) {
+                    if (ImGui::TreeNode(tag.c_str())) {
+                        for (auto& e : entities) {
+                            if (ImGui::Button(std::format("D##{}{}", tag, e->id()).c_str())) {
+                                e->destroy();
+                            }
+
+                            auto name = std::format("{} {}", e->id(), e->tag());
+                            if (e->has<CTransform>()) {
+                                auto& cTrans = e->get<CTransform>();
+                                auto pos = cTrans.pos;
+                                name.append(std::format(" ({},{})", pos.x, pos.y));
+                            }
+                            ImGui::SameLine();
+                            if (ImGui::Button(name.c_str())) {
+                                m_selectedEntity = e;
+                                m_consoleText.append(std::format("[INFO] Selected Entity - {}\n", e->id()));
+                            }
+                        }
+                        ImGui::TreePop();
+                    }
+                }
+                ImGui::TreePop();
+            }
         }
 
-        ImGui::End();
+        ImGui::End(); // ImGui::Begin("Hierarchy")
     }
 
-    if (ImGui::Begin("Assets")) {
+    if (ImGui::Begin("Inspector")) {
+        if (m_selectedEntity) {
+            ImGui::Text(std::format("Entity - {}", m_selectedEntity->id()).c_str());
+            ImGui::Text(std::format("Tag - {}", m_selectedEntity->tag()).c_str());
 
-        ImGui::End();
-    }
+            // Build list of available components
+            std::vector<const char*> availableNames;
+            std::vector<int> availableIndices;
+            auto allNames = getComponentNames();
 
-    if (ImGui::Begin("Properties")) {
+            for (int i = 0; i < getComponentCount(); ++i) {
+                if (!hasComponentByEnum(*m_selectedEntity, COMPONENTS[i])) {
+                    availableNames.push_back(allNames[i]);
+                    availableIndices.push_back(i);
+                }
+            }
 
-        ImGui::End();
+            if (!availableNames.empty()) {
+                static int selectedComponent = 0;
+                if (ImGui::Combo("##AddComponent", &selectedComponent, availableNames.data(), (int)availableNames.size())) {
+                    m_consoleText.append(std::format("[INFO] Selected Component - {}\n", availableNames[selectedComponent]));
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Add Component")) {
+                    int actualIndex = availableIndices[selectedComponent];
+                    addComponentByEnum(m_selectedEntity, COMPONENTS[actualIndex]);
+                    m_consoleText.append(std::format("[INFO] Added Component - {}\n", availableNames[selectedComponent]));
+                    selectedComponent = 0; // Reset selection
+                }
+            }
+            else {
+                ImGui::Text("All components added");
+            }
+
+            if (m_selectedEntity->has<CTransform>()) {
+                auto& cTrans = m_selectedEntity->get<CTransform>();
+                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Indent();
+
+                    float position[2] = { cTrans.pos.x, cTrans.pos.y };
+                    ImGui::InputFloat2("Position", position, "%.1f", 0);
+                    cTrans.pos.x = position[0];
+                    cTrans.pos.y = position[1];
+
+                    if (ImGui::SliderAngle("Rotation", &cTrans.angle, -180.0f, 180.0f))
+                    {
+                        // This block is executed only if the user moves the slider.
+                        // You can use the updated 'object_angle_rad' value here
+                        // to apply the rotation to your 3D model or game object.
+                        // e.g., apply_rotation(object_angle_rad);
+                    }
+
+                    float scale[2] = { cTrans.scale.x, cTrans.scale.y };
+                    ImGui::InputFloat2("Scale", scale, "%.1f", 0);
+                    cTrans.scale.x = scale[0];
+                    cTrans.scale.y = scale[1];
+
+                    float velocity[2] = { cTrans.velocity.x, cTrans.velocity.y };
+                    ImGui::DragFloat2("Velocity", velocity, 0.01f, -1.0f, 1.0f, "%.2f", 0);
+                    cTrans.velocity.x = velocity[0];
+                    cTrans.velocity.y = velocity[1];
+
+                    ImGui::Unindent();
+                }
+            }
+
+            if (m_selectedEntity->has<CBoundingBox>()) {
+                if (ImGui::CollapsingHeader("Box Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Indent();
+
+                    ImGui::Unindent();
+                }
+            }
+
+            if (m_selectedEntity->has<CBoundingCircle>()) {
+                if (ImGui::CollapsingHeader("Circle Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Indent();
+
+                    ImGui::Unindent();
+                }
+            }
+        }
+
+        ImGui::End(); // ImGui::Begin("Inspector")
     }
 
     if (ImGui::Begin("Console")) {
+        ImGui::Text(m_consoleText.c_str());
+        ImGui::End(); // ImGui::Begin("Console")
+    }
 
-        ImGui::End();
+    if (ImGui::Begin("Project Assets")) {
+
+        if (ImGui::BeginTabBar("Assets")) {
+            if (ImGui::BeginTabItem("Textures")) {
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Animations")) {
+                auto animations = Assets::Instance().getAnimations();
+                int count = 0;
+                for (auto& [name, anim] : animations) {
+                    count++;
+                    ImGui::ImageButton(name.c_str(), *(anim.getSprite()), sf::Vector2f(32, 32));
+                    if ((count % 6) != 0 && count != animations.size()) {
+                        ImGui::SameLine();
+                    }
+                }
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Fonts")) {
+                auto& fonts = Assets::Instance().getFonts();
+                for (auto& [name, font_ref] : fonts) {
+                    ImGui::Text(std::format("{} - ", name).c_str());
+                    ImGui::SameLine();
+
+                    // Create a temporary render texture to display the font
+                    try {
+                        sf::RenderTexture fontTexture(sf::Vector2u(400, 30));
+                        fontTexture.clear(sf::Color::Red);
+
+                        // Create and render text with const reference to font
+                        sf::Text displayText(font_ref, "Lorem ipsum dolor sit amet", 20u);
+                        displayText.setPosition(sf::Vector2f(5.f, 10.f));
+                        displayText.setFillColor(sf::Color::White);
+
+                        fontTexture.draw(displayText);
+                        fontTexture.display();
+
+                        // Display the rendered text as an image in ImGui
+                        ImGui::Image(fontTexture);
+                    }
+                    catch (...) {
+                        ImGui::Text("(Failed to render font preview)");
+                    }
+                }
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Scripts")) {
+                ImGui::EndTabItem();
+            }
+
+            ImGui::EndTabBar(); // ImGui::BeginTabBar("Assets")
+        }
+
+        ImGui::End(); // ImGui::Begin("Project Assets")
     }
 }
+
+

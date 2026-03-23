@@ -53,6 +53,10 @@ class Editor {
 
     std::vector<std::function<void()>> m_systems;
 
+    std::string m_consoleText;
+
+    std::shared_ptr<Entity> m_selectedEntity;
+
     void init();
 
 public:
