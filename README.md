@@ -22,15 +22,6 @@ A lightweight, high-performance 2D game engine built with C++ using **SFML** for
 - **Configuration Files**: Support for `.ini` configuration files
 - **Font Support**: Flexible font rendering and management
 
-### Examples
-
-> Set `TOO_DEE_ENGINE_BUILD_EXAMPLES=true` in `.env` file to build examples
-
-- **HelloWorld**: Basic engine setup and rendering
-- **GridExample**: Grid-based game mechanics
-- **MegaMario**: Full-featured platformer game
-- **ShootEm**: Space shooter game
-
 ## System Requirements
 
 - **OS**: Windows/Linux/macOS
@@ -110,6 +101,8 @@ The engine operates on a standard game loop:
 4. **Management**: Handle entity lifecycle
 
 ## Examples
+
+> Set `TOO_DEE_ENGINE_BUILD_EXAMPLES=true` in `.env` file to build examples
 
 TooDeeEngine includes example games demonstrating various engine features and game mechanics:
 
