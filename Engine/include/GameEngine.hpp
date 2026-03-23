@@ -50,5 +50,6 @@ public:
 
 	sf::RenderWindow& window();
 
+	void sHandleEvent(std::optional<sf::Event> event);
 	void sUserInput();
 };

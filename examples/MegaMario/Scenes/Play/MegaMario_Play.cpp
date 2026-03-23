@@ -339,7 +339,7 @@ void MegaMario_Play::sRender() {
 }
 
 Vec2f MegaMario_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity) {
-	auto size = entity->get<CAnimation>().animation.getRect().size;
+	auto size = entity->get<CAnimation>().animation.getSize();
 	return Vec2f(
 		gridX * m_gridSize.x + size.x,
 		m_gameEngine->renderTarget().getSize().y - (gridY * m_gridSize.y + size.y));
@@ -376,7 +376,7 @@ void MegaMario_Play::addTile(const std::string& animName, const Vec2f& gridPos) 
 	auto& anim = Assets::Instance().getAnimation(animName);
 	tile->add<CAnimation>(anim, true);
 	tile->add<CTransform>(gridToMidPixel(gridPos.x, gridPos.y, tile));
-	tile->add<CBoundingBox>(sf::Vector2f(anim.getRect().size));
+	tile->add<CBoundingBox>(sf::Vector2f(anim.getSize()));
 }
 
 void MegaMario_Play::addDecoration(const std::string& animName, const Vec2f& gridPos) {

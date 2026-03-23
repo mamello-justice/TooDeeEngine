@@ -44,9 +44,10 @@ void Editor::init() {
     Assets::Instance().loadFromFile("bin/editor/config.ini");
 
     // Register Systems
-    m_systems.push_back(std::bind(&Editor::sViewport, this));
-    m_systems.push_back(std::bind(&Editor::sUserInput, this));
-    m_systems.push_back(std::bind(&Editor::sGUI, this));
+    m_preSystems.push_back(std::bind(&Editor::sViewport, this));
+    m_preSystems.push_back(std::bind(&Editor::sUserInput, this));
+    m_postSystems.push_back(std::bind(&Editor::sRender, this));
+    m_postSystems.push_back(std::bind(&Editor::sGUI, this));
 }
 
 void Editor::run() {
@@ -62,16 +63,40 @@ void Editor::update() {
 
     window().clear();
 
-    for (auto system : m_systems) { system(); }
+    // Run systems before game engine update
+    for (auto system : m_preSystems) { system(); }
 
-    ImGui::SFML::Render(window());
     m_gameEngine->update();
+
+    // Run systems after game engine update
+    for (auto system : m_postSystems) { system(); }
+
+    // Render imgui last
+    ImGui::SFML::Render(window());
 
     window().display();
 }
 
 void Editor::quit() {
     m_running = false;
+}
+
+void Editor::play() {
+    if (m_gameEngine->currentScene()) {
+        m_gameEngine->currentScene()->setPaused(false);
+    }
+}
+
+void Editor::pause() {
+    if (m_gameEngine->currentScene()) {
+        m_gameEngine->currentScene()->setPaused(true);
+    }
+}
+
+void Editor::stop() {
+    if (m_gameEngine->currentScene()) {
+        m_gameEngine->currentScene()->setPaused(true);
+    }
 }
 
 void Editor::updateStyles() {
@@ -81,6 +106,22 @@ void Editor::updateStyles() {
 void Editor::toggleTheme() {
     m_appState.DarkTheme = !m_appState.DarkTheme;
     updateStyles();
+}
+
+void Editor::toggleGrid() {
+    m_appState.DrawGrid = !m_appState.DrawGrid;
+}
+
+void Editor::toggleTextures() {
+    m_appState.DrawTextures = !m_appState.DrawTextures;
+}
+
+void Editor::toggleCollisions() {
+    m_appState.DrawCollisions = !m_appState.DrawCollisions;
+}
+
+void Editor::toggleAnimationNames() {
+    m_appState.DrawAnimationNames = !m_appState.DrawAnimationNames;
 }
 
 sf::RenderWindow& Editor::window() {
@@ -112,8 +153,113 @@ void Editor::sUserInput() {
                     sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RShift))) {
                 quit();
             }
+            else if (keyPressed->scancode == sf::Keyboard::Scancode::F5) {
+                play();
+            }
+            else if (keyPressed->scancode == sf::Keyboard::Scancode::F7) {
+                pause();
+            }
+            else if (keyPressed->scancode == sf::Keyboard::Scancode::F8) {
+                stop();
+            }
         }
 
+        m_gameEngine->sHandleEvent(event);
+        }
+}
+
+void Editor::sRender() {
+    auto wWidth = m_gameEngine->renderTarget().getSize().x;
+    auto wHeight = m_gameEngine->renderTarget().getSize().y;
+
+    // draw all Entity textures / animations
+    if (m_appState.DrawTextures && m_gameEngine->currentScene())
+    {
+        for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
+        {
+            if (e->has<CAnimation>() && e->has<CTransform>())
+            {
+                auto& cTrans = e->get<CTransform>();
+                auto& anim = e->get<CAnimation>().animation;
+                anim.getSprite()->setOrigin(anim.getSprite()->getGlobalBounds().size / 2.f);
+                anim.getSprite()->setRotation(sf::radians(cTrans.angle));
+                anim.getSprite()->setPosition({ cTrans.pos.x, cTrans.pos.y });
+                anim.getSprite()->setScale({ cTrans.scale.x, cTrans.scale.y });
+                m_gameEngine->renderTarget().draw(*anim.getSprite());
+            }
+        }
+    }
+
+    // draw all Entity collision bounding boxes with a rectangle shape
+    if (m_appState.DrawCollisions && m_gameEngine->currentScene())
+    {
+        for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
+        {
+            if (e->has<CBoundingBox>() && e->has<CTransform>())
+            {
+                auto& box = e->get<CBoundingBox>();
+                auto& cTrans = e->get<CTransform>();
+                sf::RectangleShape rect;
+                rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
+                rect.setOrigin(rect.getGlobalBounds().size / 2.f);
+                rect.setPosition({ cTrans.pos.x, cTrans.pos.y });
+                rect.setFillColor(sf::Color(0, 0, 0, 0));
+                rect.setOutlineColor(sf::Color::White);
+                rect.setOutlineThickness(1);
+                m_gameEngine->renderTarget().draw(rect);
+            }
+        }
+    }
+
+    if (m_appState.DrawAnimationNames && m_gameEngine->currentScene())
+    {
+        for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
+        {
+            if (e->has<CAnimation>() && e->has<CTransform>())
+            {
+                auto& cTrans = e->get<CTransform>();
+                auto& anim = e->get<CAnimation>().animation;
+                sf::Text name(Assets::Instance().getFont("tech"), anim.getName());
+                name.setOrigin(name.getGlobalBounds().size / 2.f);
+                name.setPosition({ cTrans.pos.x, cTrans.pos.y });
+                m_gameEngine->renderTarget().draw(name);
+            }
+        }
+    }
+
+    if (m_appState.DrawGrid)
+    {
+        sf::Text gridText(Assets::Instance().getFont("tech"), "", 10);
+        float leftX = float(m_gameEngine->renderTarget().getView().getCenter().x) - wWidth / 2.0f;
+        float rightX = leftX + wWidth + m_gridSize.x;
+        float nextGridX = leftX - float((int)leftX % (int)m_gridSize.x);
+
+        for (float x = nextGridX; x < rightX; x += float(m_gridSize.x))
+        {
+            sf::Vertex line[] = {
+                sf::Vertex{Vec2f(x, 0)},
+                sf::Vertex{Vec2f(x, wHeight)} };
+
+            m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
+        }
+
+        for (float y = m_gridSize.y / 2.f; y < wHeight; y += float(m_gridSize.y))
+        {
+            sf::Vertex line[] = {
+                sf::Vertex{Vec2f(leftX, wHeight - y)},
+                sf::Vertex{Vec2f(rightX, wHeight - y)} };
+
+            m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
+
+            for (float x = nextGridX; x < rightX; x += float(m_gridSize.x))
+            {
+                std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
+                std::string yCell = std::to_string((int)y / (int)m_gridSize.y);
+                gridText.setString("(" + xCell + "," + yCell + ")");
+                gridText.setPosition({ x + 3, wHeight - y - m_gridSize.y + 2 });
+                m_gameEngine->renderTarget().draw(gridText);
+            }
+        }
     }
 }
 
@@ -135,6 +281,15 @@ void Editor::sGUI() {
 
         if (ImGui::BeginMenu("View")) {
             if (ImGui::MenuItem("Toggle Theme")) { toggleTheme(); }
+
+            if (ImGui::MenuItem("Toggle Textures")) { toggleTextures(); }
+
+            if (ImGui::MenuItem("Toggle Collisions")) { toggleCollisions(); }
+
+            if (ImGui::MenuItem("Toggle Animation Names")) { toggleAnimationNames(); }
+
+            if (ImGui::MenuItem("Toggle Grid")) { toggleGrid(); }
+
             ImGui::EndMenu();
         }
 
@@ -210,8 +365,20 @@ void Editor::sGUI() {
     }
 
     if (ImGui::Begin("Viewport")) {
+        auto cursorPos = ImGui::GetCursorScreenPos();
+        auto regionAvail = ImGui::GetContentRegionAvail();
         m_viewportSize = ImGui::GetWindowSize();
         ImGui::Image(m_gameEngine->renderTarget());
+        ImGui::End();
+    }
+
+
+    if (ImGui::Begin("Controls")) {
+        if (ImGui::Button("Play")) { play(); }
+        ImGui::SameLine();
+        if (ImGui::Button("Pause")) { pause(); }
+        ImGui::SameLine();
+        if (ImGui::Button("Stop")) { stop(); }
         ImGui::End();
     }
 

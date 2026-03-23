@@ -15,14 +15,14 @@ Animation::Animation(const std::string& name, const std::string& textureName, si
 	m_textureName(textureName) {
 	const sf::Texture& t = Assets::Instance().getTexture(textureName);
 
-	m_textureRect.size = { int(t.getSize().x / frameCount), int(t.getSize().y) };
-	updateSprite();
+	m_spriteSize = Vec2f(t.getSize().x / frameCount, t.getSize().y);
+
+	m_sprite = std::make_shared<sf::Sprite>(
+		Assets::Instance().getTexture(m_textureName),
+		sf::IntRect({ 0, 0 }, { int(m_spriteSize.x), int(m_spriteSize.y) }));
 }
 
-void Animation::updateSprite() {
-	m_sprite = std::make_shared<sf::Sprite>(
-		Assets::Instance().getTexture(m_textureName), getRect());
-}
+void Animation::updateSprite() {}
 
 // updates the animation to show the next frame, depending on its
 // animation loops when it reaches the end
@@ -30,10 +30,9 @@ void Animation::update() {
 	m_currentFrame++;
 
 	if (!m_speed) return;
-	auto animFrame = (m_currentFrame / m_speed) % m_frameCount;
-	m_textureRect.size.x = animFrame * m_textureRect.size.x;
 
-	updateSprite();
+	auto animFrame = (m_currentFrame / m_speed) % m_frameCount;
+	m_sprite->setTextureRect(sf::IntRect({ int(animFrame) * int(m_spriteSize.x), 0 }, { int(m_spriteSize.x), int(m_spriteSize.y) }));
 }
 
 bool Animation::hasEnded() const {
@@ -45,8 +44,8 @@ const std::string& Animation::getName() const {
 	return m_name;
 }
 
-const sf::IntRect& Animation::getRect() const {
-	return m_textureRect;
+const Vec2f& Animation::getSize() const {
+	return m_spriteSize;
 }
 
 std::shared_ptr<sf::Sprite> Animation::getSprite() {

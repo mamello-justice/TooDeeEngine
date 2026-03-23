@@ -52,40 +52,42 @@ bool GameEngine::hasScene(const std::string& name) const {
 	return m_sceneMap.find(name) != m_sceneMap.end();
 }
 
+void GameEngine::sHandleEvent(std::optional<sf::Event> event) {
+	if (event->is<sf::Event::Closed>()) { quit(); }
+
+	// this event is triggered when a key is pressed
+	if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+		auto it = currentScene()->getActionMap().find(keyPressed->scancode);
+		if (it == currentScene()->getActionMap().end()) { return; }
+
+		Action action(it->second, "START");
+		currentScene()->sDoAction(action);
+	}
+
+	// this event is triggered when a key is released
+	if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>()) {
+		auto it = currentScene()->getActionMap().find(keyReleased->scancode);
+		if (it == currentScene()->getActionMap().end()) { return; }
+
+		Action action(it->second, "END");
+		currentScene()->sDoAction(action);
+	}
+
+	// this event is triggered when we click on window with mouse
+	if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+		Vec2f mPos(mousePressed->position);
+		currentScene()->sClickHandler(mPos, mousePressed->button);
+	}
+
+
+	if (const auto* mousePressed = event->getIf<sf::Event::MouseMoved>()) {
+		Vec2f mPos(mousePressed->position);
+		currentScene()->sHoverHandler(mPos);
+	}
+}
+
 void GameEngine::sUserInput() {
 	while (auto event = m_window.pollEvent()) {
-		if (event->is<sf::Event::Closed>()) { quit(); }
-
-		// this event is triggered when a key is pressed
-		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-			auto it = currentScene()->getActionMap().find(keyPressed->scancode);
-			if (it == currentScene()->getActionMap().end()) { continue; }
-
-			Action action(it->second, "START");
-			currentScene()->sDoAction(action);
-		}
-
-		// this event is triggered when a key is released
-		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>()) {
-			auto it = currentScene()->getActionMap().find(keyReleased->scancode);
-			if (it == currentScene()->getActionMap().end()) {
-				continue;
-			}
-
-			Action action(it->second, "END");
-			currentScene()->sDoAction(action);
-		}
-
-		// this event is triggered when we click on window with mouse
-		if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
-			Vec2f mPos(mousePressed->position);
-			currentScene()->sClickHandler(mPos, mousePressed->button);
-		}
-
-
-		if (const auto* mousePressed = event->getIf<sf::Event::MouseMoved>()) {
-			Vec2f mPos(mousePressed->position);
-			currentScene()->sHoverHandler(mPos);
-		}
+		sHandleEvent(event);
 	}
 }

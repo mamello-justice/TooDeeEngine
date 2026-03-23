@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Assets.hpp"
+#include "Vec2.hpp"
 
 class Animation
 {
@@ -28,9 +29,9 @@ class Animation
 	 */
 	std::string m_textureName = "none";
 	/**
-	 * @brief Sub-rectangle to draw
+	 * @brief Sprite size
 	 */
-	sf::IntRect m_textureRect;
+	Vec2f m_spriteSize;
 
 	std::shared_ptr<sf::Sprite> m_sprite;
 
@@ -48,7 +49,7 @@ public:
 	 * @param name The name of the animation
 	 * @param textureName The name of the texture to get frames from
 	 */
-	Animation(const std::string &name, const std::string &textureName);
+	Animation(const std::string& name, const std::string& textureName);
 
 	/**
 	 * @brief Parameterized constructor
@@ -58,7 +59,7 @@ public:
 	 * @param frameCount Total number of frames in the animation
 	 * @param speed Speed to play the animation
 	 */
-	Animation(const std::string &name, const std::string &textureName, size_t frameCount, size_t speed);
+	Animation(const std::string& name, const std::string& textureName, size_t frameCount, size_t speed);
 
 	/**
 	 * @brief Update the animation to show the next frame
@@ -75,14 +76,14 @@ public:
 	 *
 	 * @return The name of the animation
 	 */
-	const std::string &getName() const;
+	const std::string& getName() const;
 
 	/**
 	 * @brief Get the texture rectangle of the current frame
 	 *
 	 * @return The texture rectangle
 	 */
-	const sf::IntRect &getRect() const;
+	const Vec2f& getSize() const;
 
 	/**
 	 * @brief Get the sprite for the current frame

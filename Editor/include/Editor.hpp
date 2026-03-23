@@ -8,9 +8,14 @@
 #include "imgui.h"
 
 #include "GameEngine.hpp"
+#include "Vec2.hpp"
 
 struct AppState {
     bool DarkTheme = true;
+    bool DrawGrid = false;
+    bool DrawTextures = true;
+    bool DrawCollisions = false;
+    bool DrawAnimationNames = false;
 };
 
 struct MenuState {
@@ -51,11 +56,14 @@ class Editor {
     std::shared_ptr<GameEngine> m_gameEngine;
     ImVec2                      m_viewportSize;
 
-    std::vector<std::function<void()>> m_systems;
+    std::vector<std::function<void()>> m_preSystems;
+    std::vector<std::function<void()>> m_postSystems;
 
     std::string m_consoleText;
 
     std::shared_ptr<Entity> m_selectedEntity;
+
+    const Vec2f m_gridSize = { 64, 64 };
 
     void init();
 
@@ -66,11 +74,20 @@ public:
     void update();
     void quit();
 
+    void play();
+    void pause();
+    void stop();
+
     void updateStyles();
     void toggleTheme();
+    void toggleGrid();
+    void toggleTextures();
+    void toggleCollisions();
+    void toggleAnimationNames();
     sf::RenderWindow& window();
 
     void sViewport();
     void sUserInput();
+    void sRender();
     void sGUI();
 };

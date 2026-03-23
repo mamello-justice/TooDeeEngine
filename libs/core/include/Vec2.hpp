@@ -232,5 +232,6 @@ public:
 
 using Vec2f = Vec2<float>;
 using Vec2u = Vec2<unsigned int>;
+using Vec2i = Vec2<int>;
 
 static_assert(std::is_default_constructible_v<Vec2f>);
