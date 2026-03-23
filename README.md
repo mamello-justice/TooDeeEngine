@@ -2,6 +2,8 @@
 
 A lightweight, high-performance 2D game engine built with C++ using **SFML** for rendering and **ImGui** for UI and editor tooling. TooDeeEngine provides a flexible entity-component system, physics simulation, and an integrated editor for rapid game development.
 
+![Editor Screenshot](screenshots/Editor.png)
+
 ## Features
 
 ### Core Engine
