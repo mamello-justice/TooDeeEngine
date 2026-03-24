@@ -46,6 +46,10 @@ struct MenuState {
     bool DisableSections = false;
 };
 
+bool isControlF4(const sf::Event::KeyPressed*);
+
+bool isControlShiftQ(const sf::Event::KeyPressed*);
+
 class Editor {
     bool                        m_running = true;
 
@@ -79,6 +83,7 @@ public:
     void stop();
 
     void updateStyles();
+    bool shoudPassEventToEngine(std::optional<sf::Event> event);
     void toggleTheme();
     void toggleGrid();
     void toggleTextures();

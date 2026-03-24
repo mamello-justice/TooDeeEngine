@@ -13,6 +13,7 @@
 #include "EntityManager.hpp"
 #include "GameEngine.hpp"
 #include "Scene.hpp"
+#include "Physics.hpp"
 #include "Styles.hpp"
 #include "Vec2.hpp"
 
@@ -103,6 +104,15 @@ void Editor::updateStyles() {
     ImGui::SetupImGuiStyle(m_appState.DarkTheme, 1);
 }
 
+bool Editor::shoudPassEventToEngine(std::optional<sf::Event> event) {
+    if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+        return
+            !isControlF4(keyPressed) &&
+            !isControlShiftQ(keyPressed);
+    }
+    return true;
+}
+
 void Editor::toggleTheme() {
     m_appState.DarkTheme = !m_appState.DarkTheme;
     updateStyles();
@@ -139,18 +149,7 @@ void Editor::sUserInput() {
         if (event->is<sf::Event::Closed>()) { quit(); }
 
         else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-            if (
-                keyPressed->scancode == sf::Keyboard::Scancode::F4 &&
-                (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) ||
-                    sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))) {
-                quit();
-            }
-            else if (
-                keyPressed->scancode == sf::Keyboard::Scancode::Q &&
-                (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) ||
-                    sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl)) &&
-                (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LShift) ||
-                    sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RShift))) {
+            if (isControlF4(keyPressed) || isControlShiftQ(keyPressed)) {
                 quit();
             }
             else if (keyPressed->scancode == sf::Keyboard::Scancode::F5) {
@@ -164,7 +163,8 @@ void Editor::sUserInput() {
             }
         }
 
-        if (m_gameEngine->currentScene()) m_gameEngine->sHandleEvent(event);
+        if (shoudPassEventToEngine(event) && m_gameEngine->currentScene())
+            m_gameEngine->sHandleEvent(event);
     }
 }
 
@@ -243,7 +243,7 @@ void Editor::sRender() {
             m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
         }
 
-        for (float y = m_gridSize.y / 2.f; y < wHeight; y += float(m_gridSize.y))
+        for (float y = m_gridSize.y; y < wHeight; y += float(m_gridSize.y))
         {
             sf::Vertex line[] = {
                 sf::Vertex{Vec2f(leftX, wHeight - y)},
@@ -280,15 +280,18 @@ void Editor::sGUI() {
         }
 
         if (ImGui::BeginMenu("View")) {
+
+            if (ImGui::MenuItem("Textures")) { toggleTextures(); }
+
+            if (ImGui::MenuItem("Collisions")) { toggleCollisions(); }
+
+            if (ImGui::MenuItem("Animation Names")) { toggleAnimationNames(); }
+
+            if (ImGui::MenuItem("Grid")) { toggleGrid(); }
+
+            ImGui::Separator();
+
             if (ImGui::MenuItem("Toggle Theme")) { toggleTheme(); }
-
-            if (ImGui::MenuItem("Toggle Textures")) { toggleTextures(); }
-
-            if (ImGui::MenuItem("Toggle Collisions")) { toggleCollisions(); }
-
-            if (ImGui::MenuItem("Toggle Animation Names")) { toggleAnimationNames(); }
-
-            if (ImGui::MenuItem("Toggle Grid")) { toggleGrid(); }
 
             ImGui::EndMenu();
         }
@@ -362,16 +365,16 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
-        }
-
-    if (ImGui::Begin("Viewport")) {
-        auto cursorPos = ImGui::GetCursorScreenPos();
-        auto regionAvail = ImGui::GetContentRegionAvail();
-        m_viewportSize = ImGui::GetWindowSize();
-        ImGui::Image(m_gameEngine->renderTarget());
-        ImGui::End();
     }
 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    if (ImGui::Begin("Viewport")) {
+        auto wSize = ImGui::GetWindowSize();
+        m_viewportSize = ImVec2(wSize.x, wSize.y - ImGui::GetFrameHeight());
+        ImGui::Image(m_gameEngine->renderTarget());
+        ImGui::PopStyleVar();
+        ImGui::End();
+    }
 
     if (ImGui::Begin("Controls")) {
         if (ImGui::Button("Play")) { play(); }
@@ -488,8 +491,25 @@ void Editor::sGUI() {
             }
 
             if (m_selectedEntity->has<CBoundingBox>()) {
+                auto& cBound = m_selectedEntity->get<CBoundingBox>();
                 if (ImGui::CollapsingHeader("Box Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
                     ImGui::Indent();
+
+                    float size[2] = { cBound.size.x, cBound.size.y };
+                    ImGui::InputFloat2("Size", size, "%.1f", 0);
+                    cBound.size.x = size[0];
+                    cBound.size.y = size[1];
+
+                    for (auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities()) {
+                        if (e == m_selectedEntity) { continue; }
+
+                        if (e->has<CBoundingBox>()) {
+                            Vec2f overlap = Physics::GetOverlap(m_selectedEntity, e);
+                            if (overlap.x >= 0 && overlap.y >= 0) {
+                                if (ImGui::Button(std::format("{} - {}", e->tag(), e->id()).c_str())) {}
+                            }
+                        }
+                    }
 
                     ImGui::Unindent();
                 }
@@ -570,6 +590,21 @@ void Editor::sGUI() {
 
         ImGui::End(); // ImGui::Begin("Project Assets")
     }
-    }
+}
 
+bool isControlF4(const sf::Event::KeyPressed* keyPressed) {
+    bool isControl =
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl);
+    return isControl && keyPressed->scancode == sf::Keyboard::Scancode::F4;
+}
 
+bool isControlShiftQ(const sf::Event::KeyPressed* keyPressed) {
+    bool isControl =
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl);
+    bool isShift =
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LShift) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RShift);
+    return isControl && isShift && keyPressed->scancode == sf::Keyboard::Scancode::Q;
+}
