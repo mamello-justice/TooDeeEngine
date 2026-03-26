@@ -23,8 +23,10 @@ build-release:
 package:
     dotnet build -c Release
 
+[working-directory('runtime')]
 example target: (setup target) build
-    ./build/bin/Debug/{{ target }}
+    ../build/bin/Debug/{{ target }}Executable ./{{ target }}/config.ini
 
+[working-directory('runtime')]
 edit: build
-    ./build/bin/Debug/{{ EDITOR }}
+    ../build/bin/Debug/{{ EDITOR }} ./editor/config.ini 

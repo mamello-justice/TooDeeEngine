@@ -26,8 +26,7 @@ else()
     set(TOO_DEE_ENGINE_BUILD_EXAMPLES false)
 endif()
 
-add_subdirectory(libs)
-add_subdirectory(Engine)
+add_subdirectory(packages)
 
 if(TOO_DEE_ENGINE_BUILD_EXAMPLES)
     add_subdirectory(examples)
@@ -35,7 +34,7 @@ endif()
 
 # Conditionally add subdirectories or targets
 if(TOO_DEE_ENGINE_BUILD_EDITOR)
-    add_subdirectory(Editor)
+    add_subdirectory(apps/editor)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

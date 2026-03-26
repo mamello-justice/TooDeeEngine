@@ -8,22 +8,10 @@ else()
     message(STATUS "Building Examples")
 endif()
 
-if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "GridExample"))
-    add_subdirectory(GridExample)
-endif()
-
 if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "HelloWorld"))
-    add_subdirectory(HelloWorld)
-endif()
-
-if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "MegaMario"))
-    add_subdirectory(MegaMario)
+    add_subdirectory(hello_world)
 endif()
 
 if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "MovingShapes"))
-    add_subdirectory(MovingShapes)
-endif()
-
-if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "ParticleSystem"))
-    add_subdirectory(ShootEm)
+    add_subdirectory(moving_shapes)
 endif()

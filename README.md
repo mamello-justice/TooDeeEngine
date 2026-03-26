@@ -107,22 +107,20 @@ The engine operates on a standard game loop:
 TooDeeEngine includes example games demonstrating various engine features and game mechanics:
 
 - **[HelloWorld](examples/HelloWorld/README.md)** - Basic engine setup and sprite rendering
-- **[GridExample](examples/GridExample/README.md)** - Grid-based game mechanics and pathfinding
-- **[MegaMario](examples/MegaMario/README.md)** - Full platformer with AI, levels, and scoring
-- **[ShootEm](examples/ShootEm/README.md)** - Space shooter with combat and wave mechanics
+- **[MovingShapes](examples/MovingShapes/README.md)** - Simple physics-based movement and collision
 
 Each example includes a dedicated README with detailed information about features, controls, and learning objectives.
 
 ### Running Examples
 
 ```bash
-just example MegaMario
-just example ShootEm
+just example HelloWorld
+just example MovingShapes
 ```
 
 ## Configuration
 
-Games are configured using INI files located in the `bin/` directory:
+Games are configured using INI files:
 
 ```ini
 [window]
@@ -159,8 +157,7 @@ Copyright © 2025 Mamello Justice
 ## Getting Help
 
 - Check the `examples/` directory for reference implementations
-- Review engine headers in `Engine/include/` for API documentation
-- Examine configuration files in `bin/` for setup examples
+- Review engine headers in `packages/engine/include/` for API documentation
 
 ## Roadmap
 

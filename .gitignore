@@ -468,8 +468,14 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,visualstudio,visualstudiocode,cmake
 
+# Except root packages
+!/packages/*
+
 # Build output folder
 /build
 
 # Environment variables
 .env
+
+# Runtime
+runtime
