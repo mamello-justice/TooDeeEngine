@@ -23,6 +23,8 @@ protected:
 	std::vector<std::function<void()>> m_systems;
 
 public:
+	bool				m_shouldRender = false;
+
 	GameEngine();
 
 	void init();
@@ -46,10 +48,12 @@ public:
 
 	bool hasScene(const std::string& name) const;
 
+	void handleEvent(std::optional<sf::Event> event);
+
 	sf::RenderTexture& renderTarget();
 
 	sf::RenderWindow& window();
 
-	void sHandleEvent(std::optional<sf::Event> event);
+	void sRender();
 	void sUserInput();
 };

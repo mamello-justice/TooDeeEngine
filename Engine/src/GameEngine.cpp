@@ -11,6 +11,7 @@ GameEngine::GameEngine() { init(); }
 
 void GameEngine::init() {
 	// Register Systems
+	m_systems.push_back(std::bind(&GameEngine::sRender, this));
 	m_systems.push_back(std::bind(&GameEngine::sUserInput, this));
 }
 
@@ -52,7 +53,26 @@ bool GameEngine::hasScene(const std::string& name) const {
 	return m_sceneMap.find(name) != m_sceneMap.end();
 }
 
-void GameEngine::sHandleEvent(std::optional<sf::Event> event) {
+void GameEngine::sRender() {
+	if (m_shouldRender && currentScene())
+	{
+		for (const auto& e : currentScene()->getEntityManager().getEntities())
+		{
+			if (e->has<CAnimation>() && e->has<CTransform>())
+			{
+				auto& cTrans = e->get<CTransform>();
+				auto& anim = e->get<CAnimation>().animation;
+				anim.getSprite()->setOrigin(anim.getSprite()->getGlobalBounds().size / 2.f);
+				anim.getSprite()->setRotation(sf::radians(cTrans.angle));
+				anim.getSprite()->setPosition({ cTrans.pos.x, cTrans.pos.y });
+				anim.getSprite()->setScale({ cTrans.scale.x, cTrans.scale.y });
+				renderTarget().draw(*anim.getSprite());
+			}
+		}
+	}
+}
+
+void GameEngine::handleEvent(std::optional<sf::Event> event) {
 	if (event->is<sf::Event::Closed>()) { quit(); }
 
 	// this event is triggered when a key is pressed
@@ -88,6 +108,6 @@ void GameEngine::sHandleEvent(std::optional<sf::Event> event) {
 
 void GameEngine::sUserInput() {
 	while (auto event = m_window.pollEvent()) {
-		sHandleEvent(event);
+		handleEvent(event);
 	}
 }

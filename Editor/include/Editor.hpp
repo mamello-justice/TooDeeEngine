@@ -89,7 +89,6 @@ public:
     void toggleTextures();
     void toggleCollisions();
     void toggleAnimationNames();
-    sf::RenderWindow& window();
 
     void sViewport();
     void sUserInput();

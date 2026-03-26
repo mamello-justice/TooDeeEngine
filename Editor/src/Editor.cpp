@@ -23,26 +23,27 @@
 
 Editor::Editor() :
     m_gameEngine(std::make_shared<GameEngine>()) {
+    m_gameEngine->m_shouldRender = true;
     init();
 }
 
 void Editor::init() {
     std::srand((unsigned int)time(NULL));
 
+    Assets::Instance().loadFromFile("bin/editor/config.ini");
+
     // Initialize Window
-    window().create(sf::VideoMode::getDesktopMode(), "TooDeeEditor");
-    window().setFramerateLimit(60);
+    m_gameEngine->window().create(sf::VideoMode::getDesktopMode(), "TooDeeEditor");
+    m_gameEngine->window().setFramerateLimit(60);
 
     // Initialize ImGui
-    if (!ImGui::SFML::Init(window())) {
+    if (!ImGui::SFML::Init(m_gameEngine->window())) {
         std::cerr << "Failed to initialize ImGui" << std::endl;
         exit(1);
     }
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui::GetIO().ConfigFlags |= ImGuiDockNodeFlags_PassthruCentralNode;
     updateStyles();
-
-    Assets::Instance().loadFromFile("bin/editor/config.ini");
 
     // Register Systems
     m_preSystems.push_back(std::bind(&Editor::sViewport, this));
@@ -60,9 +61,9 @@ void Editor::update() {
         m_gameEngine->currentScene()->getEntityManager().update();
     }
 
-    ImGui::SFML::Update(window(), m_deltaClock.restart());
+    ImGui::SFML::Update(m_gameEngine->window(), m_deltaClock.restart());
 
-    window().clear();
+    m_gameEngine->window().clear();
 
     // Run systems before game engine update
     for (auto system : m_preSystems) { system(); }
@@ -73,9 +74,9 @@ void Editor::update() {
     for (auto system : m_postSystems) { system(); }
 
     // Render imgui last
-    ImGui::SFML::Render(window());
+    ImGui::SFML::Render(m_gameEngine->window());
 
-    window().display();
+    m_gameEngine->window().display();
 }
 
 void Editor::quit() {
@@ -134,17 +135,13 @@ void Editor::toggleAnimationNames() {
     m_appState.DrawAnimationNames = !m_appState.DrawAnimationNames;
 }
 
-sf::RenderWindow& Editor::window() {
-    return m_gameEngine->window();
-}
-
 void Editor::sViewport() {
     if (m_gameEngine->renderTarget().resize({ (unsigned int)m_viewportSize.x, (unsigned int)m_viewportSize.y })) {}
 }
 
 void Editor::sUserInput() {
-    while (auto event = window().pollEvent()) {
-        ImGui::SFML::ProcessEvent(window(), *event);
+    while (auto event = m_gameEngine->window().pollEvent()) {
+        ImGui::SFML::ProcessEvent(m_gameEngine->window(), *event);
 
         if (event->is<sf::Event::Closed>()) { quit(); }
 
@@ -164,7 +161,7 @@ void Editor::sUserInput() {
         }
 
         if (shoudPassEventToEngine(event) && m_gameEngine->currentScene())
-            m_gameEngine->sHandleEvent(event);
+            m_gameEngine->handleEvent(event);
     }
 }
 
@@ -172,8 +169,8 @@ void Editor::sRender() {
     auto wWidth = m_gameEngine->renderTarget().getSize().x;
     auto wHeight = m_gameEngine->renderTarget().getSize().y;
 
-    // draw all Entity textures / animations
-    if (m_appState.DrawTextures && m_gameEngine->currentScene())
+    if (m_gameEngine->currentScene()) {
+        if (m_appState.DrawTextures)
     {
         for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
         {
@@ -190,8 +187,7 @@ void Editor::sRender() {
         }
     }
 
-    // draw all Entity collision bounding boxes with a rectangle shape
-    if (m_appState.DrawCollisions && m_gameEngine->currentScene())
+        if (m_appState.DrawCollisions)
     {
         for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
         {
@@ -211,7 +207,7 @@ void Editor::sRender() {
         }
     }
 
-    if (m_appState.DrawAnimationNames && m_gameEngine->currentScene())
+        if (m_appState.DrawAnimationNames)
     {
         for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
         {
@@ -225,6 +221,8 @@ void Editor::sRender() {
                 m_gameEngine->renderTarget().draw(name);
             }
         }
+        }
+
     }
 
     if (m_appState.DrawGrid)
