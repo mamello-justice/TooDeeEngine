@@ -5,6 +5,7 @@
 
 #include "Assets.hpp"
 #include "GameEngine.hpp"
+#include "Renderer.hpp"
 #include "MovingShapes.hpp"
 
 int main(int argc, char* argv[]) {
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {
         gameEngine->update();
 
         gameEngine->window().clear();
-        gameEngine->sRender();
+        Renderer::render(gameEngine);
         gameEngine->window().draw(sf::Sprite(gameEngine->renderTarget().getTexture()));
         gameEngine->window().display();
     }

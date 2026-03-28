@@ -5,6 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Physics.hpp"
 #include "Scene.hpp"
 #include "Vec2.hpp"
 
@@ -18,6 +19,8 @@ GameEngine::GameEngine(bool rendering) : m_shouldRender(rendering) {
 
 void GameEngine::init() {
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sUserInput, this));
+	m_preSceneSystems.push_back(std::bind(&GameEngine::sMovement, this));
+	m_preSceneSystems.push_back(std::bind(&GameEngine::sCollision, this));
 }
 
 void GameEngine::update() {
@@ -61,32 +64,6 @@ bool GameEngine::hasScene(const std::string& name) const {
 	return m_sceneMap.find(name) != m_sceneMap.end();
 }
 
-void GameEngine::sRender() {
-	m_renderTarget.clear();
-
-	if (m_shouldRender && currentScene())
-	{
-		for (const auto& e : currentScene()->getEntityManager().getEntities())
-		{
-			if (e->has<CAnimation>() && e->has<CTransform>())
-			{
-				auto& cTrans = e->get<CTransform>();
-				auto& anim = e->get<CAnimation>().animation;
-				anim.getSprite()->setOrigin(anim.getSprite()->getGlobalBounds().size / 2.f);
-				anim.getSprite()->setRotation(sf::radians(cTrans.angle));
-				anim.getSprite()->setPosition({ cTrans.pos.x, cTrans.pos.y });
-				anim.getSprite()->setScale({ cTrans.scale.x, cTrans.scale.y });
-				renderTarget().draw(*anim.getSprite());
-			}
-		}
-
-		// TODO: Remove custom scene rendering after everything is in entity
-		currentScene()->sRender();
-	}
-
-	m_renderTarget.display();
-}
-
 void GameEngine::handleEvent(std::optional<sf::Event> event) {
 	if (event->is<sf::Event::Closed>()) { quit(); }
 
@@ -125,4 +102,46 @@ void GameEngine::sUserInput() {
 	while (auto event = m_window.pollEvent()) {
 		handleEvent(event);
 	}
+}
+
+void GameEngine::sMovement() {
+	if (currentScene()) {
+		if (currentScene()->isPaused()) { return; }
+
+		for (const auto& e : currentScene()->getEntityManager().getEntities()) {
+			if (e->has<CTransform>()) {
+				auto& c = e->get<CTransform>();
+				c.pos += c.velocity;
+			}
+		}
+	}
+}
+
+void GameEngine::sCollision() {
+	if (currentScene()) {
+		if (currentScene()->isPaused()) { return; }
+
+		for (const auto& e : currentScene()->getEntityManager().getEntities()) {
+			if (!e->has<CBoundingBox>() && !e->has<CBoundingCircle>()) { continue; }
+
+			for (const auto& e2 : currentScene()->getEntityManager().getEntities()) {
+				if (e == e2) { continue; }
+				if (!e2->has<CBoundingBox>() && !e2->has<CBoundingCircle>()) { continue; }
+
+				Vec2f overlap = Physics::GetOverlap(e, e2);
+				if (overlap.x > 0 && overlap.y > 0) {
+					if (e->has<CTransform>()) {
+						auto& cTrans = e->get<CTransform>();
+					}
+
+					if (e2->has<CTransform>()) {
+						auto& cTrans = e->get<CTransform>();
+					}
+				}
+
+			}
+
+		}
+	}
+
 }

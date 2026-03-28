@@ -14,6 +14,7 @@
 #include "GameEngine.hpp"
 #include "Scene.hpp"
 #include "Physics.hpp"
+#include "Renderer.hpp"
 #include "Styles.hpp"
 #include "Vec2.hpp"
 
@@ -48,7 +49,6 @@ void Editor::init(const std::string& configPath) {
     // Register Systems
     m_updateSystems.push_back(std::bind(&Editor::sViewport, this));
     m_updateSystems.push_back(std::bind(&Editor::sUserInput, this));
-    m_renderSystems.push_back(std::bind(&GameEngine::sRender, m_gameEngine));
     m_renderSystems.push_back(std::bind(&Editor::sRender, this));
     m_renderSystems.push_back(std::bind(&Editor::sGUI, this));
 }
@@ -67,6 +67,7 @@ void Editor::update() {
 
     // Render
     m_gameEngine->window().clear();
+    Renderer::render(m_gameEngine);
     for (auto system : m_renderSystems) { system(); }
     m_gameEngine->window().display();
 }
@@ -116,7 +117,7 @@ void Editor::toggleGrid() {
 }
 
 void Editor::toggleTextures() {
-    m_appState.DrawTextures = !m_appState.DrawTextures;
+    m_gameEngine->m_shouldRender = !m_gameEngine->m_shouldRender;
 }
 
 void Editor::toggleCollisions() {
@@ -162,35 +163,29 @@ void Editor::sRender() {
     auto wHeight = m_gameEngine->renderTarget().getSize().y;
 
     if (m_gameEngine->currentScene()) {
-        if (m_appState.DrawTextures)
-        {
-            for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
-            {
-                if (e->has<CAnimation>() && e->has<CTransform>())
-                {
+        if (m_appState.DrawCollisions) {
+            for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities()) {
+                if (e->has<CBoundingCircle>() && e->has<CTransform>()) {
                     auto& cTrans = e->get<CTransform>();
-                    auto& anim = e->get<CAnimation>().animation;
-                    anim.getSprite()->setOrigin(anim.getSprite()->getGlobalBounds().size / 2.f);
-                    anim.getSprite()->setRotation(sf::radians(cTrans.angle));
-                    anim.getSprite()->setPosition({ cTrans.pos.x, cTrans.pos.y });
-                    anim.getSprite()->setScale({ cTrans.scale.x, cTrans.scale.y });
-                    m_gameEngine->renderTarget().draw(*anim.getSprite());
-                }
-            }
-        }
+                    auto& cCollider = e->get<CBoundingCircle>();
 
-        if (m_appState.DrawCollisions)
-        {
-            for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
-            {
-                if (e->has<CBoundingBox>() && e->has<CTransform>())
-                {
-                    auto& box = e->get<CBoundingBox>();
+                    auto circle = sf::CircleShape(cCollider.radius - 1);
+                    circle.setOrigin(Vec2f(cCollider.radius, cCollider.radius));
+                    circle.setPosition(cTrans.pos);
+                    circle.setFillColor(sf::Color(0, 0, 0, 0));
+                    circle.setOutlineColor(sf::Color::White);
+                    circle.setOutlineThickness(1);
+                    m_gameEngine->renderTarget().draw(circle);
+                }
+
+                if (e->has<CBoundingBox>() && e->has<CTransform>()) {
                     auto& cTrans = e->get<CTransform>();
+                    auto& cCollider = e->get<CBoundingBox>();
+
                     sf::RectangleShape rect;
-                    rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
+                    rect.setSize(sf::Vector2f(cCollider.size.x - 1, cCollider.size.y - 1));
                     rect.setOrigin(rect.getGlobalBounds().size / 2.f);
-                    rect.setPosition({ cTrans.pos.x, cTrans.pos.y });
+                    rect.setPosition(cTrans.pos);
                     rect.setFillColor(sf::Color(0, 0, 0, 0));
                     rect.setOutlineColor(sf::Color::White);
                     rect.setOutlineThickness(1);
@@ -199,33 +194,28 @@ void Editor::sRender() {
             }
         }
 
-        if (m_appState.DrawAnimationNames)
-        {
-            for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities())
-            {
-                if (e->has<CAnimation>() && e->has<CTransform>())
-                {
-                    auto& cTrans = e->get<CTransform>();
-                    auto& anim = e->get<CAnimation>().animation;
-                    sf::Text name(Assets::Instance().getFont("tech"), anim.getName());
-                    name.setOrigin(name.getGlobalBounds().size / 2.f);
-                    name.setPosition({ cTrans.pos.x, cTrans.pos.y });
-                    m_gameEngine->renderTarget().draw(name);
-                }
+        if (m_appState.DrawAnimationNames) {
+            for (const auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities()) {
+                if (!e->has<CAnimation>() || !e->has<CTransform>()) { continue; }
+
+                auto& cTrans = e->get<CTransform>();
+                auto& anim = e->get<CAnimation>().animation;
+                sf::Text name(Assets::Instance().getFont("tech"), anim.getName());
+                name.setOrigin(name.getGlobalBounds().size / 2.f);
+                name.setPosition({ cTrans.pos.x, cTrans.pos.y });
+                m_gameEngine->renderTarget().draw(name);
+
             }
         }
-
     }
 
-    if (m_appState.DrawGrid)
-    {
+    if (m_appState.DrawGrid) {
         sf::Text gridText(Assets::Instance().getFont("tech"), "", 10);
         float leftX = float(m_gameEngine->renderTarget().getView().getCenter().x) - wWidth / 2.0f;
         float rightX = leftX + wWidth + m_gridSize.x;
         float nextGridX = leftX - float((int)leftX % (int)m_gridSize.x);
 
-        for (float x = nextGridX; x < rightX; x += float(m_gridSize.x))
-        {
+        for (float x = nextGridX; x < rightX; x += float(m_gridSize.x)) {
             sf::Vertex line[] = {
                 sf::Vertex{Vec2f(x, 0)},
                 sf::Vertex{Vec2f(x, wHeight)} };
@@ -233,16 +223,14 @@ void Editor::sRender() {
             m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
         }
 
-        for (float y = m_gridSize.y; y < wHeight; y += float(m_gridSize.y))
-        {
+        for (float y = m_gridSize.y; y < wHeight; y += float(m_gridSize.y)) {
             sf::Vertex line[] = {
                 sf::Vertex{Vec2f(leftX, wHeight - y)},
                 sf::Vertex{Vec2f(rightX, wHeight - y)} };
 
             m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
 
-            for (float x = nextGridX; x < rightX; x += float(m_gridSize.x))
-            {
+            for (float x = nextGridX; x < rightX; x += float(m_gridSize.x)) {
                 std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
                 std::string yCell = std::to_string((int)y / (int)m_gridSize.y);
                 gridText.setString("(" + xCell + "," + yCell + ")");
@@ -437,13 +425,41 @@ void Editor::sGUI() {
                 }
             }
 
+            if (m_selectedEntity->has<CRectangle>()) {
+                auto& cRect = m_selectedEntity->get<CRectangle>();
+                if (ImGui::CollapsingHeader("Rectangle", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Indent();
+
+                    float size[2] = { cRect.size.x, cRect.size.y };
+                    ImGui::InputFloat2("Size##Rectangle", size, "%.1f", 0);
+                    cRect.size.x = size[0];
+                    cRect.size.y = size[1];
+
+                    ImGui::Unindent();
+                }
+            }
+
+            if (m_selectedEntity->has<CCircle>()) {
+                auto& cRect = m_selectedEntity->get<CCircle>();
+                if (ImGui::CollapsingHeader("Circle", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Indent();
+
+                    if (ImGui::DragFloat("Radius##Circle", &cRect.radius, 1.0f, 0.0f)) {
+                        if (cRect.radius < 0.0f) cRect.radius = 0.0f;
+                    }
+
+                    ImGui::Unindent();
+                }
+
+            }
+
             if (m_selectedEntity->has<CBoundingBox>()) {
                 auto& cBound = m_selectedEntity->get<CBoundingBox>();
                 if (ImGui::CollapsingHeader("Box Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
                     ImGui::Indent();
 
                     float size[2] = { cBound.size.x, cBound.size.y };
-                    ImGui::InputFloat2("Size", size, "%.1f", 0);
+                    ImGui::InputFloat2("Size##BoxCollider", size, "%.1f", 0);
                     cBound.size.x = size[0];
                     cBound.size.y = size[1];
 
@@ -463,8 +479,13 @@ void Editor::sGUI() {
             }
 
             if (m_selectedEntity->has<CBoundingCircle>()) {
+                auto& cBound = m_selectedEntity->get<CBoundingCircle>();
                 if (ImGui::CollapsingHeader("Circle Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
                     ImGui::Indent();
+
+                    if (ImGui::DragFloat("Radius##CircleCollider", &cBound.radius, 1.0f, 0.0f)) {
+                        if (cBound.radius < 0.0f) cBound.radius = 0.0f;
+                    }
 
                     ImGui::Unindent();
                 }

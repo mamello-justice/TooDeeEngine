@@ -22,6 +22,7 @@ target_sources(TooDeeEngine
     src/EntityManager.cpp
     src/GameEngine.cpp
     src/Physics.cpp
+    src/Renderer.cpp
     src/Scene.cpp
 )
 

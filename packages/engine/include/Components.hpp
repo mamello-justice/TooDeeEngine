@@ -39,7 +39,11 @@ public:
 
 class CCircle : public Component {
 public:
-	sf::CircleShape circle;
+	size_t points = 50;
+	float thickness = 1.0;
+	float radius = 10.0;
+	sf::Color fill = sf::Color::Black;
+	sf::Color outline = sf::Color::White;
 
 	CCircle() = default;
 	CCircle(float radius, size_t points, const sf::Color& fill, const sf::Color& outline, float thickness);
@@ -47,7 +51,10 @@ public:
 
 class CRectangle : public Component {
 public:
-	sf::RectangleShape rect;
+	float thickness = 1.0;
+	Vec2f size = { 10.0, 10.0 };
+	sf::Color fill = sf::Color::Black;
+	sf::Color outline = sf::Color::White;
 
 	CRectangle() = default;
 	CRectangle(const Vec2f& size, const sf::Color& fill, const sf::Color& outline, float thickness);

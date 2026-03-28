@@ -9,8 +9,6 @@
 
 class HelloWorld : public Scene {
 protected:
-    std::vector<std::function<void()>> m_systems;
-
     void update() override;
     void sRender() override;
 

@@ -56,6 +56,7 @@ public:
 
 	sf::RenderWindow& window();
 
-	void sRender();
 	void sUserInput();
+	void sMovement();
+	void sCollision();
 };

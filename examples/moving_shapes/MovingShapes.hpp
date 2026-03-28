@@ -35,14 +35,7 @@ std::istream& operator>>(std::istream&, RectangleConfig&);
 
 class MovingShapes : public Scene {
 protected:
-    sf::Clock deltaClock;
-
-    std::vector<std::function<void()>> m_systems;
-
     void init();
-
-    void sCollision();
-    void sMovement();
 
     void update() override;
     void sRender() override;

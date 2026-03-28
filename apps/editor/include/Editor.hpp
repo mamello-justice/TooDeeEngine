@@ -13,7 +13,6 @@
 struct AppState {
     bool DarkTheme = true;
     bool DrawGrid = false;
-    bool DrawTextures = true;
     bool DrawCollisions = false;
     bool DrawAnimationNames = false;
 };

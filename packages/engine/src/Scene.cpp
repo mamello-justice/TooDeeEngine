@@ -10,6 +10,10 @@
 
 Scene::Scene(std::shared_ptr<GameEngine> gameEngine) : m_gameEngine(gameEngine) {}
 
+bool Scene::isPaused() const {
+	return m_paused;
+}
+
 void Scene::setPaused(const bool& paused) {
 	m_paused = paused;
 }

@@ -40,5 +40,7 @@ public:
 	[[deprecated("Define entities and let the engine render them")]]
 	virtual void sRender() = 0;
 
+	bool isPaused() const;
+
 	void setPaused(const bool& paused);
 };

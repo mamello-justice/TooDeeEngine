@@ -17,21 +17,11 @@ CTransform::CTransform(const Vec2f& p, const Vec2f& v) : pos(p), prevPos(p), vel
 CTransform::CTransform(const Vec2f& p, const Vec2f& v, const Vec2f& s, float a)
 	: pos(p), prevPos(p), velocity(v), scale(s), angle(a) {}
 
-CCircle::CCircle(float radius, size_t points, const sf::Color& fill, const sf::Color& outline, float thickness)
-	: circle(radius, points) {
-	circle.setFillColor(fill);
-	circle.setOutlineColor(outline);
-	circle.setOutlineThickness(thickness);
-	circle.setOrigin({ radius, radius });
-}
+CCircle::CCircle(float radius, size_t points, const sf::Color& fill, const sf::Color& outline, float thickness) :
+	points(points), thickness(thickness), radius(radius), fill(fill), outline(outline) {}
 
 CRectangle::CRectangle(const Vec2f& size, const sf::Color& fill, const sf::Color& outline, float thickness) :
-	rect(size) {
-	rect.setFillColor(fill);
-	rect.setOutlineColor(outline);
-	rect.setOutlineThickness(thickness);
-	rect.setOrigin(size / 2.f);
-}
+	thickness(thickness), size(size), fill(fill), outline(outline) {}
 
 CScore::CScore(int s) : score(s) {}
 
