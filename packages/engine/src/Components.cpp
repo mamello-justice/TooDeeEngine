@@ -40,6 +40,8 @@ CGravity::CGravity(float g) : gravity(g) {}
 
 CState::CState(const std::string& s) : state(s) {}
 
+CNativeScript::CNativeScript(const std::function<void(Entity&)>& updateFunc) : onUpdate(updateFunc) {}
+
 std::string getComponentName(ComponentEnum c) {
 	switch (c) {
 	case ComponentEnum::Animation:
@@ -58,6 +60,8 @@ std::string getComponentName(ComponentEnum c) {
 		return "Label";
 	case ComponentEnum::Lifespan:
 		return "Lifespan";
+	case ComponentEnum::NativeScript:
+		return "Native Script";
 	case ComponentEnum::Rectangle:
 		return "Rectangle";
 	case ComponentEnum::Score:

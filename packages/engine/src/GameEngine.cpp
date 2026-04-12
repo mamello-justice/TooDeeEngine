@@ -20,6 +20,7 @@ GameEngine::GameEngine(bool rendering) : m_shouldRender(rendering) {
 void GameEngine::init() {
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sUserInput, this));
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sMovement, this));
+	m_preSceneSystems.push_back(std::bind(&GameEngine::sScripting, this));
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sCollision, this));
 }
 
@@ -112,6 +113,19 @@ void GameEngine::sMovement() {
 			if (e->has<CTransform>()) {
 				auto& c = e->get<CTransform>();
 				c.pos += c.velocity;
+			}
+		}
+	}
+}
+
+void GameEngine::sScripting() {
+	if (currentScene()) {
+		if (currentScene()->isPaused()) { return; }
+
+		for (const auto& e : currentScene()->getEntityManager().getEntities()) {
+			if (e->has<CNativeScript>()) {
+				auto& c = e->get<CNativeScript>();
+				c.onUpdate(*e);
 			}
 		}
 	}

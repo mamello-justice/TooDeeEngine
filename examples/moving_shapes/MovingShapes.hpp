@@ -4,46 +4,49 @@
 #include <functional>
 #include <memory>
 #include <vector>
+
 #include <SFML/Graphics.hpp>
 
-#include "GameEngine.hpp"
-#include "Scene.hpp"
+#include "TooDeeEngine.hpp"
 
-std::istream& operator>>(std::istream&, Vec2f&);
+namespace MovingShapes
+{
+    std::istream& operator>>(std::istream&, Vec2f&);
 
-std::istream& operator>>(std::istream&, sf::Color&);
+    std::istream& operator>>(std::istream&, sf::Color&);
 
-struct CircleConfig {
-    std::string name;
-    Vec2f pos;
-    Vec2f velocity;
-    sf::Color color;
-    float radius;
-};
+    struct CircleConfig {
+        std::string name;
+        Vec2f pos;
+        Vec2f velocity;
+        sf::Color color;
+        float radius;
+    };
 
-std::istream& operator>>(std::istream&, CircleConfig&);
+    std::istream& operator>>(std::istream&, CircleConfig&);
 
-struct RectangleConfig {
-    std::string name;
-    Vec2f pos;
-    Vec2f velocity;
-    sf::Color color;
-    Vec2f size;
-};
+    struct RectangleConfig {
+        std::string name;
+        Vec2f pos;
+        Vec2f velocity;
+        sf::Color color;
+        Vec2f size;
+    };
 
-std::istream& operator>>(std::istream&, RectangleConfig&);
+    std::istream& operator>>(std::istream&, RectangleConfig&);
 
-class MovingShapes : public Scene {
-protected:
-    void init();
+    class Example : public Scene {
+    protected:
+        void init();
 
-    void update() override;
-    void sRender() override;
+        void update() override;
+        void sRender() override;
 
-public:
-    MovingShapes(std::shared_ptr<GameEngine> gameEngine);
+    public:
+        Example(std::shared_ptr<GameEngine> gameEngine);
 
-    void loadLevel(const std::string& filename);
-    void spawnCircle(const CircleConfig&);
-    void spawnRectangle(const RectangleConfig&);
-};
+        void loadLevel(const std::string& filename);
+        void spawnCircle(const CircleConfig&);
+        void spawnRectangle(const RectangleConfig&);
+    };
+} // namespace MovingShapes

@@ -1,0 +1,5 @@
+packages:
+  - "apps/*"
+  - "examples/*"
+  - "examples/typescript_scripting/assets/scripts/*"
+  - "packages/*"

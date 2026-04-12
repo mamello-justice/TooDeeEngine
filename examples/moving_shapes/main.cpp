@@ -3,9 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Assets.hpp"
-#include "GameEngine.hpp"
-#include "Renderer.hpp"
+#include "TooDeeEngine.hpp"
 #include "MovingShapes.hpp"
 
 int main(int argc, char* argv[]) {
@@ -28,7 +26,7 @@ int main(int argc, char* argv[]) {
     // Create Game Engine
     auto gameEngine = std::make_shared<GameEngine>();
 
-    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "MovingShapes");
+    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "Moving Shapes");
     gameEngine->window().setFramerateLimit(60);
 
     // Enable rendering
@@ -36,9 +34,9 @@ int main(int argc, char* argv[]) {
     if (gameEngine->renderTarget().resize(gameEngine->window().getSize())) {}
 
     // Create scene
-    auto scene = std::make_shared<MovingShapes>(gameEngine);
+    auto scene = std::make_shared<MovingShapes::Example>(gameEngine);
 
-    scene->loadLevel("MovingShapes/level.txt");
+    scene->loadLevel("moving_shapes/level.txt");
 
     gameEngine->changeScene("MovingShapes", scene);
 

@@ -4,8 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "GameEngine.hpp"
-#include "Scene.hpp"
+#include "TooDeeEngine.hpp"
 
 class HelloWorld : public Scene {
 protected:

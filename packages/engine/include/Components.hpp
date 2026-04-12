@@ -1,7 +1,9 @@
 #pragma once
 
 #include <array>
+#include <functional>
 #include <memory>
+#include <tuple>
 
 #include <SFML/Graphics.hpp>
 
@@ -131,6 +133,29 @@ public:
 	CState(const std::string& s);
 };
 
+class CNativeScript : public Component {
+public:
+	std::function<void(Entity&)> onUpdate;
+
+	CNativeScript() = default;
+	CNativeScript(const std::function<void(Entity&)>& updateFunc);
+};
+
+using ComponentTuple = std::tuple<
+	CAnimation,
+	CBoundingBox,
+	CBoundingCircle,
+	CCircle,
+	CGravity,
+	CInput,
+	CLabel,
+	CLifespan,
+	CNativeScript,
+	CRectangle,
+	CScore,
+	CState,
+	CTransform>;
+
 enum class ComponentEnum {
 	Animation,
 	BoundingBox,
@@ -140,13 +165,14 @@ enum class ComponentEnum {
 	Input,
 	Label,
 	Lifespan,
+	NativeScript,
 	Rectangle,
 	Score,
 	State,
 	Transform
 };
 
-constexpr std::array<ComponentEnum, 12> COMPONENTS = {
+constexpr std::array<ComponentEnum, 13> COMPONENTS = {
 	ComponentEnum::Animation,
 	ComponentEnum::BoundingBox,
 	ComponentEnum::BoundingCircle,
@@ -155,6 +181,7 @@ constexpr std::array<ComponentEnum, 12> COMPONENTS = {
 	ComponentEnum::Input,
 	ComponentEnum::Label,
 	ComponentEnum::Lifespan,
+	ComponentEnum::NativeScript,
 	ComponentEnum::Rectangle,
 	ComponentEnum::Score,
 	ComponentEnum::State,
@@ -190,6 +217,8 @@ bool hasComponentByEnum(const EntityType& entity, ComponentEnum comp) {
 		return entity.template has<CLabel>();
 	case ComponentEnum::Lifespan:
 		return entity.template has<CLifespan>();
+	case ComponentEnum::NativeScript:
+		return entity.template has<CNativeScript>();
 	case ComponentEnum::Rectangle:
 		return entity.template has<CRectangle>();
 	case ComponentEnum::Score:
@@ -211,6 +240,7 @@ static_assert(std::is_default_constructible_v<CGravity>);
 static_assert(std::is_default_constructible_v<CInput>);
 static_assert(std::is_default_constructible_v<CLabel>);
 static_assert(std::is_default_constructible_v<CLifespan>);
+static_assert(std::is_default_constructible_v<CNativeScript>);
 static_assert(std::is_default_constructible_v<CRectangle>);
 static_assert(std::is_default_constructible_v<CScore>);
 static_assert(std::is_default_constructible_v<CState>);

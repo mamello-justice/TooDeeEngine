@@ -1,4 +1,4 @@
-# HelloWorld Example
+# Hello World Example
 
 A minimal example demonstrating basic TooDeeEngine setup and sprite rendering.
 
@@ -12,7 +12,7 @@ This is the simplest example to get started with TooDeeEngine. It shows:
 ## Running the Example
 
 ```bash
-just example HelloWorld
+just example hello_world
 ```
 
 ## What You'll Learn

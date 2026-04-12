@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "assets/scripts/cboundingcircle"
+    },
+    {
+      "path": "assets/scripts/cboundingbox"
+    },
+    {
+      "path": "../../packages/typescript-types"
+    },
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}

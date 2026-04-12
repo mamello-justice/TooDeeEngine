@@ -31,25 +31,24 @@ target_link_libraries(MovingShapes
 )
 
 if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "MovingShapes")
-    # Executable Target
-    add_executable(MovingShapesExecutable)
+    add_executable(MovingShapesApp)
 
-    target_compile_features(MovingShapesExecutable
+    target_compile_features(MovingShapesApp
         PUBLIC
         cxx_std_23
     )
 
-    target_sources(MovingShapesExecutable
+    target_sources(MovingShapesApp
         PUBLIC
         ./main.cpp
     )
 
-    target_include_directories(MovingShapesExecutable
+    target_include_directories(MovingShapesApp
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    target_link_libraries(MovingShapesExecutable
+    target_link_libraries(MovingShapesApp
         PUBLIC
         sfml-system
         sfml-window

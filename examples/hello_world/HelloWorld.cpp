@@ -5,9 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Assets.hpp"
-#include "GameEngine.hpp"
-#include "Scene.hpp"
+#include "TooDeeEngine.hpp"
 
 HelloWorld::HelloWorld(std::shared_ptr<GameEngine> gameEngine)
     : Scene(gameEngine) {}

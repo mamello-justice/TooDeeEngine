@@ -13,7 +13,7 @@ This example builds on the basics of TooDeeEngine to show:
 ## Running the Example
 
 ```bash
-just example MovingShapes
+just example moving_shapes
 ```
 
 ## What You'll Learn

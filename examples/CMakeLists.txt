@@ -15,3 +15,15 @@ endif()
 if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "MovingShapes"))
     add_subdirectory(moving_shapes)
 endif()
+
+if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "NativeScripting"))
+    add_subdirectory(native_scripting)
+endif()
+
+if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "TypeScriptScripting"))
+    add_subdirectory(typescript_scripting)
+endif()
+
+if((NOT DEFINED TOO_DEE_ENGINE_EXAMPLE_TARGET) OR (TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "LuaScripting"))
+    add_subdirectory(lua_scripting)
+endif()

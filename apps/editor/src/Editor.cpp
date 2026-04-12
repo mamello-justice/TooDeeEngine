@@ -8,13 +8,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-#include "Components.hpp"
-#include "Entity.hpp"
-#include "EntityManager.hpp"
-#include "GameEngine.hpp"
-#include "Scene.hpp"
-#include "Physics.hpp"
-#include "Renderer.hpp"
+#include "TooDeeEngine.hpp"
 #include "Styles.hpp"
 #include "Vec2.hpp"
 
@@ -285,11 +279,36 @@ void Editor::sGUI() {
 
 #ifdef MOVING_SHAPES_EXAMPLE
             if (ImGui::MenuItem("MovingShapes")) {
-                auto scene = std::make_shared<MovingShapes>(m_gameEngine);
+                auto scene = std::make_shared<MovingShapes::Example>(m_gameEngine);
                 m_gameEngine->changeScene("MovingShapes", scene);
-                scene->loadLevel("MovingShapes/level.txt");
+                scene->loadLevel("moving_shapes/level.txt");
             }
 #endif
+
+#ifdef NATIVE_SCRIPTING_EXAMPLE
+            if (ImGui::MenuItem("NativeScripting")) {
+                auto scene = std::make_shared<NativeScripting::Example>(m_gameEngine);
+                m_gameEngine->changeScene("NativeScripting", scene);
+                scene->loadLevel("native_scripting/level.txt");
+            }
+#endif
+
+#ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
+            if (ImGui::MenuItem("TypeScriptScripting")) {
+                auto scene = std::make_shared<TypeScriptScripting::Example>(m_gameEngine);
+                m_gameEngine->changeScene("TypeScriptScripting", scene);
+                scene->loadLevel("typescript_scripting/level.txt");
+            }
+#endif
+
+#ifdef LUA_SCRIPTING_EXAMPLE
+            if (ImGui::MenuItem("LuaScripting")) {
+                auto scene = std::make_shared<LuaScripting::Example>(m_gameEngine);
+                m_gameEngine->changeScene("LuaScripting", scene);
+                scene->loadLevel("lua_scripting/level.txt");
+            }
+#endif
+
             ImGui::EndMenu();
         }
 #endif

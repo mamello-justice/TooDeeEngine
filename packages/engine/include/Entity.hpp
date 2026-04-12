@@ -7,20 +7,6 @@
 
 class EntityManager;
 
-using ComponentTuple = std::tuple<
-	CAnimation,
-	CBoundingBox,
-	CBoundingCircle,
-	CCircle,
-	CGravity,
-	CInput,
-	CLabel,
-	CLifespan,
-	CRectangle,
-	CScore,
-	CState,
-	CTransform>;
-
 class Entity
 {
 	friend class EntityManager;

@@ -3,9 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Assets.hpp"
-#include "GameEngine.hpp"
-#include "Renderer.hpp"
+#include "TooDeeEngine.hpp"
 #include "HelloWorld.hpp"
 
 int main(int argc, char* argv[]) {
@@ -27,7 +25,7 @@ int main(int argc, char* argv[]) {
 
     auto gameEngine = std::make_shared<GameEngine>();
 
-    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "HelloWorld");
+    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "Hello World");
     gameEngine->window().setFramerateLimit(60);
 
     // Enable rendering

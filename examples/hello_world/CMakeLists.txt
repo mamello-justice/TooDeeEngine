@@ -30,25 +30,24 @@ target_link_libraries(HelloWorld
 )
 
 if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "HelloWorld")
-    # Executable Target
-    add_executable(HelloWorldExecutable)
+    add_executable(HelloWorldApp)
 
-    target_compile_features(HelloWorldExecutable
+    target_compile_features(HelloWorldApp
         PUBLIC
         cxx_std_23
     )
 
-    target_sources(HelloWorldExecutable
+    target_sources(HelloWorldApp
         PUBLIC
         ./main.cpp
     )
 
-    target_include_directories(HelloWorldExecutable
+    target_include_directories(HelloWorldApp
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    target_link_libraries(HelloWorldExecutable
+    target_link_libraries(HelloWorldApp
         PUBLIC
         sfml-system
         sfml-window
