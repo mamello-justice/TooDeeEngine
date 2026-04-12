@@ -76,7 +76,7 @@ std::string getComponentName(ComponentEnum c) {
 }
 
 const char* const* getComponentNames() {
-	static std::array<std::string, 12> names;
+	static std::array<std::string, COMPONENTS.size()> names;
 	static bool initialized = false;
 
 	if (!initialized) {

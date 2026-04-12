@@ -5,7 +5,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/build/bin/Debug/TooDeeEditor.exe",
+            "program": "${workspaceFolder}/build/apps/editor/Debug/TooDeeEditor.exe",
             "args": [
                 "./editor/config.ini"
             ],
@@ -14,28 +14,10 @@
             "environment": [
                 {
                     "name": "PATH",
-                    "value": "${workspaceFolder}/build/bin/Debug;${env:PATH}"
+                    "value": "${workspaceFolder}/build/apps/editor/Debug;${env:PATH}"
                 }
             ],
             "console": "integratedTerminal"
-        },
-        {
-            "name": "MovingShapes (Debug)",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/bin/Debug/MovingShapesExecutable.exe",
-            "args": [
-                "./MovingShapes/config.ini"
-            ],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/runtime",
-            "environment": [
-                {
-                    "name": "PATH",
-                    "value": "${workspaceFolder}/build/bin/Debug;${env:PATH}"
-                }
-            ],
-            "console": "integratedTerminal"
-        },
+        }
     ]
 }
