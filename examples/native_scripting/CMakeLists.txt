@@ -30,7 +30,7 @@ target_link_libraries(NativeScripting
     INIH
 )
 
-if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "NativeScripting")
+if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "native_scripting")
     # Executable Target
     add_executable(NativeScriptingApp)
 

@@ -12,7 +12,7 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../../../../packages/typescript-types/tsconfig.lib.json"
+      "path": "../../../../../packages/javascript/tsconfig.lib.json"
     }
   ]
 }

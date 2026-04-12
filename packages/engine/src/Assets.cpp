@@ -54,6 +54,19 @@ void Assets::addFont(const std::string& fontName, const std::string& path) {
 	}
 }
 
+// -------------------------------------------------------
+// Script
+// Note: This function only stores the path to the script, it does not load the script itself
+void Assets::addScript(const std::string& scriptName, const std::string& path) {
+	if (!std::filesystem::exists(path)) {
+		std::cerr << "Could not find script file: " << path << std::endl;
+	}
+	else {
+		m_scriptMap[scriptName] = path;
+		std::cout << "Added Script: [" << scriptName << "] = " << path << std::endl;
+	}
+}
+
 void Assets::loadFromFile(const std::string& config) {
 	INIReader reader(config);
 
@@ -85,6 +98,14 @@ void Assets::loadFromFile(const std::string& config) {
 			addFont(name, path);
 		}
 	}
+
+	for (auto section : sections) {
+		if (section.starts_with("script.")) {
+			auto name = section.substr(7, section.size());
+			auto path = reader.GetString(section, "file", "");
+			addScript(name, path);
+		}
+	}
 }
 
 // -------------------------------------------------------
@@ -107,6 +128,12 @@ const sf::Font& Assets::getFont(const std::string& name) const {
 	return it->second;
 }
 
+const std::string& Assets::getScriptPath(const std::string& name) const {
+	auto it = m_scriptMap.find(name);
+	assert(it != m_scriptMap.end());
+	return it->second;
+}
+
 const std::map<std::string, sf::Texture>& Assets::getTextures() const {
 	return m_textureMap;
 }
@@ -117,4 +144,8 @@ std::map<std::string, Animation>& Assets::getAnimations() {
 
 std::map<std::string, sf::Font>& Assets::getFonts() {
 	return m_fontMap;
+}
+
+std::map<std::string, std::string>& Assets::getScripts() {
+	return m_scriptMap;
 }

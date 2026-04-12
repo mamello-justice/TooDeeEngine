@@ -23,6 +23,10 @@ class Assets
 	 * @brief Map of font names to their corresponding fonts
 	 */
 	std::map<std::string, sf::Font> m_fontMap;
+	/**
+	 * @brief Map of script names to their corresponding script file paths
+	 */
+	std::map<std::string, std::string> m_scriptMap;
 
 	/**
 	 * @brief Add a texture to the asset manager
@@ -48,6 +52,13 @@ class Assets
 	 * @param path The file path to load the font from
 	 */
 	void addFont(const std::string& fontName, const std::string& path);
+	/**
+	 * @brief Add a script to the asset manager
+	 *
+	 * @param scriptName The name of the script
+	 * @param path The file path to load the script from
+	 */
+	void addScript(const std::string& scriptName, const std::string& path);
 
 	/**
 	 * @brief Default constructor
@@ -94,6 +105,14 @@ public:
 	const sf::Font& getFont(const std::string& fontName) const;
 
 	/**
+	 * @brief Get a script path by its name
+	 *
+	 * @param scriptName The name of the script
+	 * @return The file path of the requested script
+	 */
+	const std::string& getScriptPath(const std::string& scriptName) const;
+
+	/**
 	 * @brief Get all loaded textures
 	 *
 	 * @return Map of texture names to their corresponding textures
@@ -113,4 +132,11 @@ public:
 	 * @return Map of animation names to their corresponding fonts
 	 */
 	std::map<std::string, sf::Font>& getFonts();
+
+	/**
+	 * @brief Get all loaded scripts
+	 *
+	 * @return Map of script names to their corresponding script file paths
+	 */
+	std::map<std::string, std::string>& getScripts();
 };

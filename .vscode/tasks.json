@@ -13,6 +13,27 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "build-js",
+            "type": "shell",
+            "command": "just",
+            "args": [
+                "build-js"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build all",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "build",
+                "build-js"
+            ]
         }
     ]
 }

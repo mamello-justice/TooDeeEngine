@@ -45,29 +45,35 @@ importers:
         specifier: ^2.3.0
         version: 2.8.1
     devDependencies:
+      '@too-dee-engine/javascript':
+        specifier: workspace:*
+        version: link:../../packages/javascript
       '@too-dee-engine/typescript-scripting-example-cboundingbox':
         specifier: workspace:*
         version: link:assets/scripts/cboundingbox
       '@too-dee-engine/typescript-scripting-example-cboundingcircle':
         specifier: workspace:*
         version: link:assets/scripts/cboundingcircle
-      '@too-dee-engine/typescript-types':
-        specifier: workspace:*
-        version: link:../../packages/typescript-types
 
   examples/typescript_scripting/assets/scripts/cboundingbox:
     dependencies:
+      '@too-dee-engine/javascript':
+        specifier: workspace:*
+        version: link:../../../../../packages/javascript
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
 
   examples/typescript_scripting/assets/scripts/cboundingcircle:
     dependencies:
+      '@too-dee-engine/javascript':
+        specifier: workspace:*
+        version: link:../../../../../packages/javascript
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
 
-  packages/typescript-types:
+  packages/javascript:
     dependencies:
       tslib:
         specifier: ^2.3.0

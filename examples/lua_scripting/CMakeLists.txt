@@ -30,7 +30,7 @@ target_link_libraries(LuaScripting
     INIH
 )
 
-if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "LuaScripting")
+if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "lua_scripting")
     add_executable(LuaScriptingApp)
 
     target_compile_features(LuaScriptingApp

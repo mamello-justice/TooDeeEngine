@@ -9,6 +9,7 @@
 #include "imgui-SFML.h"
 
 #include "TooDeeEngine.hpp"
+#include "ImGuiDirectoryView.hpp"
 #include "Styles.hpp"
 #include "Vec2.hpp"
 
@@ -45,6 +46,9 @@ void Editor::init(const std::string& configPath) {
     m_updateSystems.push_back(std::bind(&Editor::sUserInput, this));
     m_renderSystems.push_back(std::bind(&Editor::sRender, this));
     m_renderSystems.push_back(std::bind(&Editor::sGUI, this));
+
+    auto& scripts = Assets::Instance().getScripts();
+    m_scriptsDirectoryTree = createDirectoryNodeTreeFromMap(scripts);
 }
 
 void Editor::run() {
@@ -271,14 +275,14 @@ void Editor::sGUI() {
 #ifdef BUILD_EXAMPLES
         if (ImGui::BeginMenu("Examples")) {
 #ifdef HELLO_WORLD_EXAMPLE
-            if (ImGui::MenuItem("HelloWorld")) {
+            if (ImGui::MenuItem("Hello World")) {
                 auto scene = std::make_shared<HelloWorld>(m_gameEngine);
                 m_gameEngine->changeScene("HelloWorld", scene);
             }
 #endif
 
 #ifdef MOVING_SHAPES_EXAMPLE
-            if (ImGui::MenuItem("MovingShapes")) {
+            if (ImGui::MenuItem("Moving Shapes")) {
                 auto scene = std::make_shared<MovingShapes::Example>(m_gameEngine);
                 m_gameEngine->changeScene("MovingShapes", scene);
                 scene->loadLevel("moving_shapes/level.txt");
@@ -286,7 +290,7 @@ void Editor::sGUI() {
 #endif
 
 #ifdef NATIVE_SCRIPTING_EXAMPLE
-            if (ImGui::MenuItem("NativeScripting")) {
+            if (ImGui::MenuItem("Native Scripting")) {
                 auto scene = std::make_shared<NativeScripting::Example>(m_gameEngine);
                 m_gameEngine->changeScene("NativeScripting", scene);
                 scene->loadLevel("native_scripting/level.txt");
@@ -294,7 +298,7 @@ void Editor::sGUI() {
 #endif
 
 #ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
-            if (ImGui::MenuItem("TypeScriptScripting")) {
+            if (ImGui::MenuItem("TypeScript Scripting")) {
                 auto scene = std::make_shared<TypeScriptScripting::Example>(m_gameEngine);
                 m_gameEngine->changeScene("TypeScriptScripting", scene);
                 scene->loadLevel("typescript_scripting/level.txt");
@@ -302,7 +306,7 @@ void Editor::sGUI() {
 #endif
 
 #ifdef LUA_SCRIPTING_EXAMPLE
-            if (ImGui::MenuItem("LuaScripting")) {
+            if (ImGui::MenuItem("Lua Scripting")) {
                 auto scene = std::make_shared<LuaScripting::Example>(m_gameEngine);
                 m_gameEngine->changeScene("LuaScripting", scene);
                 scene->loadLevel("lua_scripting/level.txt");
@@ -509,6 +513,22 @@ void Editor::sGUI() {
                     ImGui::Unindent();
                 }
             }
+
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+            if (m_selectedEntity->has<CJavascriptScript>()) {
+                auto& cJSScript = m_selectedEntity->get<CJavascriptScript>();
+                auto& scriptPath = Assets::Instance().getScriptPath(cJSScript.name);
+                if (ImGui::CollapsingHeader("JavaScript Script", ImGuiTreeNodeFlags_DefaultOpen)) {
+                    ImGui::Indent();
+
+                    ImGui::Text("Name: %s", cJSScript.name.c_str());
+                    ImGui::Text("Path: %s", scriptPath.c_str());
+
+                    ImGui::Unindent();
+                }
+            }
+#endif
+
         }
 
         ImGui::End(); // ImGui::Begin("Inspector")
@@ -553,7 +573,7 @@ void Editor::sGUI() {
                         // Create and render text with const reference to font
                         sf::Text displayText(font_ref, "Lorem ipsum dolor sit amet", 20u);
                         displayText.setPosition(sf::Vector2f(5.f, 10.f));
-                        displayText.setFillColor(sf::Color::White);
+                        displayText.setFillColor(sf::Color::Blue);
 
                         fontTexture.draw(displayText);
                         fontTexture.display();
@@ -569,6 +589,7 @@ void Editor::sGUI() {
             }
 
             if (ImGui::BeginTabItem("Scripts")) {
+                ImGuiDirectoryNode(m_scriptsDirectoryTree);
                 ImGui::EndTabItem();
             }
 

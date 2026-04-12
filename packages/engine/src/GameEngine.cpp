@@ -5,6 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Components.hpp"
 #include "Physics.hpp"
 #include "Scene.hpp"
 #include "Vec2.hpp"
@@ -17,7 +18,39 @@ GameEngine::GameEngine(bool rendering) : m_shouldRender(rendering) {
 	init();
 }
 
+GameEngine::~GameEngine() {
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	if (m_jsContext) {
+		JS_FreeContext(m_jsContext);
+		m_jsContext = nullptr;
+	}
+	if (m_jsRuntime) {
+		JS_FreeRuntime(m_jsRuntime);
+		m_jsRuntime = nullptr;
+	}
+#endif
+
+	m_window.close();
+}
+
 void GameEngine::init() {
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	// Create runtime
+	m_jsRuntime = JS_NewRuntime();
+	if (!m_jsRuntime) {
+		std::cerr << "Failed to create JS runtime" << std::endl;
+		std::exit(1);
+	}
+
+	// Create context
+	m_jsContext = JS_NewContext(m_jsRuntime);
+	if (!m_jsContext) {
+		std::cerr << "Failed to create JS context" << std::endl;
+		JS_FreeRuntime(m_jsRuntime);
+		std::exit(1);
+	}
+#endif
+
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sUserInput, this));
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sMovement, this));
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sScripting, this));
@@ -118,6 +151,46 @@ void GameEngine::sMovement() {
 	}
 }
 
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+void GameEngine::handleJavascriptScriptExecution(const std::string& scriptName) {
+	auto& path = Assets::Instance().getScriptPath(scriptName);
+
+	if (!std::filesystem::exists(path)) {
+		std::cerr << "Script file not found: " << path << std::endl;
+		return;
+	}
+
+	std::ifstream scriptFile(path);
+	if (!scriptFile.is_open()) {
+		std::cerr << "Failed to open script file: " << path << std::endl;
+		return;
+	}
+
+	std::string scriptCode;
+	scriptCode.assign((std::istreambuf_iterator<char>(scriptFile)),
+		(std::istreambuf_iterator<char>()));
+	scriptFile.close();
+
+	if (scriptCode.empty()) {
+		std::cout << "Script file is empty: " << path << std::endl;
+		return;
+	}
+
+	JSValue result = JS_Eval(m_jsContext, scriptCode.c_str(), scriptCode.size(), scriptName.c_str(), JS_EVAL_TYPE_GLOBAL);
+
+	if (JS_IsException(result)) {
+		JSValue exception = JS_GetException(m_jsContext);
+		const char* str = JS_ToCString(m_jsContext, exception);
+		std::cerr << "Exception in script " << scriptName << ": " << str << std::endl;
+		JS_FreeCString(m_jsContext, str);
+		JS_FreeValue(m_jsContext, exception);
+	}
+
+	JS_FreeValue(m_jsContext, result);
+
+}
+#endif
+
 void GameEngine::sScripting() {
 	if (currentScene()) {
 		if (currentScene()->isPaused()) { return; }
@@ -127,6 +200,13 @@ void GameEngine::sScripting() {
 				auto& c = e->get<CNativeScript>();
 				c.onUpdate(*e);
 			}
+
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+			if (e->has<CJavascriptScript>()) {
+				auto& c = e->get<CJavascriptScript>();
+				handleJavascriptScriptExecution(c.name);
+			}
+#endif
 		}
 	}
 }

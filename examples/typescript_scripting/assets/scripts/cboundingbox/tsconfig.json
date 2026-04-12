@@ -4,7 +4,7 @@
   "include": [],
   "references": [
     {
-      "path": "../../../../../packages/typescript-types"
+      "path": "../../../../../packages/javascript"
     },
     {
       "path": "./tsconfig.lib.json"

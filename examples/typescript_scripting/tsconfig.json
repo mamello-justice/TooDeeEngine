@@ -10,9 +10,6 @@
       "path": "assets/scripts/cboundingbox"
     },
     {
-      "path": "../../packages/typescript-types"
-    },
-    {
       "path": "./tsconfig.lib.json"
     }
   ]

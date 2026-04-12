@@ -16,6 +16,7 @@ target_sources(TooDeeEditor
     PRIVATE
     src/main.cpp
     src/Editor.cpp
+    src/ImGuiDirectoryView.cpp
 )
 
 target_include_directories(TooDeeEditor
@@ -34,6 +35,12 @@ target_link_libraries(TooDeeEditor
     TooDeeCore
     TooDeeEngine
 )
+
+if (TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
+    target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
+    target_link_libraries(TooDeeEditor PRIVATE qjs)
+    target_include_directories(TooDeeEditor PRIVATE ${quickjs_SOURCE_DIR})
+endif()
 
 # Conditionally link example targets only if they were built
 if(TOO_DEE_ENGINE_BUILD_EXAMPLES)

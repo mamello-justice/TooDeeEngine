@@ -42,6 +42,10 @@ CState::CState(const std::string& s) : state(s) {}
 
 CNativeScript::CNativeScript(const std::function<void(Entity&)>& updateFunc) : onUpdate(updateFunc) {}
 
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+CJavascriptScript::CJavascriptScript(const std::string& n) : name(n) {}
+#endif
+
 std::string getComponentName(ComponentEnum c) {
 	switch (c) {
 	case ComponentEnum::Animation:
@@ -56,6 +60,10 @@ std::string getComponentName(ComponentEnum c) {
 		return "Gravity";
 	case ComponentEnum::Input:
 		return "Input";
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	case ComponentEnum::JavacriptScript:
+		return "JavaScript Script";
+#endif
 	case ComponentEnum::Label:
 		return "Label";
 	case ComponentEnum::Lifespan:

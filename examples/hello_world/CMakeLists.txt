@@ -29,7 +29,7 @@ target_link_libraries(HelloWorld
     TooDeeEngine
 )
 
-if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "HelloWorld")
+if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "hello_world")
     add_executable(HelloWorldApp)
 
     target_compile_features(HelloWorldApp

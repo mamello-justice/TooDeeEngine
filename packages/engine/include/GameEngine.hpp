@@ -7,6 +7,10 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+#include <quickjs.h>
+#endif
+
 #include "Scene.hpp"
 
 typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
@@ -20,14 +24,21 @@ protected:
 	size_t              m_simulationSpeed = 1;
 	bool                m_running = true;
 	sf::Clock           m_deltaClock;
+
 	std::vector<std::function<void()>> m_preSceneSystems;
 	std::vector<std::function<void()>> m_postSceneSystems;
 
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	JSRuntime* m_jsRuntime = nullptr;
+	JSContext* m_jsContext = nullptr;
+#endif
+
 public:
-	bool				m_shouldRender = false;
+	bool m_shouldRender = false;
 
 	GameEngine();
 	GameEngine(bool rendering);
+	~GameEngine();
 
 	void init();
 	void update();
@@ -51,6 +62,10 @@ public:
 	bool hasScene(const std::string& name) const;
 
 	void handleEvent(std::optional<sf::Event> event);
+
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	void handleJavascriptScriptExecution(const std::string& scriptName);
+#endif
 
 	sf::RenderTexture& renderTarget();
 

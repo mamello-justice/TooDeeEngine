@@ -84,6 +84,10 @@ namespace TypeScriptScripting
         e->add<CTransform>(config.pos, config.velocity);
         e->add<CCircle>(config.radius, 32, config.color, config.color, 0.f);
         e->add<CBoundingCircle>(config.radius);
+
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+        e->add<CJavascriptScript>("cboundingcircle_script");
+#endif
     }
 
     void Example::spawnRectangle(const RectangleConfig& config) {
@@ -93,5 +97,9 @@ namespace TypeScriptScripting
         e->add<CTransform>(config.pos, config.velocity);
         e->add<CRectangle>(config.size, config.color, config.color, 0.f);
         e->add<CBoundingBox>(config.size);
+
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+        e->add<CJavascriptScript>("cboundingbox_script");
+#endif
     }
 } // namespace TypescriptScripting

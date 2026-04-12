@@ -19,7 +19,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@too-dee-engine/typescript-types": "workspace:*",
+    "@too-dee-engine/javascript": "workspace:*",
     "@too-dee-engine/typescript-scripting-example-cboundingbox": "workspace:*",
     "@too-dee-engine/typescript-scripting-example-cboundingcircle": "workspace:*"
   }

@@ -7,6 +7,7 @@
 
 #include "imgui.h"
 
+#include "ImGuiDirectoryView.hpp"
 #include "TooDeeEngine.hpp"
 #include "Vec2.hpp"
 
@@ -63,6 +64,7 @@ class Editor {
     std::vector<std::function<void()>> m_renderSystems;
 
     std::string m_consoleText;
+    DirectoryNode m_scriptsDirectoryTree;
 
     std::shared_ptr<Entity> m_selectedEntity;
 

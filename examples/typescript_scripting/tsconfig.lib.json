@@ -16,9 +16,6 @@
     },
     {
       "path": "assets/scripts/cboundingbox/tsconfig.lib.json"
-    },
-    {
-      "path": "../../packages/typescript-types/tsconfig.lib.json"
     }
   ]
 }

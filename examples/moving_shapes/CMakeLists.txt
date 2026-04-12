@@ -30,7 +30,7 @@ target_link_libraries(MovingShapes
     INIH
 )
 
-if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "MovingShapes")
+if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "moving_shapes")
     add_executable(MovingShapesApp)
 
     target_compile_features(MovingShapesApp

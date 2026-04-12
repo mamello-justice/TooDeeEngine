@@ -4,7 +4,7 @@
             "name": "Editor (Debug)",
             "type": "cppvsdbg",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build all",
             "program": "${workspaceFolder}/build/apps/editor/Debug/TooDeeEditor.exe",
             "args": [
                 "./editor/config.ini"
@@ -15,6 +15,10 @@
                 {
                     "name": "PATH",
                     "value": "${workspaceFolder}/build/apps/editor/Debug;${env:PATH}"
+                },
+                {
+                    "name": "TOO_DEE_ENGINE_BUILD_EDITOR",
+                    "value": "true"
                 }
             ],
             "console": "integratedTerminal"

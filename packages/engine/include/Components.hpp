@@ -141,6 +141,16 @@ public:
 	CNativeScript(const std::function<void(Entity&)>& updateFunc);
 };
 
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+class CJavascriptScript : public Component {
+public:
+	std::string name;
+
+	CJavascriptScript() = default;
+	CJavascriptScript(const std::string& n);
+};
+#endif
+
 using ComponentTuple = std::tuple<
 	CAnimation,
 	CBoundingBox,
@@ -148,13 +158,17 @@ using ComponentTuple = std::tuple<
 	CCircle,
 	CGravity,
 	CInput,
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	CJavascriptScript,
+#endif
 	CLabel,
 	CLifespan,
 	CNativeScript,
 	CRectangle,
 	CScore,
 	CState,
-	CTransform>;
+	CTransform
+>;
 
 enum class ComponentEnum {
 	Animation,
@@ -163,6 +177,9 @@ enum class ComponentEnum {
 	Circle,
 	Gravity,
 	Input,
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	JavacriptScript,
+#endif
 	Label,
 	Lifespan,
 	NativeScript,
@@ -172,13 +189,18 @@ enum class ComponentEnum {
 	Transform
 };
 
-constexpr std::array<ComponentEnum, 13> COMPONENTS = {
+static const int COMPONENT_COUNT = std::tuple_size_v<ComponentTuple>;
+
+constexpr std::array<ComponentEnum, COMPONENT_COUNT> COMPONENTS = {
 	ComponentEnum::Animation,
 	ComponentEnum::BoundingBox,
 	ComponentEnum::BoundingCircle,
 	ComponentEnum::Circle,
 	ComponentEnum::Gravity,
 	ComponentEnum::Input,
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	ComponentEnum::JavacriptScript,
+#endif
 	ComponentEnum::Label,
 	ComponentEnum::Lifespan,
 	ComponentEnum::NativeScript,
@@ -213,6 +235,10 @@ bool hasComponentByEnum(const EntityType& entity, ComponentEnum comp) {
 		return entity.template has<CGravity>();
 	case ComponentEnum::Input:
 		return entity.template has<CInput>();
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+	case ComponentEnum::JavacriptScript:
+		return entity.template has<CJavascriptScript>();
+#endif
 	case ComponentEnum::Label:
 		return entity.template has<CLabel>();
 	case ComponentEnum::Lifespan:
@@ -238,6 +264,9 @@ static_assert(std::is_default_constructible_v<CBoundingCircle>);
 static_assert(std::is_default_constructible_v<CCircle>);
 static_assert(std::is_default_constructible_v<CGravity>);
 static_assert(std::is_default_constructible_v<CInput>);
+#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+static_assert(std::is_default_constructible_v<CJavascriptScript>);
+#endif
 static_assert(std::is_default_constructible_v<CLabel>);
 static_assert(std::is_default_constructible_v<CLifespan>);
 static_assert(std::is_default_constructible_v<CNativeScript>);

@@ -13,7 +13,7 @@
       "path": "./examples/typescript_scripting/assets/scripts/cboundingcircle"
     },
     {
-      "path": "./packages/typescript-types"
+      "path": "./packages/javascript"
     }
   ]
 }

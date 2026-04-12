@@ -30,11 +30,11 @@ target_link_libraries(TypeScriptScripting
     INIH
 )
 
-if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "TypeScriptScripting")
+if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "typescript_scripting")
     # Executable Target
     add_executable(TypeScriptScriptingApp)
 
-    target_compile_features(TypeScriptScriptinApp
+    target_compile_features(TypeScriptScriptingApp
         PUBLIC
         cxx_std_23
     )

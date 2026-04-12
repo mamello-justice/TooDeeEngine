@@ -39,3 +39,10 @@ target_link_libraries(TooDeeEngine
     TooDeeCore
     INIH
 )
+
+if (TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
+    message(STATUS "JavaScript Scripting Enabled")
+    target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
+    target_link_libraries(TooDeeEngine PRIVATE qjs)
+    target_include_directories(TooDeeEngine PRIVATE ${quickjs_SOURCE_DIR})
+endif()
