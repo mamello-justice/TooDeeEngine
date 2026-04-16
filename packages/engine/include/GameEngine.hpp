@@ -5,9 +5,10 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include <SFML/Graphics.hpp>
 
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 #include <quickjs.h>
 #endif
 
@@ -23,18 +24,17 @@ protected:
 	std::string         m_currentScene;
 	size_t              m_simulationSpeed = 1;
 	bool                m_running = true;
-	sf::Clock           m_deltaClock;
 
 	std::vector<std::function<void()>> m_preSceneSystems;
 	std::vector<std::function<void()>> m_postSceneSystems;
 
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
+public:
+	bool m_shouldRender = false;
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	JSRuntime* m_jsRuntime = nullptr;
 	JSContext* m_jsContext = nullptr;
 #endif
-
-public:
-	bool m_shouldRender = false;
 
 	GameEngine();
 	GameEngine(bool rendering);
@@ -43,6 +43,10 @@ public:
 	void init();
 	void update();
 	void quit();
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	void setupQJSDebug();
+#endif
 
 	template <class T>
 	void changeScene(const std::string& name, std::shared_ptr<T> scene) {
@@ -61,10 +65,14 @@ public:
 
 	bool hasScene(const std::string& name) const;
 
+	void removeScene(std::shared_ptr<Scene> scene);
+
+	void removeScene(const std::string& name);
+
 	void handleEvent(std::optional<sf::Event> event);
 
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-	void handleJavascriptScriptExecution(const std::string& scriptName);
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	void handleJavascriptScriptExecution(std::shared_ptr<Entity> entity);
 #endif
 
 	sf::RenderTexture& renderTarget();
@@ -75,4 +83,8 @@ public:
 	void sMovement();
 	void sScripting();
 	void sCollision();
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	JSValue operator()(JSContext*) const;
+#endif
 };

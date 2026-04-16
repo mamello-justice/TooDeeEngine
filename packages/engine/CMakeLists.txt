@@ -24,6 +24,7 @@ target_sources(TooDeeEngine
     src/Physics.cpp
     src/Renderer.cpp
     src/Scene.cpp
+    src/Script.cpp
 )
 
 target_include_directories(TooDeeEngine
@@ -40,9 +41,9 @@ target_link_libraries(TooDeeEngine
     INIH
 )
 
-if (TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
+if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     message(STATUS "JavaScript Scripting Enabled")
-    target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
+    target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_link_libraries(TooDeeEngine PRIVATE qjs)
     target_include_directories(TooDeeEngine PRIVATE ${quickjs_SOURCE_DIR})
 endif()

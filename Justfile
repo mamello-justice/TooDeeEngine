@@ -9,6 +9,7 @@ CMAKE_GENERATOR := 'Visual Studio 17 2022'
 target_name(target) := if target == "hello_world" { "HelloWorld" }\
     else if target == "moving_shapes" { "MovingShapes" }\
     else if target == "native_scripting" { "NativeScripting" }\
+    else if target == "javascript_scripting" { "JavaScriptScripting" }\
     else if target == "typescript_scripting" { "TypeScriptScripting" }\
     else if target == "lua_scripting" { "LuaScripting" }\
     else { target }

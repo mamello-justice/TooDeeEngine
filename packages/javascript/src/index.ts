@@ -44,7 +44,7 @@ export namespace TooDeeEngine {
     angle: number;
   }
 
-  export interface CJavascriptScript { }
+  export interface CQJSScript { }
 
   export enum ComponentEnum {
     Animation,
@@ -79,7 +79,7 @@ export namespace TooDeeEngine {
     : C extends ComponentEnum.Transform
     ? CTransform
     : C extends ComponentEnum.JavascriptScript
-    ? CJavascriptScript
+    ? CQJSScript
     : never;
 
   // Entity

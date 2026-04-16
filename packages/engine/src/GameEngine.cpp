@@ -5,9 +5,15 @@
 
 #include <SFML/Graphics.hpp>
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+#include <quickjs.h>
+#endif
+
+#include "Assets.hpp"
 #include "Components.hpp"
 #include "Physics.hpp"
 #include "Scene.hpp"
+#include "Script.hpp"
 #include "Vec2.hpp"
 
 GameEngine::GameEngine() {
@@ -19,14 +25,14 @@ GameEngine::GameEngine(bool rendering) : m_shouldRender(rendering) {
 }
 
 GameEngine::~GameEngine() {
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-	if (m_jsContext) {
-		JS_FreeContext(m_jsContext);
-		m_jsContext = nullptr;
-	}
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	if (m_jsRuntime) {
 		JS_FreeRuntime(m_jsRuntime);
 		m_jsRuntime = nullptr;
+	}
+	if (m_jsContext) {
+		JS_FreeContext(m_jsContext);
+		m_jsContext = nullptr;
 	}
 #endif
 
@@ -34,28 +40,41 @@ GameEngine::~GameEngine() {
 }
 
 void GameEngine::init() {
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-	// Create runtime
-	m_jsRuntime = JS_NewRuntime();
-	if (!m_jsRuntime) {
-		std::cerr << "Failed to create JS runtime" << std::endl;
-		std::exit(1);
-	}
-
-	// Create context
-	m_jsContext = JS_NewContext(m_jsRuntime);
-	if (!m_jsContext) {
-		std::cerr << "Failed to create JS context" << std::endl;
-		JS_FreeRuntime(m_jsRuntime);
-		std::exit(1);
-	}
-#endif
-
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sUserInput, this));
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sMovement, this));
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sScripting, this));
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sCollision, this));
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	// Create runtime
+	m_jsRuntime = JS_NewRuntime();
+	if (!m_jsRuntime) {
+		throw std::runtime_error("Failed to create JS runtime");
+	}
+	m_jsContext = JS_NewContext(m_jsRuntime);
+	if (!m_jsContext) {
+		JS_FreeRuntime(m_jsRuntime);
+		throw std::runtime_error("Failed to create JS runtime");
+	}
+#endif
 }
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+void GameEngine::setupQJSDebug() {
+	// Enable various debug output flags (combine them with |)
+	uint32_t dump_flags = 0;
+
+	dump_flags |= JS_DUMP_FREE;        // 0x200  - dump every object free
+	dump_flags |= JS_DUMP_GC;          // 0x400  - dump GC occurrences
+	dump_flags |= JS_DUMP_GC_FREE;     // 0x800  - dump objects freed by GC
+	dump_flags |= JS_DUMP_LEAKS;       // 0x4000 - dump leaked objects and strings
+	dump_flags |= JS_DUMP_ATOM_LEAKS;  // 0x8000 - dump leaked atoms
+	dump_flags |= JS_DUMP_MEM;         // 0x10000 - dump memory usage at runtime
+	dump_flags |= JS_DUMP_OBJECTS;     // 0x20000 - dump objects in JS_FreeRuntime
+
+	// JS_SetDumpFlags(m_jsRuntime, dump_flags);
+}
+#endif
 
 void GameEngine::update() {
 	if (!m_running) { return; }
@@ -96,6 +115,16 @@ bool GameEngine::hasScenes() const {
 
 bool GameEngine::hasScene(const std::string& name) const {
 	return m_sceneMap.find(name) != m_sceneMap.end();
+}
+
+void GameEngine::removeScene(std::shared_ptr<Scene> scene) {
+	std::erase_if(m_sceneMap, [scene](const auto& pair) {
+		return pair.second == scene;
+		});
+}
+
+void GameEngine::removeScene(const std::string& name) {
+	m_sceneMap.erase(name);
 }
 
 void GameEngine::handleEvent(std::optional<sf::Event> event) {
@@ -151,43 +180,77 @@ void GameEngine::sMovement() {
 	}
 }
 
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-void GameEngine::handleJavascriptScriptExecution(const std::string& scriptName) {
-	auto& path = Assets::Instance().getScriptPath(scriptName);
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+void GameEngine::handleJavascriptScriptExecution(std::shared_ptr<Entity> e) {
+	JSValue jsGlobal = JS_GetGlobalObject(m_jsContext);
 
-	if (!std::filesystem::exists(path)) {
-		std::cerr << "Script file not found: " << path << std::endl;
-		return;
-	}
+	// Create TooDeeEngine object in JS context and set as global variable
+	JSValue jsEngine = (*this)(m_jsContext);
+	JS_SetPropertyStr(m_jsContext, jsGlobal, "TooDeeEngine", JS_DupValue(m_jsContext, jsEngine));
+	JS_FreeValue(m_jsContext, jsEngine);
 
-	std::ifstream scriptFile(path);
-	if (!scriptFile.is_open()) {
-		std::cerr << "Failed to open script file: " << path << std::endl;
-		return;
-	}
+	auto& cScript = e->get<CQJSScript>();
+	auto& script = Assets::Instance().getScript(cScript.name);
+	JSValue scriptEval = JS_Eval(m_jsContext, script.getContent().c_str(), script.getContent().size(), script.getPath().c_str(), JS_EVAL_TYPE_GLOBAL);
 
-	std::string scriptCode;
-	scriptCode.assign((std::istreambuf_iterator<char>(scriptFile)),
-		(std::istreambuf_iterator<char>()));
-	scriptFile.close();
-
-	if (scriptCode.empty()) {
-		std::cout << "Script file is empty: " << path << std::endl;
-		return;
-	}
-
-	JSValue result = JS_Eval(m_jsContext, scriptCode.c_str(), scriptCode.size(), scriptName.c_str(), JS_EVAL_TYPE_GLOBAL);
-
-	if (JS_IsException(result)) {
+	if (JS_IsException(scriptEval)) {
 		JSValue exception = JS_GetException(m_jsContext);
 		const char* str = JS_ToCString(m_jsContext, exception);
-		std::cerr << "Exception in script " << scriptName << ": " << str << std::endl;
+		std::cerr << "Exception in script " << cScript.name << ": " << str << std::endl;
 		JS_FreeCString(m_jsContext, str);
 		JS_FreeValue(m_jsContext, exception);
 	}
 
-	JS_FreeValue(m_jsContext, result);
+	JS_FreeValue(m_jsContext, scriptEval);
 
+	JSValue jsUpdateFunc = JS_GetPropertyStr(m_jsContext, jsGlobal, "onUpdate");
+
+	JSValue jsEntity = (*e)(m_jsContext);
+
+	JSValue args[1];
+	args[0] = jsEntity;
+
+	JSValue updateCall = JS_Call(m_jsContext, jsUpdateFunc, jsGlobal, 1, args);
+
+
+	if (JS_IsException(updateCall)) {
+		JSValue exception = JS_GetException(m_jsContext);
+		const char* str = JS_ToCString(m_jsContext, exception);
+		std::cerr << "Exception in script " << cScript.name << ": " << str << std::endl;
+		JS_FreeCString(m_jsContext, str);
+		JS_FreeValue(m_jsContext, exception);
+	}
+	else {
+		JSValue jsComps = JS_GetPropertyStr(m_jsContext, jsEntity, "components");
+
+		if (e->has<CTransform>()) {
+			auto& cTrans = e->get<CTransform>();
+			JSValue jsTrans = JS_GetPropertyStr(m_jsContext, jsComps, "transform");
+
+			JSValue jsVel = JS_GetPropertyStr(m_jsContext, jsTrans, "velocity");
+			JSValue jsX = JS_GetPropertyStr(m_jsContext, jsVel, "x");
+			JSValue jsY = JS_GetPropertyStr(m_jsContext, jsVel, "y");
+
+			double x, y;
+
+			if (JS_ToFloat64(m_jsContext, &x, jsX)) {}
+			if (JS_ToFloat64(m_jsContext, &y, jsY)) {}
+
+			cTrans.velocity.x = x;
+			cTrans.velocity.y = y;
+
+			JS_FreeValue(m_jsContext, jsX);
+			JS_FreeValue(m_jsContext, jsY);
+			JS_FreeValue(m_jsContext, jsVel);
+			JS_FreeValue(m_jsContext, jsTrans);
+		}
+
+		JS_FreeValue(m_jsContext, jsComps);
+	}
+
+	JS_FreeValue(m_jsContext, jsEntity);
+	JS_FreeValue(m_jsContext, updateCall);
+	JS_FreeValue(m_jsContext, jsUpdateFunc);
 }
 #endif
 
@@ -201,10 +264,9 @@ void GameEngine::sScripting() {
 				c.onUpdate(*e);
 			}
 
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-			if (e->has<CJavascriptScript>()) {
-				auto& c = e->get<CJavascriptScript>();
-				handleJavascriptScriptExecution(c.name);
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+			if (e->has<CQJSScript>()) {
+				handleJavascriptScriptExecution(e);
 			}
 #endif
 		}
@@ -239,3 +301,21 @@ void GameEngine::sCollision() {
 	}
 
 }
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+JSValue GameEngine::operator()(JSContext* ctx) const {
+	JSValue jsGE = JS_NewObject(ctx);
+
+	JSValue jsRT = JS_NewObject(ctx);
+	JS_SetPropertyStr(ctx, jsGE, "renderTarget", JS_DupValue(ctx, jsRT));
+
+	Vec2u size = m_renderTarget.getSize();
+	JSValue jsSize = size(ctx);
+	JS_SetPropertyStr(ctx, jsRT, "size", JS_DupValue(ctx, jsSize));
+	JS_FreeValue(ctx, jsSize);
+
+	JS_FreeValue(ctx, jsRT);
+
+	return jsGE;
+}
+#endif

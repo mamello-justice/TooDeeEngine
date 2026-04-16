@@ -3,6 +3,10 @@
 #include <string>
 #include <tuple>
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+#include <quickjs.h>
+#endif
+
 #include "Components.hpp"
 
 class EntityManager;
@@ -55,4 +59,8 @@ public:
 	void destroy();
 
 	const std::string& tag() const;
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	JSValue operator()(JSContext*) const;
+#endif
 };

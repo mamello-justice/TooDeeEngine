@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 
 class Animation;
+class Script;
 
 class Assets
 {
@@ -26,7 +27,7 @@ class Assets
 	/**
 	 * @brief Map of script names to their corresponding script file paths
 	 */
-	std::map<std::string, std::string> m_scriptMap;
+	std::map<std::string, Script> m_scriptMap;
 
 	/**
 	 * @brief Add a texture to the asset manager
@@ -85,6 +86,7 @@ public:
 	 *
 	 * @param textureName The name of the texture
 	 * @return Reference to the requested texture
+	 * @throws std::runtime_error
 	 */
 	const sf::Texture& getTexture(const std::string& textureName) const;
 
@@ -93,6 +95,7 @@ public:
 	 *
 	 * @param animationName The name of the animation
 	 * @return Reference to the requested animation
+	 * @throws std::runtime_error
 	 */
 	const Animation& getAnimation(const std::string& animationName) const;
 
@@ -101,16 +104,18 @@ public:
 	 *
 	 * @param fontName The name of the font
 	 * @return Reference to the requested font
+	 * @throws std::runtime_error
 	 */
 	const sf::Font& getFont(const std::string& fontName) const;
 
 	/**
-	 * @brief Get a script path by its name
+	 * @brief Get a script by its name
 	 *
 	 * @param scriptName The name of the script
-	 * @return The file path of the requested script
+	 * @return Reference to the requested script
+	 * @throws std::runtime_error
 	 */
-	const std::string& getScriptPath(const std::string& scriptName) const;
+	const Script& getScript(const std::string& scriptName) const;
 
 	/**
 	 * @brief Get all loaded textures
@@ -136,7 +141,7 @@ public:
 	/**
 	 * @brief Get all loaded scripts
 	 *
-	 * @return Map of script names to their corresponding script file paths
+	 * @return Map of script names to their corresponding script objectss
 	 */
-	std::map<std::string, std::string>& getScripts();
+	std::map<std::string, Script>& getScripts();
 };

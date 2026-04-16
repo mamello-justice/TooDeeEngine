@@ -2,14 +2,43 @@
 
 #include <memory>
 #include <functional>
+#include <optional>
 
 #include <SFML/Graphics.hpp>
 
 #include "imgui.h"
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+#include <quickjs.h>
+#endif
+
 #include "ImGuiDirectoryView.hpp"
 #include "TooDeeEngine.hpp"
 #include "Vec2.hpp"
+
+
+#ifdef BUILD_EXAMPLES
+enum class Example {
+#ifdef HELLO_WORLD_EXAMPLE
+    HelloWorld,
+#endif
+#ifdef MOVING_SHAPES_EXAMPLE
+    MovingShapes,
+#endif
+#ifdef NATIVE_SCRIPTING_EXAMPLE
+    NativeScripting,
+#endif
+#ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
+    JavaScriptScripting,
+#endif
+#ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
+    TypeScriptScripting,
+#endif
+#ifdef LUA_SCRIPTING_EXAMPLE
+    LuaScripting,
+#endif
+};
+#endif
 
 struct AppState {
     bool DarkTheme = true;
@@ -46,6 +75,19 @@ struct MenuState {
     bool DisableSections = false;
 };
 
+struct JSMemoryUsageDisplay {
+    std::string malloc_size = "";
+    std::string memory_used_size = "";
+    std::string atom_count = "";
+    std::string atom_size = "";
+    std::string obj_count = "";
+    std::string obj_size = "";
+    std::string str_count = "";
+    std::string str_size = "";
+    std::string array_count = "";
+    std::string c_func_count = "";
+};
+
 bool isControlF4(const sf::Event::KeyPressed*);
 
 bool isControlShiftQ(const sf::Event::KeyPressed*);
@@ -57,14 +99,25 @@ class Editor {
     MenuState                   m_menuState;
 
     sf::Clock                   m_deltaClock;
+    sf::Clock                   m_metricsClock;
     std::shared_ptr<GameEngine> m_gameEngine;
     ImVec2                      m_viewportSize;
 
-    std::vector<std::function<void()>> m_updateSystems;
+
+#ifdef BUILD_EXAMPLES
+    std::optional<Example>      m_selectedExample;
+#endif
+
+    std::vector<std::function<void()>> m_preEngineUpdateSystems;
+    std::vector<std::function<void()>> m_postEngineUpdateSystems;
     std::vector<std::function<void()>> m_renderSystems;
 
     std::string m_consoleText;
     DirectoryNode m_scriptsDirectoryTree;
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+    JSMemoryUsageDisplay m_qjsStats;
+#endif
 
     std::shared_ptr<Entity> m_selectedEntity;
 
@@ -82,8 +135,17 @@ public:
     void play();
     void pause();
     void stop();
+    void restart();
 
+#ifdef BUILD_EXAMPLES
+    void loadExample(Example name);
+    void unloadExample();
+#endif
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+    void updateQjsStats();
+#endif
     void updateStyles();
+    void reloadScripts();
     bool shoudPassEventToEngine(std::optional<sf::Event> event);
     void toggleTheme();
     void toggleGrid();
@@ -91,6 +153,7 @@ public:
     void toggleCollisions();
     void toggleAnimationNames();
 
+    void sMetrics();
     void sViewport();
     void sUserInput();
     void sRender();

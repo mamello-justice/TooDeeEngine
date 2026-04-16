@@ -12,6 +12,10 @@
 #include "NativeScripting.hpp"
 #endif
 
+#ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
+#include "JavaScriptScripting.hpp"
+#endif
+
 #ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
 #include "TypeScriptScripting.hpp"
 #endif

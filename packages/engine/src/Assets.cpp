@@ -7,10 +7,11 @@
 #include <string>
 
 #include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+
+#include "INIReader.h"
 
 #include "Animation.hpp"
-#include "INIReader.h"
+#include "Script.hpp"
 
 Assets& Assets::Instance() {
 	static Assets assets;
@@ -24,12 +25,12 @@ void Assets::addTexture(const std::string& textureName, const std::string& path,
 	m_textureMap[textureName] = sf::Texture();
 
 	if (!m_textureMap[textureName].loadFromFile(path)) {
-		std::cerr << "Could not load texture file: " << path << std::endl;
+		std::cerr << "[ERROR][ASSETS] Could not load texture file: " << path << std::endl;
 		m_textureMap.erase(textureName);
 	}
 	else {
 		m_textureMap[textureName].setSmooth(smooth);
-		std::cout << "Loaded Texture: [" << textureName << "] = " << path << std::endl;
+		std::cout << "[INFO][ASSETS] Loaded Texture: [" << textureName << "] = " << path << std::endl;
 	}
 }
 
@@ -46,11 +47,11 @@ void Assets::addFont(const std::string& fontName, const std::string& path) {
 	m_fontMap[fontName] = sf::Font();
 
 	if (!m_fontMap[fontName].openFromFile(path)) {
-		std::cerr << "Could not load font file: " << path << std::endl;
+		std::cerr << "[ERROR][ASSETS] Could not load font file: " << path << std::endl;
 		m_fontMap.erase(fontName);
 	}
 	else {
-		std::cout << "Loaded Font: [" << fontName << "] = " << path << std::endl;
+		std::cout << "[INFO][ASSETS] Loaded Font: [" << fontName << "] = " << path << std::endl;
 	}
 }
 
@@ -59,12 +60,27 @@ void Assets::addFont(const std::string& fontName, const std::string& path) {
 // Note: This function only stores the path to the script, it does not load the script itself
 void Assets::addScript(const std::string& scriptName, const std::string& path) {
 	if (!std::filesystem::exists(path)) {
-		std::cerr << "Could not find script file: " << path << std::endl;
+		std::cerr << "[ERROR][ASSETS] Script file not found: " << path << std::endl;
+		return;
 	}
-	else {
-		m_scriptMap[scriptName] = path;
-		std::cout << "Added Script: [" << scriptName << "] = " << path << std::endl;
+
+	std::ifstream scriptFile(path);
+	if (!scriptFile.is_open()) {
+		std::cerr << "[ERROR][ASSETS] Failed to open script file: " << path << std::endl;
+		return;
 	}
+
+	std::string scriptCode;
+	scriptCode.assign((std::istreambuf_iterator<char>(scriptFile)),
+		(std::istreambuf_iterator<char>()));
+	scriptFile.close();
+
+	if (scriptCode.empty()) {
+		std::cout << "[WARN][ASSETS] Script file is empty: " << path << std::endl;
+	}
+
+	m_scriptMap[scriptName] = Script(path, scriptCode);
+	std::cout << "[INFO][ASSETS] Added Script: [" << scriptName << "] = " << path << std::endl;
 }
 
 void Assets::loadFromFile(const std::string& config) {
@@ -110,27 +126,36 @@ void Assets::loadFromFile(const std::string& config) {
 
 // -------------------------------------------------------
 // Getters
+
 const sf::Texture& Assets::getTexture(const std::string& name) const {
 	auto it = m_textureMap.find(name);
-	assert(it != m_textureMap.end());
+	if (it == m_textureMap.end()) {
+		throw std::runtime_error("[ASSETS] Texture NotFound");
+	}
 	return it->second;
 }
 
 const Animation& Assets::getAnimation(const std::string& name) const {
 	auto it = m_animationMap.find(name);
-	assert(it != m_animationMap.end());
+	if (it == m_animationMap.end()) {
+		throw std::runtime_error("[ASSETS] Animation NotFound");
+	}
 	return it->second;
 }
 
 const sf::Font& Assets::getFont(const std::string& name) const {
 	auto it = m_fontMap.find(name);
-	assert(it != m_fontMap.end());
+	if (it == m_fontMap.end()) {
+		throw std::runtime_error("[ASSETS] Font NotFound");
+	}
 	return it->second;
 }
 
-const std::string& Assets::getScriptPath(const std::string& name) const {
+const Script& Assets::getScript(const std::string& name) const {
 	auto it = m_scriptMap.find(name);
-	assert(it != m_scriptMap.end());
+	if (it == m_scriptMap.end()) {
+		throw std::runtime_error("[ASSETS] Script NotFound");
+	}
 	return it->second;
 }
 
@@ -146,6 +171,6 @@ std::map<std::string, sf::Font>& Assets::getFonts() {
 	return m_fontMap;
 }
 
-std::map<std::string, std::string>& Assets::getScripts() {
+std::map<std::string, Script>& Assets::getScripts() {
 	return m_scriptMap;
 }

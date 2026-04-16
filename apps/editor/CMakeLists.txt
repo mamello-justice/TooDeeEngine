@@ -36,8 +36,8 @@ target_link_libraries(TooDeeEditor
     TooDeeEngine
 )
 
-if (TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
-    target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING)
+if (TOO_DEE_ENGINE_QJS_SCRIPTING)
+    target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_link_libraries(TooDeeEditor PRIVATE qjs)
     target_include_directories(TooDeeEditor PRIVATE ${quickjs_SOURCE_DIR})
 endif()
@@ -58,6 +58,11 @@ if(TOO_DEE_ENGINE_BUILD_EXAMPLES)
     if(TARGET NativeScripting)
         target_compile_definitions(TooDeeEditor PRIVATE NATIVE_SCRIPTING_EXAMPLE)
         target_link_libraries(TooDeeEditor PRIVATE debug NativeScripting)
+    endif()
+    
+    if(TARGET JavaScriptScripting)
+        target_compile_definitions(TooDeeEditor PRIVATE JAVASCRIPT_SCRIPTING_EXAMPLE)
+        target_link_libraries(TooDeeEditor PRIVATE debug JavaScriptScripting)
     endif()
     
     if(TARGET TypeScriptScripting)

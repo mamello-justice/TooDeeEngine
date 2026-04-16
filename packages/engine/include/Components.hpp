@@ -7,6 +7,10 @@
 
 #include <SFML/Graphics.hpp>
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+#include <quickjs.h>
+#endif
+
 #include "Animation.hpp"
 #include "Vec2.hpp"
 
@@ -37,6 +41,10 @@ public:
 	CTransform(const Vec2f& p);
 	CTransform(const Vec2f& p, const Vec2f& v);
 	CTransform(const Vec2f& p, const Vec2f& v, const Vec2f& s, float a);
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	JSValue operator()(JSContext*) const;
+#endif
 };
 
 class CCircle : public Component {
@@ -98,6 +106,10 @@ public:
 
 	CBoundingBox() = default;
 	CBoundingBox(const Vec2f& s);
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	JSValue operator()(JSContext*) const;
+#endif
 };
 
 class CBoundingCircle : public Component {
@@ -106,6 +118,10 @@ public:
 
 	CBoundingCircle() = default;
 	CBoundingCircle(float r);
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	JSValue operator()(JSContext*) const;
+#endif
 };
 
 class CAnimation : public Component {
@@ -141,13 +157,13 @@ public:
 	CNativeScript(const std::function<void(Entity&)>& updateFunc);
 };
 
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-class CJavascriptScript : public Component {
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+class CQJSScript : public Component {
 public:
 	std::string name;
 
-	CJavascriptScript() = default;
-	CJavascriptScript(const std::string& n);
+	CQJSScript() = default;
+	CQJSScript(const std::string& n);
 };
 #endif
 
@@ -158,8 +174,8 @@ using ComponentTuple = std::tuple<
 	CCircle,
 	CGravity,
 	CInput,
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-	CJavascriptScript,
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	CQJSScript,
 #endif
 	CLabel,
 	CLifespan,
@@ -177,8 +193,8 @@ enum class ComponentEnum {
 	Circle,
 	Gravity,
 	Input,
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-	JavacriptScript,
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	QJSScript,
 #endif
 	Label,
 	Lifespan,
@@ -198,8 +214,8 @@ constexpr std::array<ComponentEnum, COMPONENT_COUNT> COMPONENTS = {
 	ComponentEnum::Circle,
 	ComponentEnum::Gravity,
 	ComponentEnum::Input,
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-	ComponentEnum::JavacriptScript,
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	ComponentEnum::QJSScript,
 #endif
 	ComponentEnum::Label,
 	ComponentEnum::Lifespan,
@@ -235,9 +251,9 @@ bool hasComponentByEnum(const EntityType& entity, ComponentEnum comp) {
 		return entity.template has<CGravity>();
 	case ComponentEnum::Input:
 		return entity.template has<CInput>();
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-	case ComponentEnum::JavacriptScript:
-		return entity.template has<CJavascriptScript>();
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	case ComponentEnum::QJSScript:
+		return entity.template has<CQJSScript>();
 #endif
 	case ComponentEnum::Label:
 		return entity.template has<CLabel>();
@@ -264,8 +280,8 @@ static_assert(std::is_default_constructible_v<CBoundingCircle>);
 static_assert(std::is_default_constructible_v<CCircle>);
 static_assert(std::is_default_constructible_v<CGravity>);
 static_assert(std::is_default_constructible_v<CInput>);
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-static_assert(std::is_default_constructible_v<CJavascriptScript>);
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+static_assert(std::is_default_constructible_v<CQJSScript>);
 #endif
 static_assert(std::is_default_constructible_v<CLabel>);
 static_assert(std::is_default_constructible_v<CLifespan>);

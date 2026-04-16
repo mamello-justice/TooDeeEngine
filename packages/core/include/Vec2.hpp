@@ -3,6 +3,10 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+#include <quickjs.h>
+#endif
+
 template <typename T>
 class Vec2
 {
@@ -228,6 +232,22 @@ public:
 	inline Vec2 abs() const {
 		return Vec2(x < 0 ? -x : x, y < 0 ? -y : y);
 	}
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	JSValue operator()(JSContext* ctx) const {
+		JSValue jsV = JS_NewObject(ctx);
+
+		JSValue jsX = JS_NewFloat64(ctx, x);
+		JS_SetPropertyStr(ctx, jsV, "x", JS_DupValue(ctx, jsX));
+		JS_FreeValue(ctx, jsX);
+
+		JSValue jsY = JS_NewFloat64(ctx, y);
+		JS_SetPropertyStr(ctx, jsV, "y", JS_DupValue(ctx, jsY));
+		JS_FreeValue(ctx, jsY);
+
+		return jsV;
+	}
+#endif
 };
 
 using Vec2f = Vec2<float>;

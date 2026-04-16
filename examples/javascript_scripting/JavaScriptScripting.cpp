@@ -1,4 +1,4 @@
-#include "TypescriptScripting.hpp"
+#include "JavaScriptScripting.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -7,13 +7,12 @@
 #include <print>
 #include <sstream>
 #include <string>
-
 #include <SFML/Graphics.hpp>
 
 #include "TooDeeEngine.hpp"
 #include "INIReader.h"
 
-namespace TypeScriptScripting
+namespace JavaScriptScripting
 {
     std::istream& operator>>(std::istream& is, Vec2f& v) {
         is >> v.x >> v.y;
@@ -86,7 +85,7 @@ namespace TypeScriptScripting
         e->add<CBoundingCircle>(config.radius);
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-        e->add<CQJSScript>("cboundingcircle_script");
+        e->add<CQJSScript>("bounding_circle_collision_script");
 #endif
     }
 
@@ -99,7 +98,8 @@ namespace TypeScriptScripting
         e->add<CBoundingBox>(config.size);
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-        e->add<CQJSScript>("cboundingbox_script");
+        e->add<CQJSScript>("bounding_box_collision_script");
 #endif
     }
-} // namespace TypescriptScripting
+
+} // namespace JavaScriptScripting

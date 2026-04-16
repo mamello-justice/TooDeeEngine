@@ -1,14 +1,23 @@
 #include "Editor.hpp"
 
+#include <algorithm>
 #include <format>
+#include <memory>
 #include <iostream>
+#include <optional>
 
 #include <SFML/Graphics.hpp>
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+#include <quickjs.h>
+#endif
 
 #include "imgui.h"
 #include "imgui-SFML.h"
 
 #include "TooDeeEngine.hpp"
+#include "bytesize.hpp"
+#include "Components.hpp"
 #include "ImGuiDirectoryView.hpp"
 #include "Styles.hpp"
 #include "Vec2.hpp"
@@ -16,6 +25,7 @@
 #ifdef BUILD_EXAMPLES
 #include "Examples.hpp"
 #endif
+
 
 Editor::Editor(const std::string& configPath) :
     m_gameEngine(std::make_shared<GameEngine>()) {
@@ -42,13 +52,18 @@ void Editor::init(const std::string& configPath) {
     updateStyles();
 
     // Register Systems
-    m_updateSystems.push_back(std::bind(&Editor::sViewport, this));
-    m_updateSystems.push_back(std::bind(&Editor::sUserInput, this));
+    m_preEngineUpdateSystems.push_back(std::bind(&Editor::sViewport, this));
+    m_preEngineUpdateSystems.push_back(std::bind(&Editor::sUserInput, this));
+    m_postEngineUpdateSystems.push_back(std::bind(&Editor::sMetrics, this));
     m_renderSystems.push_back(std::bind(&Editor::sRender, this));
     m_renderSystems.push_back(std::bind(&Editor::sGUI, this));
 
-    auto& scripts = Assets::Instance().getScripts();
-    m_scriptsDirectoryTree = createDirectoryNodeTreeFromMap(scripts);
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+    m_gameEngine->setupQJSDebug();
+    updateQjsStats();
+#endif
+
+    reloadScripts();
 }
 
 void Editor::run() {
@@ -59,9 +74,11 @@ void Editor::update() {
     // Update
     ImGui::SFML::Update(m_gameEngine->window(), m_deltaClock.restart());
 
-    for (auto system : m_updateSystems) { system(); }
+    for (auto system : m_preEngineUpdateSystems) { system(); }
 
     m_gameEngine->update();
+
+    for (auto system : m_postEngineUpdateSystems) { system(); }
 
     // Render
     m_gameEngine->window().clear();
@@ -87,13 +104,118 @@ void Editor::pause() {
 }
 
 void Editor::stop() {
+    if (!m_selectedExample) { return; }
+
     if (m_gameEngine->currentScene()) {
-        m_gameEngine->currentScene()->setPaused(true);
+        unloadExample();
+        loadExample(*m_selectedExample);
     }
 }
 
+void Editor::restart() {
+    stop();
+    play();
+}
+
+#ifdef BUILD_EXAMPLES
+void Editor::loadExample(Example name) {
+    m_selectedExample = name;
+    switch (name) {
+#ifdef HELLO_WORLD_EXAMPLE
+    case Example::HelloWorld:
+    {
+        Assets::Instance().loadFromFile("hello_world/config.ini");
+        auto scene = std::make_shared<HelloWorld>(m_gameEngine);
+        m_gameEngine->changeScene("HelloWorld", scene);
+        break;
+    }
+#endif
+#ifdef MOVING_SHAPES_EXAMPLE
+    case Example::MovingShapes: {
+        Assets::Instance().loadFromFile("moving_shapes/config.ini");
+        auto scene = std::make_shared<MovingShapes::Example>(m_gameEngine);
+        m_gameEngine->changeScene("MovingShapes", scene);
+        scene->loadLevel("moving_shapes/level.txt");
+        break;
+    }
+#endif
+#ifdef NATIVE_SCRIPTING_EXAMPLE
+    case Example::NativeScripting:
+    {
+        Assets::Instance().loadFromFile("native_scripting/config.ini");
+        auto scene = std::make_shared<NativeScripting::Example>(m_gameEngine);
+        m_gameEngine->changeScene("NativeScripting", scene);
+        scene->loadLevel("native_scripting/level.txt");
+        break;
+    }
+#endif
+#ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
+    case Example::JavaScriptScripting:
+    {
+        Assets::Instance().loadFromFile("javascript_scripting/config.ini");
+        auto scene = std::make_shared<JavaScriptScripting::Example>(m_gameEngine);
+        m_gameEngine->changeScene("JavaScriptScripting", scene);
+        scene->loadLevel("javascript_scripting/level.txt");
+        break;
+    }
+#endif
+#ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
+    case Example::TypeScriptScripting:
+    {
+        Assets::Instance().loadFromFile("typescript_scripting/config.ini");
+        auto scene = std::make_shared<TypeScriptScripting::Example>(m_gameEngine);
+        m_gameEngine->changeScene("TypeScriptScripting", scene);
+        scene->loadLevel("typescript_scripting/level.txt");
+        break;
+    }
+#endif
+#ifdef LUA_SCRIPTING_EXAMPLE
+    case Example::LuaScripting:
+    {
+        Assets::Instance().loadFromFile("lua_scripting/config.ini");
+        auto scene = std::make_shared<LuaScripting::Example>(m_gameEngine);
+        m_gameEngine->changeScene("LuaScripting", scene);
+        scene->loadLevel("lua_scripting/level.txt");
+        break;
+    }
+#endif
+    }
+
+    reloadScripts();
+}
+
+void Editor::unloadExample() {
+    m_gameEngine->removeScene(m_gameEngine->currentScene());
+}
+#endif
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+void Editor::updateQjsStats() {
+    JSMemoryUsage qjsStats;
+    JS_ComputeMemoryUsage(m_gameEngine->m_jsRuntime, &qjsStats);
+
+    m_qjsStats.malloc_size = bytesize::bytesize(std::max(0, (int)qjsStats.malloc_size)).format();
+    m_qjsStats.memory_used_size = bytesize::bytesize(std::max(0, (int)qjsStats.memory_used_size)).format();
+    m_qjsStats.atom_count = std::to_string(qjsStats.atom_count);
+    m_qjsStats.atom_size = bytesize::bytesize(std::max(0, (int)qjsStats.atom_size)).format();
+    m_qjsStats.obj_count = std::to_string(qjsStats.obj_count);
+    m_qjsStats.obj_size = bytesize::bytesize(std::max(0, (int)qjsStats.obj_size)).format();
+    m_qjsStats.str_count = std::to_string(qjsStats.str_count);
+    m_qjsStats.str_size = bytesize::bytesize(std::max(0, (int)qjsStats.str_size)).format();
+    m_qjsStats.array_count = std::to_string(qjsStats.array_count);
+    m_qjsStats.c_func_count = std::to_string(qjsStats.c_func_count);
+}
+#endif
+
 void Editor::updateStyles() {
     ImGui::SetupImGuiStyle(m_appState.DarkTheme, 1);
+}
+
+void Editor::reloadScripts() {
+    auto& scripts = Assets::Instance().getScripts();
+    std::map<std::string, std::string> scriptPaths;
+    for (const auto& [name, script] : scripts) { scriptPaths[name] = script.getPath(); }
+    m_scriptsDirectoryTree = createDirectoryNodeTreeFromMap(scriptPaths);
 }
 
 bool Editor::shoudPassEventToEngine(std::optional<sf::Event> event) {
@@ -124,6 +246,15 @@ void Editor::toggleCollisions() {
 
 void Editor::toggleAnimationNames() {
     m_appState.DrawAnimationNames = !m_appState.DrawAnimationNames;
+}
+
+void Editor::sMetrics() {
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+    if (m_metricsClock.getElapsedTime().asSeconds() >= 10.0f) {
+        updateQjsStats();
+        m_metricsClock.restart();
+    }
+#endif
 }
 
 void Editor::sViewport() {
@@ -276,49 +407,45 @@ void Editor::sGUI() {
         if (ImGui::BeginMenu("Examples")) {
 #ifdef HELLO_WORLD_EXAMPLE
             if (ImGui::MenuItem("Hello World")) {
-                auto scene = std::make_shared<HelloWorld>(m_gameEngine);
-                m_gameEngine->changeScene("HelloWorld", scene);
+                loadExample(Example::HelloWorld);
             }
 #endif
 
 #ifdef MOVING_SHAPES_EXAMPLE
             if (ImGui::MenuItem("Moving Shapes")) {
-                auto scene = std::make_shared<MovingShapes::Example>(m_gameEngine);
-                m_gameEngine->changeScene("MovingShapes", scene);
-                scene->loadLevel("moving_shapes/level.txt");
+                loadExample(Example::MovingShapes);
             }
 #endif
 
 #ifdef NATIVE_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("Native Scripting")) {
-                auto scene = std::make_shared<NativeScripting::Example>(m_gameEngine);
-                m_gameEngine->changeScene("NativeScripting", scene);
-                scene->loadLevel("native_scripting/level.txt");
+                loadExample(Example::NativeScripting);
+            }
+#endif
+
+#ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
+            if (ImGui::MenuItem("JavaScript Scripting")) {
+                loadExample(Example::JavaScriptScripting);
             }
 #endif
 
 #ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("TypeScript Scripting")) {
-                auto scene = std::make_shared<TypeScriptScripting::Example>(m_gameEngine);
-                m_gameEngine->changeScene("TypeScriptScripting", scene);
-                scene->loadLevel("typescript_scripting/level.txt");
+                loadExample(Example::TypeScriptScripting);
             }
 #endif
 
 #ifdef LUA_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("Lua Scripting")) {
-                auto scene = std::make_shared<LuaScripting::Example>(m_gameEngine);
-                m_gameEngine->changeScene("LuaScripting", scene);
-                scene->loadLevel("lua_scripting/level.txt");
+                loadExample(Example::LuaScripting)
             }
 #endif
-
             ImGui::EndMenu();
         }
 #endif
 
         if (ImGui::BeginMenu("Help")) {
-            if (ImGui::MenuItem("Example")) { /* Handle New action */ }
+            if (ImGui::MenuItem("About")) { /* Handle New action */ }
             ImGui::EndMenu();
         }
 
@@ -335,11 +462,15 @@ void Editor::sGUI() {
     }
 
     if (ImGui::Begin("Controls")) {
-        if (ImGui::Button("Play")) { play(); }
+        bool hasScene = m_gameEngine->currentScene() != nullptr;
+        bool isPaused = hasScene && m_gameEngine->currentScene()->isPaused();
+        if (ImGui::IconButton("Play", "play_icon", hasScene && isPaused)) { play(); }
         ImGui::SameLine();
-        if (ImGui::Button("Pause")) { pause(); }
+        if (ImGui::IconButton("Pause", "pause_icon", hasScene && !isPaused)) { pause(); }
         ImGui::SameLine();
-        if (ImGui::Button("Stop")) { stop(); }
+        if (ImGui::IconButton("Restart", "retry_icon", hasScene)) { restart(); }
+        ImGui::SameLine();
+        if (ImGui::IconButton("Stop", "stop_icon", hasScene)) { stop(); }
         ImGui::End();
     }
 
@@ -355,7 +486,7 @@ void Editor::sGUI() {
                 for (auto& [tag, entities] : m_gameEngine->currentScene()->getEntityManager().getEntityMap()) {
                     if (ImGui::TreeNode(tag.c_str())) {
                         for (auto& e : entities) {
-                            if (ImGui::Button(std::format("D##{}{}", tag, e->id()).c_str())) {
+                            if (ImGui::IconButton(std::format("D##{}{}", tag, e->id()).c_str(), "bin_icon")) {
                                 e->destroy();
                             }
 
@@ -514,10 +645,10 @@ void Editor::sGUI() {
                 }
             }
 
-#ifdef TOO_DEE_ENGINE_JAVASCRIPT_SCRIPTING
-            if (m_selectedEntity->has<CJavascriptScript>()) {
-                auto& cJSScript = m_selectedEntity->get<CJavascriptScript>();
-                auto& scriptPath = Assets::Instance().getScriptPath(cJSScript.name);
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+            if (m_selectedEntity->has<CQJSScript>()) {
+                auto& cJSScript = m_selectedEntity->get<CQJSScript>();
+                auto& scriptPath = Assets::Instance().getScript(cJSScript.name).getPath();
                 if (ImGui::CollapsingHeader("JavaScript Script", ImGuiTreeNodeFlags_DefaultOpen)) {
                     ImGui::Indent();
 
@@ -538,6 +669,19 @@ void Editor::sGUI() {
         ImGui::Text(m_consoleText.c_str());
         ImGui::End(); // ImGui::Begin("Console")
     }
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+    if (ImGui::Begin("Memory Stats")) {
+        ImGui::Text("Malloc size: %s", m_qjsStats.malloc_size.c_str());
+        ImGui::Text("Memory used: %s", m_qjsStats.memory_used_size.c_str());
+        ImGui::Text("Atoms: %s (%s)", m_qjsStats.atom_count.c_str(), m_qjsStats.atom_size.c_str());
+        ImGui::Text("Objects: %s (%s)", m_qjsStats.obj_count.c_str(), m_qjsStats.obj_size.c_str());
+        ImGui::Text("Strings: %s (%s)", m_qjsStats.str_count.c_str(), m_qjsStats.str_size.c_str());
+        ImGui::Text("Arrays: %s", m_qjsStats.array_count.c_str());
+        ImGui::Text("C functions: %s", m_qjsStats.c_func_count.c_str());
+        ImGui::End();
+    }
+#endif
 
     if (ImGui::Begin("Project Assets")) {
 

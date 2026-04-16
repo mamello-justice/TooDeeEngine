@@ -21,6 +21,4 @@ just example native_scripting
 ## Source Files
 
 - `NativeScripting.hpp` - Header file with game setup
-- `NativeScripting.cpp` - Implementation file
-- `CollisionBoxScript.cpp` - Native/C++ script for binding collision box entities within screen
-- `CollisionCircleScript.cpp` - Native/C++ script for binding collision circle entities within screen
+- `NativeScripting.cpp` - Implementation file (Includes onBoundingBoxCollision and onBoundingCircleCollision script functions)
