@@ -2,25 +2,12 @@
   "name": "@too-dee-engine/typescript-scripting-example",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "@too-dee-engine/source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    }
+  "scripts": {
+    "build": "pnpm run --parallel \"/^build:.*/\"",
+    "build:bounding-box": "tsc --build bounding_box_collision_script/tsconfig.json",
+    "build:bounding-circle": "tsc --build bounding_circle_collision_script/tsconfig.json"
   },
   "dependencies": {
     "tslib": "^2.3.0"
-  },
-  "devDependencies": {
-    "@too-dee-engine/javascript": "workspace:*",
-    "@too-dee-engine/typescript-scripting-example-cboundingbox": "workspace:*",
-    "@too-dee-engine/typescript-scripting-example-cboundingcircle": "workspace:*"
   }
 }

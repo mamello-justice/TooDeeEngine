@@ -1,7 +1,9 @@
-function onUpdate(entity) {
+function onUpdate(entity: TooDeeEngine.Entity): void {
     const wSize = TooDeeEngine.renderTarget.size;
     const cTrans = entity.components.transform;
     const cCollider = entity.components.boundingCircle;
+
+    if (!cTrans || !cCollider) return
 
     // Vertical
     if ((cTrans.pos.y - cCollider.radius < 0 && cTrans.velocity.y < 0) ||

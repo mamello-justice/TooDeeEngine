@@ -6,14 +6,5 @@
     {
       "path": "./examples/typescript_scripting"
     },
-    {
-      "path": "./examples/typescript_scripting/assets/scripts/cboundingbox"
-    },
-    {
-      "path": "./examples/typescript_scripting/assets/scripts/cboundingcircle"
-    },
-    {
-      "path": "./packages/javascript"
-    }
   ]
 }

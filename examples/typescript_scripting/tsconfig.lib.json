@@ -1,21 +1,14 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "module": "es2022",
+    "moduleResolution": "bundler",
   },
-  "include": ["src/**/*.ts"],
-  "references": [
-    {
-      "path": "assets/scripts/cboundingcircle/tsconfig.lib.json"
-    },
-    {
-      "path": "assets/scripts/cboundingbox/tsconfig.lib.json"
-    }
-  ]
+  "include": [],
+  "references": []
 }

@@ -86,7 +86,7 @@ namespace TypeScriptScripting
         e->add<CBoundingCircle>(config.radius);
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-        e->add<CQJSScript>("cboundingcircle_script");
+        e->add<CQJSScript>("bounding_circle_collision_script");
 #endif
     }
 
@@ -99,7 +99,7 @@ namespace TypeScriptScripting
         e->add<CBoundingBox>(config.size);
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-        e->add<CQJSScript>("cboundingbox_script");
+        e->add<CQJSScript>("bounding_box_collision_script");
 #endif
     }
 } // namespace TypescriptScripting

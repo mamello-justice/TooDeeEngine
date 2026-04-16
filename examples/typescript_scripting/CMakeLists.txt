@@ -17,7 +17,7 @@ target_sources(TypeScriptScripting
 
 target_include_directories(TypeScriptScripting
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(TypeScriptScripting
@@ -46,7 +46,7 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "typescript_scripting")
 
     target_include_directories(TypeScriptScriptingApp
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
     target_link_libraries(TypeScriptScripting App

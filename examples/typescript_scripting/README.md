@@ -20,6 +20,7 @@ just example TypesScriptScripting
 
 ## Source Files
 
-- `TypesScriptScripting.hpp` - Header file with game setup
-- `TypesScriptScripting.cpp` - Implementation file
-- `script.ts` - TypeScript script for game logic
+- `src/TypesScriptScripting.hpp` - Header file with game setup
+- `src/TypesScriptScripting.cpp` - Implementation file
+- `bounding_box_collision_script/index.js` - TypeScript script for bounding rectangles to screen
+- `bounding_circle_collision_script/index.js` - TypeScript script for bounding circles to screen

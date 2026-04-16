@@ -4,12 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "assets/scripts/cboundingcircle"
-    },
-    {
-      "path": "assets/scripts/cboundingbox"
-    },
-    {
       "path": "./tsconfig.lib.json"
     }
   ]
