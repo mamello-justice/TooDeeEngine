@@ -12,12 +12,15 @@ void Renderer::render(std::shared_ptr<GameEngine> engine) {
         for (const auto& e : engine->currentScene()->getEntityManager().getEntities()) {
             if (e->has<CAnimation>() && e->has<CTransform>()) {
                 auto& cTrans = e->get<CTransform>();
-                auto& anim = e->get<CAnimation>().animation;
-                anim.getSprite()->setOrigin(anim.getSprite()->getGlobalBounds().size / 2.f);
-                anim.getSprite()->setRotation(sf::radians(cTrans.angle));
-                anim.getSprite()->setPosition({ cTrans.pos.x, cTrans.pos.y });
-                anim.getSprite()->setScale({ cTrans.scale.x, cTrans.scale.y });
-                engine->renderTarget().draw(*anim.getSprite());
+                auto& cAnim = e->get<CAnimation>();
+
+                auto& texture = Assets::Instance().getTexture(cAnim.animation.getTextureName());
+                auto sprite = sf::Sprite(texture, cAnim.animation.getSpriteRect());
+                sprite.setOrigin(sprite.getGlobalBounds().size / 2.f);
+                sprite.setRotation(sf::radians(cTrans.angle));
+                sprite.setPosition({ cTrans.pos.x, cTrans.pos.y });
+                sprite.setScale({ cTrans.scale.x, cTrans.scale.y });
+                engine->renderTarget().draw(sprite);
             }
 
             if (e->has<CCircle>() && e->has<CTransform>()) {

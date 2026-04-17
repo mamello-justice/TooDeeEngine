@@ -103,7 +103,6 @@ class Editor {
     std::shared_ptr<GameEngine> m_gameEngine;
     ImVec2                      m_viewportSize;
 
-
 #ifdef BUILD_EXAMPLES
     std::optional<Example>      m_selectedExample;
 #endif

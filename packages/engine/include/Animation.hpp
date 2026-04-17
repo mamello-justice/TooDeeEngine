@@ -29,13 +29,9 @@ class Animation
 	 */
 	std::string m_textureName = "none";
 	/**
-	 * @brief Sprite size
+	 * @brief Sprite rect
 	 */
-	Vec2f m_spriteSize;
-
-	std::shared_ptr<sf::Sprite> m_sprite;
-
-	void updateSprite();
+	sf::IntRect m_spriteRect;
 
 public:
 	/**
@@ -79,18 +75,18 @@ public:
 	const std::string& getName() const;
 
 	/**
-	 * @brief Get the texture rectangle of the current frame
+	 * @brief Get the name of the underlying texture
 	 *
-	 * @return The texture rectangle
+	 * @returns The name of the texture
 	 */
-	const Vec2f& getSize() const;
+	const std::string& getTextureName() const;
 
 	/**
-	 * @brief Get the sprite for the current frame
+	 * @brief Get the sprite rect for the current frame
 	 *
-	 * @return The sprite
+	 * @return The sprite rect
 	 */
-	std::shared_ptr<sf::Sprite> getSprite();
+	const sf::IntRect& getSpriteRect() const;
 };
 
 static_assert(std::is_default_constructible_v<Animation>);

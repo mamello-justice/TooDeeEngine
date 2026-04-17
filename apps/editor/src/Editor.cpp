@@ -26,7 +26,6 @@
 #include "Examples.hpp"
 #endif
 
-
 Editor::Editor(const std::string& configPath) :
     m_gameEngine(std::make_shared<GameEngine>()) {
     m_gameEngine->m_shouldRender = true;
@@ -104,12 +103,14 @@ void Editor::pause() {
 }
 
 void Editor::stop() {
+#ifdef BUILD_EXAMPLES
     if (!m_selectedExample) { return; }
 
     if (m_gameEngine->currentScene()) {
         unloadExample();
         loadExample(*m_selectedExample);
     }
+#endif
 }
 
 void Editor::restart() {
@@ -450,7 +451,7 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
-    }
+        }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     if (ImGui::Begin("Viewport")) {
@@ -695,7 +696,9 @@ void Editor::sGUI() {
                 int count = 0;
                 for (auto& [name, anim] : animations) {
                     count++;
-                    ImGui::ImageButton(name.c_str(), *(anim.getSprite()), sf::Vector2f(32, 32));
+                    auto& texture = Assets::Instance().getTexture(anim.getTextureName());
+                    auto sprite = sf::Sprite(texture, anim.getSpriteRect());
+                    ImGui::ImageButton(name.c_str(), sprite, sf::Vector2f(32, 32));
                     if ((count % 6) != 0 && count != animations.size()) {
                         ImGui::SameLine();
                     }
@@ -744,7 +747,7 @@ void Editor::sGUI() {
     }
 
     ImGui::SFML::Render(m_gameEngine->window());
-}
+    }
 
 bool isControlF4(const sf::Event::KeyPressed* keyPressed) {
     bool isControl =
