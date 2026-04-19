@@ -1,7 +1,0 @@
-{
-    "extends": "../tsconfig.lib.json",
-    "include": [
-        "./index.ts",
-        "../../../types/too-dee-engine.d.ts"
-    ]
-}

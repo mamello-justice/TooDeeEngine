@@ -1,5 +1,6 @@
 #include "GameEngine.hpp"
 
+#include <string>
 #include <vector>
 #include <memory>
 
@@ -190,18 +191,7 @@ void GameEngine::handleJavascriptScriptExecution(std::shared_ptr<Entity> e) {
 	JS_FreeValue(m_jsContext, jsEngine);
 
 	auto& cScript = e->get<CQJSScript>();
-	auto& script = Assets::Instance().getScript(cScript.name);
-	JSValue scriptEval = JS_Eval(m_jsContext, script.getContent().c_str(), script.getContent().size(), script.getPath().c_str(), JS_EVAL_TYPE_GLOBAL);
-
-	if (JS_IsException(scriptEval)) {
-		JSValue exception = JS_GetException(m_jsContext);
-		const char* str = JS_ToCString(m_jsContext, exception);
-		std::cerr << "Exception in script " << cScript.name << ": " << str << std::endl;
-		JS_FreeCString(m_jsContext, str);
-		JS_FreeValue(m_jsContext, exception);
-	}
-
-	JS_FreeValue(m_jsContext, scriptEval);
+	JS_LoadUpdateFunction(m_jsContext, cScript);
 
 	JSValue jsUpdateFunc = JS_GetPropertyStr(m_jsContext, jsGlobal, "onUpdate");
 

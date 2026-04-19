@@ -12,12 +12,12 @@ target_compile_features(MovingShapes
 
 target_sources(MovingShapes
     PUBLIC
-    ./MovingShapes.cpp
+    src/MovingShapes.cpp
 )
 
 target_include_directories(MovingShapes
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(MovingShapes
@@ -40,12 +40,12 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "moving_shapes")
 
     target_sources(MovingShapesApp
         PUBLIC
-        ./main.cpp
+        src/main.cpp
     )
 
     target_include_directories(MovingShapesApp
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
     target_link_libraries(MovingShapesApp

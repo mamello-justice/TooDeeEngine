@@ -2,13 +2,16 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "outDir": "assets/scripts",
+    "tsBuildInfoFile": "assets/scripts/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": false,
     "forceConsistentCasingInFileNames": true,
     "module": "es2022",
     "moduleResolution": "bundler",
   },
-  "include": [],
+  "include": [
+    "scripts/**/*.ts",
+    "../../types/too-dee-engine.d.ts"
+  ],
   "references": []
 }

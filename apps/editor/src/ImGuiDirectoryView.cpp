@@ -9,19 +9,7 @@
 
 #include "imgui.h"
 
-void openFile(const std::string& path) {
-#ifdef _WIN32
-    // Windows: Use ShellExecute to open with default app
-    std::string command = "start \"\" \"" + path + "\"";
-#elif __APPLE__
-    // macOS: Use open
-    std::string command = "open \"" + path + "\"";
-#else
-    // Linux/Unix: Use xdg-open
-    std::string command = "xdg-open \"" + path + "\"";
-#endif
-    std::system(command.c_str());
-}
+#include "TooDeeCore.hpp"
 
 void recursivelyAddDirectoryNodes(DirectoryNode& parentNode, std::filesystem::directory_iterator directoryIterator) {
     for (const std::filesystem::directory_entry& entry : directoryIterator)

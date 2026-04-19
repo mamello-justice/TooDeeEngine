@@ -151,7 +151,9 @@ public:
 
 class CNativeScript : public Component {
 public:
+	std::function<void(Entity&)> onCreate;
 	std::function<void(Entity&)> onUpdate;
+	std::function<void(Entity&)> onDestroy;
 
 	CNativeScript() = default;
 	CNativeScript(const std::function<void(Entity&)>& updateFunc);

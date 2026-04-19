@@ -75,11 +75,16 @@ public:
 	static Assets& Instance();
 
 	/**
+	 * @brief Reload the content of the scripts
+	 */
+	void reloadScripts();
+
+	/**
 	 * @brief Load assets from a configuration file
 	 *
 	 * @param path The path to the configuration file
 	 */
-	void loadFromFile(const std::string& path);
+	void loadFromFile(const std::string& path, const std::string& base = "");
 
 	/**
 	 * @brief Get a texture by its name

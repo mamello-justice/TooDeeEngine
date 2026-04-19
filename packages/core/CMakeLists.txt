@@ -8,8 +8,10 @@ add_library(TooDeeCore STATIC)
 target_sources(TooDeeCore
     PUBLIC
     src/ClickListener.cpp
+    src/Command.cpp
     src/HoverListener.cpp
     src/Random.cpp
+    src/Utils.cpp
 )
 
 target_compile_features(TooDeeCore

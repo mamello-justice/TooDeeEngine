@@ -2,8 +2,8 @@
 
 #include <memory>
 
+#include "TooDeeCore.hpp"
 #include "Components.hpp"
-#include "Core.hpp"
 #include "Entity.hpp"
 
 namespace Physics

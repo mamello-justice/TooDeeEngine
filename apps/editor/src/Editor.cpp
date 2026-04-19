@@ -15,12 +15,13 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
+#include "TooDeeCore.hpp"
 #include "TooDeeEngine.hpp"
 #include "bytesize.hpp"
-#include "Components.hpp"
+
+#include "ImGuiComponents.hpp"
 #include "ImGuiDirectoryView.hpp"
-#include "Styles.hpp"
-#include "Vec2.hpp"
+#include "ImGuiStyles.hpp"
 
 #ifdef BUILD_EXAMPLES
 #include "Examples.hpp"
@@ -123,9 +124,9 @@ void Editor::loadExample(Example name) {
     m_selectedExample = name;
     switch (name) {
 #ifdef HELLO_WORLD_EXAMPLE
-    case Example::HelloWorld:
-    {
-        Assets::Instance().loadFromFile("hello_world/config.ini");
+    case Example::HelloWorld: {
+        std::string base_path("../../examples/hello_world");
+        Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<HelloWorld>(m_gameEngine);
         m_gameEngine->changeScene("HelloWorld", scene);
         break;
@@ -133,50 +134,51 @@ void Editor::loadExample(Example name) {
 #endif
 #ifdef MOVING_SHAPES_EXAMPLE
     case Example::MovingShapes: {
-        Assets::Instance().loadFromFile("moving_shapes/config.ini");
+        std::string base_path("../../examples/moving_shapes/");
+        Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<MovingShapes::Example>(m_gameEngine);
         m_gameEngine->changeScene("MovingShapes", scene);
-        scene->loadLevel("moving_shapes/level.txt");
+        scene->loadLevel(base_path + "levels/level.txt");
         break;
     }
 #endif
 #ifdef NATIVE_SCRIPTING_EXAMPLE
-    case Example::NativeScripting:
-    {
-        Assets::Instance().loadFromFile("native_scripting/config.ini");
+    case Example::NativeScripting: {
+        std::string base_path("../../examples/native_scripting/");
+        Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<NativeScripting::Example>(m_gameEngine);
         m_gameEngine->changeScene("NativeScripting", scene);
-        scene->loadLevel("native_scripting/level.txt");
+        scene->loadLevel(base_path + "levels/level.txt");
         break;
     }
 #endif
 #ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
-    case Example::JavaScriptScripting:
-    {
-        Assets::Instance().loadFromFile("javascript_scripting/config.ini");
+    case Example::JavaScriptScripting: {
+        std::string base_path("../../examples/javascript_scripting/");
+        Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<JavaScriptScripting::Example>(m_gameEngine);
         m_gameEngine->changeScene("JavaScriptScripting", scene);
-        scene->loadLevel("javascript_scripting/level.txt");
+        scene->loadLevel(base_path + "levels/level.txt");
         break;
     }
 #endif
 #ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
-    case Example::TypeScriptScripting:
-    {
-        Assets::Instance().loadFromFile("typescript_scripting/config.ini");
+    case Example::TypeScriptScripting: {
+        std::string base_path("../../examples/typescript_scripting/");
+        Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<TypeScriptScripting::Example>(m_gameEngine);
         m_gameEngine->changeScene("TypeScriptScripting", scene);
-        scene->loadLevel("typescript_scripting/level.txt");
+        scene->loadLevel(base_path + "levels/level.txt");
         break;
     }
 #endif
 #ifdef LUA_SCRIPTING_EXAMPLE
-    case Example::LuaScripting:
-    {
-        Assets::Instance().loadFromFile("lua_scripting/config.ini");
+    case Example::LuaScripting: {
+        std::string base_path("../../examples/lua_scripting/");
+        Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<LuaScripting::Example>(m_gameEngine);
         m_gameEngine->changeScene("LuaScripting", scene);
-        scene->loadLevel("lua_scripting/level.txt");
+        scene->loadLevel(base_path + "levels/level.txt");
         break;
     }
 #endif
@@ -438,7 +440,7 @@ void Editor::sGUI() {
 
 #ifdef LUA_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("Lua Scripting")) {
-                loadExample(Example::LuaScripting)
+                loadExample(Example::LuaScripting);
             }
 #endif
             ImGui::EndMenu();
@@ -451,7 +453,7 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
-        }
+    }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     if (ImGui::Begin("Viewport")) {
@@ -655,6 +657,9 @@ void Editor::sGUI() {
 
                     ImGui::Text("Name: %s", cJSScript.name.c_str());
                     ImGui::Text("Path: %s", scriptPath.c_str());
+                    if (ImGui::Button("Open Script")) {
+                        openFile(std::filesystem::current_path() / scriptPath);
+                    }
 
                     ImGui::Unindent();
                 }
@@ -747,7 +752,7 @@ void Editor::sGUI() {
     }
 
     ImGui::SFML::Render(m_gameEngine->window());
-    }
+}
 
 bool isControlF4(const sf::Event::KeyPressed* keyPressed) {
     bool isControl =

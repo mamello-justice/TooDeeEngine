@@ -14,7 +14,6 @@ struct DirectoryNode
     bool IsDirectory;
 };
 
-void openFile(const std::string& path);
 void recursivelyAddDirectoryNodes(DirectoryNode& parentNode, std::filesystem::directory_iterator directoryIterator);
 DirectoryNode createDirectoryNodeTreeFromPath(const std::filesystem::path& rootPath);
 DirectoryNode createDirectoryNodeTreeFromMap(const std::map<std::string, std::string>& paths);

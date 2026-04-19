@@ -12,12 +12,12 @@ target_compile_features(NativeScripting
 
 target_sources(NativeScripting
     PUBLIC
-    ./NativeScripting.cpp
+    src/NativeScripting.cpp
 )
 
 target_include_directories(NativeScripting
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(NativeScripting
@@ -41,12 +41,12 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "native_scripting")
 
     target_sources(NativeScriptingApp
         PUBLIC
-        ./main.cpp
+        src/main.cpp
     )
 
     target_include_directories(NativeScriptingApp
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
     target_link_libraries(NativeScriptingApp

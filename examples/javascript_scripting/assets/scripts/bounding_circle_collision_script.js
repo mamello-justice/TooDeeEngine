@@ -1,4 +1,6 @@
-function onUpdate(entity) {
+export function onCreate(entity) { }
+
+export function onUpdate(entity) {
     const wSize = TooDeeEngine.renderTarget.size;
     const cTrans = entity.components.transform;
     const cCollider = entity.components.boundingCircle;
@@ -14,3 +16,5 @@ function onUpdate(entity) {
         cTrans.velocity.x *= -1;
     }
 }
+
+export function onDestroy(entity) { }

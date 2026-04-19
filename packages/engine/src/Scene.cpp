@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "Action.hpp"
-#include "Core.hpp"
 #include "GameEngine.hpp"
 
 Scene::Scene(std::shared_ptr<GameEngine> gameEngine) : m_gameEngine(gameEngine) {}

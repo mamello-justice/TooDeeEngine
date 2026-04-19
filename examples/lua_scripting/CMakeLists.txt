@@ -12,12 +12,12 @@ target_compile_features(LuaScripting
 
 target_sources(LuaScripting
     PUBLIC
-    ./LuaScripting.cpp
+    src/LuaScripting.cpp
 )
 
 target_include_directories(LuaScripting
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(LuaScripting
@@ -40,12 +40,12 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "lua_scripting")
 
     target_sources(LuaScriptingApp
         PUBLIC
-        ./main.cpp
+        src/main.cpp
     )
 
     target_include_directories(LuaScriptingApp
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
     target_link_libraries(LuaScriptingApp

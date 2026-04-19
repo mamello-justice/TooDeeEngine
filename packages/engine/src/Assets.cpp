@@ -83,8 +83,14 @@ void Assets::addScript(const std::string& scriptName, const std::string& path) {
 	std::cout << "[INFO][ASSETS] Added Script: [" << scriptName << "] = " << path << std::endl;
 }
 
-void Assets::loadFromFile(const std::string& config) {
-	INIReader reader(config);
+void Assets::reloadScripts() {
+	for (const auto& [name, script] : m_scriptMap) {
+		addScript(name, script.getPath());
+	}
+}
+
+void Assets::loadFromFile(const std::string& config, const std::string& base) {
+	INIReader reader(base + config);
 
 	auto sections = reader.Sections();
 
@@ -93,7 +99,7 @@ void Assets::loadFromFile(const std::string& config) {
 			auto name = section.substr(8, section.size());
 			auto path = reader.GetString(section, "file", "");
 			auto smooth = reader.GetBoolean(section, "smooth", false);
-			addTexture(name, path, smooth);
+			addTexture(name, base + path, smooth);
 		}
 	}
 
@@ -111,7 +117,7 @@ void Assets::loadFromFile(const std::string& config) {
 		if (section.starts_with("font.")) {
 			auto name = section.substr(5, section.size());
 			auto path = reader.GetString(section, "file", "");
-			addFont(name, path);
+			addFont(name, base + path);
 		}
 	}
 
@@ -119,7 +125,7 @@ void Assets::loadFromFile(const std::string& config) {
 		if (section.starts_with("script.")) {
 			auto name = section.substr(7, section.size());
 			auto path = reader.GetString(section, "file", "");
-			addScript(name, path);
+			addScript(name, base + path);
 		}
 	}
 }

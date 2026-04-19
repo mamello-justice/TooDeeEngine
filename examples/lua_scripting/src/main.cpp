@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
     // Create Game Engine
     auto gameEngine = std::make_shared<GameEngine>();
 
-    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "Lua Scripting");
+    // Init Window
+    gameEngine->window().create(sf::VideoMode({ 900, 600 }), "Lua Scripting");
     gameEngine->window().setFramerateLimit(60);
 
     // Enable rendering
@@ -35,10 +36,9 @@ int main(int argc, char* argv[]) {
 
     // Create scene
     auto scene = std::make_shared<LuaScripting::Example>(gameEngine);
-
-    scene->loadLevel("lua_scripting/level.txt");
-
+    scene->loadLevel("levels/level.txt");
     gameEngine->changeScene("LuaScripting", scene);
+    scene->setPaused(false);
 
     while (true) {
         while (auto event = gameEngine->window().pollEvent()) {

@@ -2,12 +2,28 @@
   "name": "@too-dee-engine/typescript-scripting-example",
   "version": "0.0.0",
   "private": true,
-  "scripts": {
-    "build": "pnpm run --parallel \"/^build:.*/\"",
-    "build:bounding-box": "tsc --build bounding_box_collision_script/tsconfig.json",
-    "build:bounding-circle": "tsc --build bounding_circle_collision_script/tsconfig.json"
-  },
   "dependencies": {
     "tslib": "^2.3.0"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "options": {
+          "outputPath": "examples/typescript_scripting/assets",
+          "clean": false,
+          "tsConfig": "examples/typescript_scripting/tsconfig.lib.json",
+          "main": "examples/typescript_scripting/scripts/index.ts",
+          "additionalEntryPoints": [
+            "examples/typescript_scripting/scripts/enemy_script.ts",
+            "examples/typescript_scripting/scripts/player_script.ts"
+          ],
+          "generatePackageJson": false
+        }
+      }
+    }
   }
 }

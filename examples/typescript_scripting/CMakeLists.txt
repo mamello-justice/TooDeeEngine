@@ -12,7 +12,7 @@ target_compile_features(TypeScriptScripting
 
 target_sources(TypeScriptScripting
     PUBLIC
-    ./src/TypeScriptScripting.cpp
+    src/TypeScriptScripting.cpp
 )
 
 target_include_directories(TypeScriptScripting
@@ -41,7 +41,7 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "typescript_scripting")
 
     target_sources(TypeScriptScriptingApp
         PUBLIC
-        ./src/main.cpp
+        src/main.cpp
     )
 
     target_include_directories(TypeScriptScriptingApp
@@ -49,7 +49,7 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "typescript_scripting")
         ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
-    target_link_libraries(TypeScriptScripting App
+    target_link_libraries(TypeScriptScriptingApp
         PUBLIC
         sfml-system
         sfml-window

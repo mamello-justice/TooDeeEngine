@@ -2,6 +2,12 @@
 
 #include <string>
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+#include <quickjs.h>
+#endif
+
+#include "Components.hpp"
+
 class Script {
     std::string m_path;
     std::string m_content;
@@ -34,3 +40,9 @@ public:
      */
     const std::string& getContent() const;
 };
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+void JS_LoadCreateFunction(JSContext*, const CQJSScript&);
+void JS_LoadUpdateFunction(JSContext*, const CQJSScript&);
+void JS_LoadDestroyFunction(JSContext*, const CQJSScript&);
+#endif

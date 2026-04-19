@@ -12,12 +12,12 @@ target_compile_features(JavaScriptScripting
 
 target_sources(JavaScriptScripting
     PUBLIC
-    ./JavaScriptScripting.cpp
+    src/JavaScriptScripting.cpp
 )
 
 target_include_directories(JavaScriptScripting
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(JavaScriptScripting
@@ -41,12 +41,12 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "javascript_scripting")
 
     target_sources(JavaScriptScriptingApp
         PUBLIC
-        ./main.cpp
+        src/main.cpp
     )
 
     target_include_directories(JavaScriptScriptingApp
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
     target_link_libraries(JavaScriptScriptingApp

@@ -47,7 +47,7 @@ namespace MovingShapes
     }
 
     Example::Example(std::shared_ptr<GameEngine> gameEngine) :
-        Scene(gameEngine) {
+        Scene(gameEngine), m_label(Assets::Instance().getFont("tech")) {
         init();
     }
 
@@ -94,7 +94,18 @@ namespace MovingShapes
         }
     }
 
-    void Example::sRender() {}
+    void Example::sRender() {
+        for (auto& e : m_entityManager.getEntities()) {
+            if (!e->has<CLabel>() || !e->has<CTransform>()) { continue; }
+            auto& cLabel = e->get<CLabel>();
+            auto& cTrans = e->get<CTransform>();
+
+            m_label.setString(cLabel.label);
+            m_label.setOrigin(Vec2f(m_label.getLocalBounds().size) / 2.f);
+            m_label.setPosition(cTrans.pos);
+            m_gameEngine->renderTarget().draw(m_label);
+        }
+    }
 
     void Example::loadLevel(const std::string& filename) {
         std::ifstream file(filename);

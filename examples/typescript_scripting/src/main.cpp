@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
     // Create Game Engine
     auto gameEngine = std::make_shared<GameEngine>();
 
-    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "TypeScriptScripting");
+    // Init Window
+    gameEngine->window().create(sf::VideoMode({ 900, 600 }), "TypeScript Scripting");
     gameEngine->window().setFramerateLimit(60);
 
     // Enable rendering
@@ -35,10 +36,9 @@ int main(int argc, char* argv[]) {
 
     // Create scene
     auto scene = std::make_shared<TypeScriptScripting::Example>(gameEngine);
-
-    scene->loadLevel("typescript_scripting/level.txt");
-
+    scene->loadLevel("levels/level.txt");
     gameEngine->changeScene("TypeScriptScripting", scene);
+    scene->setPaused(false);
 
     while (true) {
         while (auto event = gameEngine->window().pollEvent()) {

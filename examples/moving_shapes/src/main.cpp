@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "TooDeeEngine.hpp"
-#include "NativeScripting.hpp"
+#include "MovingShapes.hpp"
 
 int main(int argc, char* argv[]) {
     std::string configPath;
@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
     // Create Game Engine
     auto gameEngine = std::make_shared<GameEngine>();
 
-    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "Native/C++ Scripting");
+    // Init Window
+    gameEngine->window().create(sf::VideoMode({ 900, 600 }), "Moving Shapes");
     gameEngine->window().setFramerateLimit(60);
 
     // Enable rendering
@@ -34,11 +35,10 @@ int main(int argc, char* argv[]) {
     if (gameEngine->renderTarget().resize(gameEngine->window().getSize())) {}
 
     // Create scene
-    auto scene = std::make_shared<NativeScripting::Example>(gameEngine);
-
-    scene->loadLevel("native_scripting/level.txt");
-
-    gameEngine->changeScene("NativeScripting", scene);
+    auto scene = std::make_shared<MovingShapes::Example>(gameEngine);
+    scene->loadLevel("levels/level.txt");
+    gameEngine->changeScene("MovingShapes", scene);
+    scene->setPaused(false);
 
     while (true) {
         while (auto event = gameEngine->window().pollEvent()) {

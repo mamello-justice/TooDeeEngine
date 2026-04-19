@@ -1,9 +1,9 @@
-function onUpdate(entity: TooDeeEngine.Entity): void {
-    const wSize = TooDeeEngine.renderTarget.size;
-    const cTrans = entity.components?.transform;
-    const cCollider = entity.components?.boundingBox;
+export function onCreate(entity) { }
 
-    if (!cTrans || !cCollider) return
+export function onUpdate(entity) {
+    const wSize = TooDeeEngine.renderTarget.size;
+    const cTrans = entity.components.transform;
+    const cCollider = entity.components.boundingBox;
 
     // Vertical
     if ((cTrans.pos.y - cCollider.halfSize.y < 0 && cTrans.velocity.y < 0) ||
@@ -16,3 +16,5 @@ function onUpdate(entity: TooDeeEngine.Entity): void {
         cTrans.velocity.x *= -1;
     }
 }
+
+export function onDestroy(entity) { }

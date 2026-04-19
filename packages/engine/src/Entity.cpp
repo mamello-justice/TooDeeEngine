@@ -20,6 +20,7 @@ bool Entity::isAlive() const {
 }
 
 void Entity::destroy() {
+	// TODO: Run onDestroy script function
 	mAlive = false;
 }
 

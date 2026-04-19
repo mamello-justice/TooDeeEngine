@@ -7,7 +7,7 @@
 #include <quickjs.h>
 #endif
 
-template <typename T>
+template <typename T, typename U = int>
 class Vec2
 {
 public:
@@ -39,7 +39,7 @@ public:
 	 *
 	 * @param v SFML integer vector to convert from
 	 */
-	Vec2(const sf::Vector2i& v)
+	Vec2(const sf::Vector2<U>& v)
 		: x(static_cast<T>(v.x)), y(static_cast<T>(v.y)) {}
 
 	/**
@@ -252,6 +252,6 @@ public:
 
 using Vec2f = Vec2<float>;
 using Vec2u = Vec2<unsigned int>;
-using Vec2i = Vec2<int>;
+using Vec2i = Vec2<int, float>;
 
 static_assert(std::is_default_constructible_v<Vec2f>);

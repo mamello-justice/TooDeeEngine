@@ -88,10 +88,14 @@ CGravity::CGravity(float g) : gravity(g) {}
 
 CState::CState(const std::string& s) : state(s) {}
 
-CNativeScript::CNativeScript(const std::function<void(Entity&)>& updateFunc) : onUpdate(updateFunc) {}
+CNativeScript::CNativeScript(const std::function<void(Entity&)>& updateFunc) : onUpdate(updateFunc) {
+	// TODO: Run onCreate script function
+}
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-CQJSScript::CQJSScript(const std::string& n) : name(n) {}
+CQJSScript::CQJSScript(const std::string& n) : name(n) {
+	// TODO: Run onCreate script function
+}
 #endif
 
 std::string getComponentName(ComponentEnum c) {
