@@ -22,6 +22,7 @@ target_include_directories(MovingShapes
 
 target_link_libraries(MovingShapes
     PUBLIC
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics

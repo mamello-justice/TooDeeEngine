@@ -1,10 +1,12 @@
 #pragma once
 
 #include <math.h>
+#include <type_traits>
+
 #include <SFML/Graphics.hpp>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
+#include <quickjspp.h>
 #endif
 
 template <typename T, typename U = int>
@@ -234,19 +236,16 @@ public:
 	}
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	JSValue operator()(JSContext* ctx) const {
-		JSValue jsV = JS_NewObject(ctx);
-
-		JSValue jsX = JS_NewFloat64(ctx, x);
-		JS_SetPropertyStr(ctx, jsV, "x", JS_DupValue(ctx, jsX));
-		JS_FreeValue(ctx, jsX);
-
-		JSValue jsY = JS_NewFloat64(ctx, y);
-		JS_SetPropertyStr(ctx, jsV, "y", JS_DupValue(ctx, jsY));
-		JS_FreeValue(ctx, jsY);
-
-		return jsV;
+	static void qjs_register_self(qjs::module& module) {
+		if constexpr (std::is_same_v<T, float>) {
+			module.register_class<Vec2<float>>("Vec2f")
+				.constructor<>()
+				.member<&Vec2<float>::x>("x")
+				.member<&Vec2<float>::y>("y");
+		}
 	}
+
+
 #endif
 };
 
@@ -254,4 +253,74 @@ using Vec2f = Vec2<float>;
 using Vec2u = Vec2<unsigned int>;
 using Vec2i = Vec2<int, float>;
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+namespace qjs
+{
+	/** Conversion traits for Vec2f
+	 */
+	template<>
+	struct js_traits<Vec2f>
+	{
+		static Vec2f unwrap(JSContext* ctx, JSValueConst val) {
+			Vec2f result;
+
+			auto v = js_traits<qjs::value>::unwrap(ctx, val);
+			result.x = v["x"].as<float>();
+			result.y = v["y"].as<float>();
+			return result;
+		}
+
+		static JSValue wrap(JSContext* ctx, Vec2f val) noexcept {
+			qjs::context context(ctx);
+			auto result = context.new_object();
+			result["x"] = context.new_value(val.x);
+			result["y"] = context.new_value(val.y);
+			return result.release();
+		}
+	};
+	template<>
+	struct js_traits<Vec2u>
+	{
+		static Vec2u unwrap(JSContext* ctx, JSValueConst val) {
+			auto v = js_traits<qjs::value>::unwrap(ctx, val);
+
+			Vec2u result;
+			result.x = v["x"].as<unsigned int>();
+			result.y = v["y"].as<unsigned int>();
+			return result;
+		}
+
+		static JSValue wrap(JSContext* ctx, Vec2u val) noexcept {
+			qjs::context context(ctx);
+			auto result = context.new_object();
+			result["x"] = context.new_value(val.x);
+			result["y"] = context.new_value(val.y);
+			return result.release();
+		}
+	};
+	template<>
+	struct js_traits<Vec2i>
+	{
+		static Vec2i unwrap(JSContext* ctx, JSValueConst val) {
+			auto v = js_traits<qjs::value>::unwrap(ctx, val);
+
+			Vec2i result;
+			result.x = v["x"].as<int>();
+			result.y = v["y"].as<int>();
+			return result;
+		}
+
+		static JSValue wrap(JSContext* ctx, Vec2i val) noexcept {
+			qjs::context context(ctx);
+			auto result = context.new_object();
+			result["x"] = context.new_value(val.x);
+			result["y"] = context.new_value(val.y);
+			return result.release();
+		}
+	};
+} // namespace qjs
+#endif
+
 static_assert(std::is_default_constructible_v<Vec2f>);
+static_assert(std::is_default_constructible_v<Vec2u>);
+static_assert(std::is_default_constructible_v<Vec2i>);

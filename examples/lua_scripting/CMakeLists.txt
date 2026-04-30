@@ -22,6 +22,7 @@ target_include_directories(LuaScripting
 
 target_link_libraries(LuaScripting
     PUBLIC
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics

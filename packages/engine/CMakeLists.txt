@@ -34,6 +34,7 @@ target_include_directories(TooDeeEngine
 
 target_link_libraries(TooDeeEngine
     PRIVATE
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics
@@ -44,6 +45,5 @@ target_link_libraries(TooDeeEngine
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     message(STATUS "JavaScript Scripting Enabled")
     target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
-    target_link_libraries(TooDeeEngine PRIVATE qjs)
-    target_include_directories(TooDeeEngine PRIVATE ${quickjs_SOURCE_DIR})
+    target_link_libraries(TooDeeEngine PRIVATE quickjspp)
 endif()

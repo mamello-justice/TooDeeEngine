@@ -26,6 +26,7 @@ target_include_directories(TooDeeEditor
 
 target_link_libraries(TooDeeEditor
     PRIVATE
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics
@@ -38,8 +39,7 @@ target_link_libraries(TooDeeEditor
 
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
-    target_link_libraries(TooDeeEditor PRIVATE qjs)
-    target_include_directories(TooDeeEditor PRIVATE ${quickjs_SOURCE_DIR})
+    target_link_libraries(TooDeeEditor PRIVATE quickjspp)
 endif()
 
 # Conditionally link example targets only if they were built

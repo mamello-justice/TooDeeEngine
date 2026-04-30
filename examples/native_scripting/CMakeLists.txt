@@ -22,6 +22,7 @@ target_include_directories(NativeScripting
 
 target_link_libraries(NativeScripting
     PUBLIC
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics

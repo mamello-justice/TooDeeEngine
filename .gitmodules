@@ -1,0 +1,3 @@
+[submodule "packages/quickjspp"]
+	path = packages/quickjspp
+	url = git@github.com:mamello-justice/quickjspp.git

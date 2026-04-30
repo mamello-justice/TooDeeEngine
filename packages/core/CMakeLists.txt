@@ -16,7 +16,8 @@ target_sources(TooDeeCore
 
 target_compile_features(TooDeeCore
     PRIVATE
-    cxx_std_23)
+    cxx_std_23
+)
 
 target_include_directories(TooDeeCore
     PUBLIC
@@ -25,10 +26,11 @@ target_include_directories(TooDeeCore
 
 target_link_libraries(TooDeeCore
     PRIVATE
-    sfml-system)
+    spdlog::spdlog
+    sfml-system
+)
 
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_compile_definitions(TooDeeCore PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
-    target_link_libraries(TooDeeCore PRIVATE qjs)
-    target_include_directories(TooDeeCore PRIVATE ${quickjs_SOURCE_DIR})
+    target_link_libraries(TooDeeCore PRIVATE quickjspp)
 endif()

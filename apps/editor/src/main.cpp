@@ -1,9 +1,13 @@
 #include <iostream>
 #include <string>
 
+#include "spdlog/spdlog.h"
+
 #include "Editor.hpp"
 
 int main(int argc, char* argv[]) {
+    spdlog::set_level(spdlog::level::debug);
+
     std::string configPath;
     if (argc == 1) {
         configPath = "config.ini";
@@ -12,7 +16,7 @@ int main(int argc, char* argv[]) {
         configPath = argv[1];
     }
     else {
-        std::cout << "usage:\n\t" << argv[0] << " <config-path>" << std::endl;
+        spdlog::info("usage:\n\t {} <config-path>", argv[0]);
         std::exit(1);
     }
 

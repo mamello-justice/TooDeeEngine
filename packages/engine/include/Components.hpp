@@ -7,10 +7,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
-#endif
-
 #include "Animation.hpp"
 #include "Vec2.hpp"
 
@@ -41,10 +37,6 @@ public:
 	CTransform(const Vec2f& p);
 	CTransform(const Vec2f& p, const Vec2f& v);
 	CTransform(const Vec2f& p, const Vec2f& v, const Vec2f& s, float a);
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	JSValue operator()(JSContext*) const;
-#endif
 };
 
 class CCircle : public Component {
@@ -106,10 +98,6 @@ public:
 
 	CBoundingBox() = default;
 	CBoundingBox(const Vec2f& s);
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	JSValue operator()(JSContext*) const;
-#endif
 };
 
 class CBoundingCircle : public Component {
@@ -118,10 +106,6 @@ public:
 
 	CBoundingCircle() = default;
 	CBoundingCircle(float r);
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	JSValue operator()(JSContext*) const;
-#endif
 };
 
 class CAnimation : public Component {

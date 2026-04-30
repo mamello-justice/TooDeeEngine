@@ -9,9 +9,10 @@
 #include <SFML/Graphics.hpp>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
+#include <quickjspp.h>
 #endif
 
+#include "spdlog/spdlog.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -37,6 +38,8 @@ void Editor::init(const std::string& configPath) {
     std::srand((unsigned int)time(NULL));
 
     Assets::Instance().loadFromFile(configPath);
+
+    // Set DEBUG Logger
 
     // Initialize Window
     m_gameEngine->window().create(sf::VideoMode::getDesktopMode(), "TooDeeEditor");
@@ -134,6 +137,7 @@ void Editor::loadExample(Example name) {
 #endif
 #ifdef MOVING_SHAPES_EXAMPLE
     case Example::MovingShapes: {
+        spdlog::debug("Loading Moving Shapes example");
         std::string base_path("../../examples/moving_shapes/");
         Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<MovingShapes::Example>(m_gameEngine);
@@ -144,6 +148,7 @@ void Editor::loadExample(Example name) {
 #endif
 #ifdef NATIVE_SCRIPTING_EXAMPLE
     case Example::NativeScripting: {
+        spdlog::debug("Loading Native/C++ scripting example");
         std::string base_path("../../examples/native_scripting/");
         Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<NativeScripting::Example>(m_gameEngine);
@@ -154,6 +159,7 @@ void Editor::loadExample(Example name) {
 #endif
 #ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
     case Example::JavaScriptScripting: {
+        spdlog::debug("Loading JavaScript scripting example");
         std::string base_path("../../examples/javascript_scripting/");
         Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<JavaScriptScripting::Example>(m_gameEngine);
@@ -164,6 +170,7 @@ void Editor::loadExample(Example name) {
 #endif
 #ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
     case Example::TypeScriptScripting: {
+        spdlog::debug("Loading TypeScript scripting example");
         std::string base_path("../../examples/typescript_scripting/");
         Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<TypeScriptScripting::Example>(m_gameEngine);
@@ -174,6 +181,7 @@ void Editor::loadExample(Example name) {
 #endif
 #ifdef LUA_SCRIPTING_EXAMPLE
     case Example::LuaScripting: {
+        spdlog::debug("Loading Lua scripting example");
         std::string base_path("../../examples/lua_scripting/");
         Assets::Instance().loadFromFile("config.ini", base_path);
         auto scene = std::make_shared<LuaScripting::Example>(m_gameEngine);
@@ -185,7 +193,7 @@ void Editor::loadExample(Example name) {
     }
 
     reloadScripts();
-}
+    }
 
 void Editor::unloadExample() {
     m_gameEngine->removeScene(m_gameEngine->currentScene());
@@ -195,7 +203,7 @@ void Editor::unloadExample() {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 void Editor::updateQjsStats() {
     JSMemoryUsage qjsStats;
-    JS_ComputeMemoryUsage(m_gameEngine->m_jsRuntime, &qjsStats);
+    JS_ComputeMemoryUsage(m_gameEngine->m_jsRuntime.rt, &qjsStats);
 
     m_qjsStats.malloc_size = bytesize::bytesize(std::max(0, (int)qjsStats.malloc_size)).format();
     m_qjsStats.memory_used_size = bytesize::bytesize(std::max(0, (int)qjsStats.memory_used_size)).format();
@@ -417,31 +425,31 @@ void Editor::sGUI() {
 #ifdef MOVING_SHAPES_EXAMPLE
             if (ImGui::MenuItem("Moving Shapes")) {
                 loadExample(Example::MovingShapes);
-            }
+        }
 #endif
 
 #ifdef NATIVE_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("Native Scripting")) {
                 loadExample(Example::NativeScripting);
-            }
+    }
 #endif
 
 #ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("JavaScript Scripting")) {
                 loadExample(Example::JavaScriptScripting);
-            }
+}
 #endif
 
 #ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("TypeScript Scripting")) {
                 loadExample(Example::TypeScriptScripting);
-            }
+    }
 #endif
 
 #ifdef LUA_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("Lua Scripting")) {
                 loadExample(Example::LuaScripting);
-            }
+}
 #endif
             ImGui::EndMenu();
         }
@@ -481,7 +489,7 @@ void Editor::sGUI() {
         if (m_gameEngine->currentScene()) {
             if (ImGui::Button("Add Entity")) {
                 auto e = m_gameEngine->currentScene()->getEntityManager().addEntity("default");
-                m_consoleText.append(std::format("[INFO] Added Entity - {}\n", e->id()));
+                m_logger << std::format("[INFO] Added Entity - {}\n", e->id()) << std::endl;
             }
 
             ImGui::SetNextItemOpen(true);
@@ -502,7 +510,7 @@ void Editor::sGUI() {
                             ImGui::SameLine();
                             if (ImGui::Button(name.c_str())) {
                                 m_selectedEntity = e;
-                                m_consoleText.append(std::format("[INFO] Selected Entity - {}\n", e->id()));
+                                m_logger << std::format("[INFO] Selected Entity - {}", e->id()) << std::endl;
                             }
                         }
                         ImGui::TreePop();
@@ -535,14 +543,14 @@ void Editor::sGUI() {
             if (!availableNames.empty()) {
                 static int selectedComponent = 0;
                 if (ImGui::Combo("##AddComponent", &selectedComponent, availableNames.data(), (int)availableNames.size())) {
-                    m_consoleText.append(std::format("[INFO] Selected Component - {}\n", availableNames[selectedComponent]));
+                    m_logger << std::format("[INFO] Selected Component - {}", availableNames[selectedComponent]) << std::endl;
                 }
 
                 ImGui::SameLine();
                 if (ImGui::Button("Add Component")) {
                     int actualIndex = availableIndices[selectedComponent];
                     addComponentByEnum(m_selectedEntity, COMPONENTS[actualIndex]);
-                    m_consoleText.append(std::format("[INFO] Added Component - {}\n", availableNames[selectedComponent]));
+                    m_logger << std::format("[INFO] Added Component - {}", availableNames[selectedComponent]) << std::endl;
                     selectedComponent = 0; // Reset selection
                 }
             }
@@ -672,7 +680,7 @@ void Editor::sGUI() {
     }
 
     if (ImGui::Begin("Console")) {
-        ImGui::Text(m_consoleText.c_str());
+        ImGui::Text(m_logger.str().c_str());
         ImGui::End(); // ImGui::Begin("Console")
     }
 

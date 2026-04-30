@@ -22,6 +22,7 @@ target_include_directories(JavaScriptScripting
 
 target_link_libraries(JavaScriptScripting
     PUBLIC
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics

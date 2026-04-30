@@ -9,6 +9,8 @@
 #include "shellapi.h"
 #endif
 
+#include "spdlog/spdlog.h"
+
 #include "Utils.hpp"
 
 #ifdef _WIN32
@@ -21,17 +23,17 @@ void openFile(const std::filesystem::path& path)
 #ifdef _WIN32
     // Windows: Use ShellExecute to open with default app
     std::string winPath = replace(replace(preferredPath, " ", "\\ "), "\\", "\\\\");
-    std::cout << "[INFO][Command] Running: " << "code.exe " << winPath << std::endl;
+    spdlog::info("Opening {} in VSCode", winPath);
     ShellExecuteA(hwnd, "edit", "code.exe", winPath.c_str(), NULL, SW_SHOWNORMAL);
 #elif __APPLE__
     // macOS: Use open
     std::string command = "open \"" + preferredPath + "\"";
-    std::cout << "[INFO][Command] Running: " << command << std::endl;
+    spdlog::info("Opening {}", preferredPath);
     std::system(command.c_str());
 #else
     // Linux/Unix: Use xdg-open
     std::string command = "xdg-open \"" + preferredPath + "\"";
-    std::cout << "[INFO][Command] Running: " << command << std::endl;
+    spdlog::info("Opening {}", preferredPath);
     std::system(command.c_str());
 #endif
 }

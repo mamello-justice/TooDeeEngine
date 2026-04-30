@@ -22,6 +22,7 @@ target_include_directories(HelloWorld
 
 target_link_libraries(HelloWorld
     PUBLIC
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics

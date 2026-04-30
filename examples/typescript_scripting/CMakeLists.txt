@@ -22,6 +22,7 @@ target_include_directories(TypeScriptScripting
 
 target_link_libraries(TypeScriptScripting
     PUBLIC
+    spdlog::spdlog
     sfml-system
     sfml-window
     sfml-graphics

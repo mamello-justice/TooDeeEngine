@@ -9,7 +9,7 @@
 #include <SFML/Graphics.hpp>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
+#include <quickjspp.h>
 #endif
 
 #include "Scene.hpp"
@@ -32,13 +32,13 @@ public:
 	bool m_shouldRender = false;
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	JSRuntime* m_jsRuntime = nullptr;
-	JSContext* m_jsContext = nullptr;
+	qjs::runtime	m_jsRuntime;
+	qjs::context	m_jsContext;
+	qjs::module		m_vec2Module;
 #endif
 
 	GameEngine();
 	GameEngine(bool rendering);
-	~GameEngine();
 
 	void init();
 	void update();
@@ -83,8 +83,30 @@ public:
 	void sMovement();
 	void sScripting();
 	void sCollision();
+};
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	JSValue operator()(JSContext*) const;
+namespace qjs
+{
+	/** Conversion traits for GameEngine
+	 */
+	template<>
+	struct js_traits<GameEngine>
+	{
+		static JSValue wrap(JSContext* ctx, GameEngine& g) noexcept {
+			qjs::context context(ctx);
+
+			auto jsSize = qjs::js_traits<Vec2u>::wrap(ctx, g.renderTarget().getSize());
+			auto size = qjs::js_traits<qjs::value>::unwrap(ctx, jsSize);
+
+			auto renderTarget = context.new_object();
+			renderTarget["size"] = size;
+
+			auto result = context.new_object();
+			result["renderTarget"] = renderTarget;
+
+			return result.release();
+		}
+	};
+} // namespace qjs
 #endif
-};

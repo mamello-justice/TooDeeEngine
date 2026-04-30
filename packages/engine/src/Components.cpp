@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
+#include <quickjspp.h>
 #endif
 
 #include "Animation.hpp"
@@ -21,22 +21,6 @@ CTransform::CTransform(const Vec2f& p, const Vec2f& v) : pos(p), prevPos(p), vel
 CTransform::CTransform(const Vec2f& p, const Vec2f& v, const Vec2f& s, float a)
 	: pos(p), prevPos(p), velocity(v), scale(s), angle(a) {}
 
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-JSValue CTransform::operator()(JSContext* ctx) const {
-	JSValue jsTrans = JS_NewObject(ctx);
-
-	JSValue jsPos = pos(ctx);
-	JS_SetPropertyStr(ctx, jsTrans, "pos", JS_DupValue(ctx, jsPos));
-	JS_FreeValue(ctx, jsPos);
-
-	JSValue jsVel = velocity(ctx);
-	JS_SetPropertyStr(ctx, jsTrans, "velocity", JS_DupValue(ctx, jsVel));
-	JS_FreeValue(ctx, jsVel);
-
-	return jsTrans;
-}
-#endif
-
 CCircle::CCircle(float radius, size_t points, const sf::Color& fill, const sf::Color& outline, float thickness) :
 	points(points), thickness(thickness), radius(radius), fill(fill), outline(outline) {}
 
@@ -51,35 +35,7 @@ CLifespan::CLifespan(int totalLifespan)
 CBoundingBox::CBoundingBox(const Vec2f& s) :
 	size(s), halfSize(s.x / 2, s.y / 2) {}
 
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-JSValue CBoundingBox::operator()(JSContext* ctx) const {
-	JSValue jsTrans = JS_NewObject(ctx);
-
-	JSValue jsSize = size(ctx);
-	JS_SetPropertyStr(ctx, jsTrans, "size", JS_DupValue(ctx, jsSize));
-	JS_FreeValue(ctx, jsSize);
-
-	JSValue jsHalfSize = halfSize(ctx);
-	JS_SetPropertyStr(ctx, jsTrans, "halfSize", JS_DupValue(ctx, jsHalfSize));
-	JS_FreeValue(ctx, jsHalfSize);
-
-	return jsTrans;
-}
-#endif
-
 CBoundingCircle::CBoundingCircle(float r) : radius(r) {}
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-JSValue CBoundingCircle::operator()(JSContext* ctx) const {
-	JSValue jsTrans = JS_NewObject(ctx);
-
-	JSValue jsRadius = JS_NewFloat64(ctx, radius);
-	JS_SetPropertyStr(ctx, jsTrans, "radius", JS_DupValue(ctx, jsRadius));
-	JS_FreeValue(ctx, jsRadius);
-
-	return jsTrans;
-}
-#endif
 
 CAnimation::CAnimation(const Animation& anim, bool r) :
 	animation(anim), repeat(r) {}

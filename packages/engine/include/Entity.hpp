@@ -4,7 +4,7 @@
 #include <tuple>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
+#include <quickjspp.h>
 #endif
 
 #include "Components.hpp"
@@ -14,6 +14,10 @@ class EntityManager;
 class Entity
 {
 	friend class EntityManager;
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	friend struct qjs::js_traits<Entity>;
+#endif
 
 	ComponentTuple mComponents;
 
@@ -61,6 +65,64 @@ public:
 	const std::string& tag() const;
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	JSValue operator()(JSContext*) const;
+	void operator()(JSContext* ctx, const JSValue& entity);
 #endif
 };
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+namespace qjs
+{
+	/** Conversion traits for Entity
+	 */
+	template<>
+	struct js_traits<Entity>
+	{
+		static Entity unwrap(JSContext* ctx, JSValueConst val) {
+			auto v = js_traits<qjs::value>::unwrap(ctx, val);
+
+			auto components = v["components"];
+
+			Entity result;
+
+			try {
+				auto transform = components["transform"];
+			}
+			catch (...) {
+
+			}
+
+			return result;
+		}
+		static JSValue wrap(JSContext* ctx, const Entity& e) noexcept {
+			qjs::context context(ctx);
+			auto result = context.new_object();
+
+			auto components = context.new_object();
+
+			if (e.has<CTransform>()) {
+				auto transform = context.new_object();
+
+				auto& cTrans = e.get<CTransform>();
+				transform["pos"] = js_traits<Vec2f>::wrap(ctx, cTrans.pos);
+				transform["prevPos"] = js_traits<Vec2f>::wrap(ctx, cTrans.prevPos);
+				transform["scale"] = js_traits<Vec2f>::wrap(ctx, cTrans.scale);
+				transform["velocity"] = js_traits<Vec2f>::wrap(ctx, cTrans.velocity);
+				transform["angle"] = js_traits<float>::wrap(ctx, cTrans.angle);
+
+				components["transform"] = transform;
+			}
+
+			if (e.has<CBoundingBox>()) {
+
+			}
+
+			if (e.has<CBoundingCircle>()) {
+
+			}
+
+			result["components"] = components;
+			return result.release();
+		}
+	};
+} // namespace qjs
+#endif

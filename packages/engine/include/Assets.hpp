@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -36,7 +37,7 @@ class Assets
 	 * @param path The file path to load the texture from
 	 * @param smooth Whether to apply smoothing to the texture
 	 */
-	void addTexture(const std::string& textureName, const std::string& path, bool smooth = true);
+	void addTexture(const std::string&, const std::filesystem::path&, bool smooth = true);
 	/**
 	 * @brief Add an animation to the asset manager
 	 *
@@ -45,21 +46,21 @@ class Assets
 	 * @param frames The total number of frames in the animation
 	 * @param speed The speed to play the animation
 	 */
-	void addAnimation(const std::string& animationName, const std::string& textureName, const size_t& frames, const size_t& speed);
+	void addAnimation(const std::string&, const std::string&, const size_t&, const size_t&);
 	/**
 	 * @brief Add a font to the asset manager
 	 *
 	 * @param fontName The name of the font
 	 * @param path The file path to load the font from
 	 */
-	void addFont(const std::string& fontName, const std::string& path);
+	void addFont(const std::string&, const std::filesystem::path&);
 	/**
 	 * @brief Add a script to the asset manager
 	 *
 	 * @param scriptName The name of the script
 	 * @param path The file path to load the script from
 	 */
-	void addScript(const std::string& scriptName, const std::string& path);
+	void addScript(const std::string&, const std::filesystem::path&);
 
 	/**
 	 * @brief Default constructor
@@ -83,8 +84,9 @@ public:
 	 * @brief Load assets from a configuration file
 	 *
 	 * @param path The path to the configuration file
+	 * @param base If loading assets from a different base path
 	 */
-	void loadFromFile(const std::string& path, const std::string& base = "");
+	void loadFromFile(const std::filesystem::path&, const std::filesystem::path& base = std::filesystem::current_path());
 
 	/**
 	 * @brief Get a texture by its name

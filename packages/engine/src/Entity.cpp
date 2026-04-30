@@ -4,7 +4,7 @@
 #include <tuple>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
+#include <quickjspp.h>
 #endif
 
 #include "Components.hpp"
@@ -29,32 +29,14 @@ const std::string& Entity::tag() const {
 }
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-JSValue Entity::operator()(JSContext* ctx) const {
-	JSValue jsE = JS_NewObject(ctx);
+void Entity::operator()(JSContext* ctx, const JSValue& entity) {
+	auto jsEntity = qjs::js_traits<Entity>::unwrap(ctx, entity);
 
-	JSValue jsComps = JS_NewObject(ctx);
-	JS_SetPropertyStr(ctx, jsE, "components", JS_DupValue(ctx, jsComps));
+	if (jsEntity.has<CTransform>()) {
+		auto& cTrans = get<CTransform>();
+		auto jsTrans = jsEntity.get<CTransform>();
 
-	if (has<CTransform>()) {
-		JSValue jsComp = get<CTransform>()(ctx);
-		JS_SetPropertyStr(ctx, jsComps, "transform", JS_DupValue(ctx, jsComp));
-		JS_FreeValue(ctx, jsComp);
+		cTrans.velocity = jsTrans.velocity;
 	}
-
-	if (has<CBoundingBox>()) {
-		JSValue jsComp = get<CBoundingBox>()(ctx);
-		JS_SetPropertyStr(ctx, jsComps, "boundingBox", JS_DupValue(ctx, jsComp));
-		JS_FreeValue(ctx, jsComp);
-	}
-
-	if (has<CBoundingCircle>()) {
-		JSValue jsComp = get<CBoundingCircle>()(ctx);
-		JS_SetPropertyStr(ctx, jsComps, "boundingCircle", JS_DupValue(ctx, jsComp));
-		JS_FreeValue(ctx, jsComp);
-	}
-
-	JS_FreeValue(ctx, jsComps);
-
-	return jsE;
 }
 #endif

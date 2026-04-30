@@ -3,13 +3,14 @@
 #include <memory>
 #include <functional>
 #include <optional>
+#include <sstream>
 
 #include <SFML/Graphics.hpp>
 
 #include "imgui.h"
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjs.h>
+#include <quickjspp.h>
 #endif
 
 #include "ImGuiDirectoryView.hpp"
@@ -111,8 +112,8 @@ class Editor {
     std::vector<std::function<void()>> m_postEngineUpdateSystems;
     std::vector<std::function<void()>> m_renderSystems;
 
-    std::string m_consoleText;
-    DirectoryNode m_scriptsDirectoryTree;
+    std::stringstream   m_logger;
+    DirectoryNode       m_scriptsDirectoryTree;
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
     JSMemoryUsageDisplay m_qjsStats;
