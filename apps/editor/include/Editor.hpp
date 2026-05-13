@@ -10,7 +10,7 @@
 #include "imgui.h"
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjspp.h>
+#include "quickjs.h"
 #endif
 
 #include "ImGuiDirectoryView.hpp"

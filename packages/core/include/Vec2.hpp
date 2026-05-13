@@ -1,13 +1,8 @@
 #pragma once
 
 #include <math.h>
-#include <type_traits>
 
 #include <SFML/Graphics.hpp>
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjspp.h>
-#endif
 
 template <typename T, typename U = int>
 class Vec2
@@ -234,89 +229,11 @@ public:
 	inline Vec2 abs() const {
 		return Vec2(x < 0 ? -x : x, y < 0 ? -y : y);
 	}
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	static void qjs_register_self(qjs::module& module) {
-		if constexpr (std::is_same_v<T, float>) {
-			module.register_class<Vec2<float>>("Vec2f")
-				.constructor<>()
-				.member<&Vec2<float>::x>("x")
-				.member<&Vec2<float>::y>("y");
-		}
-	}
-
-
-#endif
 };
 
 using Vec2f = Vec2<float>;
 using Vec2u = Vec2<unsigned int>;
 using Vec2i = Vec2<int, float>;
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-namespace qjs
-{
-	/** Conversion traits for Vec2f
-	 */
-	template<>
-	struct js_traits<Vec2f>
-	{
-		static Vec2f unwrap(JSContext* ctx, JSValueConst val) {
-			return Vec2f(
-				detail::unwrap_free<float>(ctx, JS_GetPropertyStr(ctx, val, "x")),
-				detail::unwrap_free<float>(ctx, JS_GetPropertyStr(ctx, val, "y"))
-			);
-		}
-
-		static JSValue wrap(JSContext* ctx, Vec2f val) noexcept {
-			JSValue result = JS_NewObject(ctx);
-			JS_SetPropertyStr(ctx, result, "x", js_traits<float>::wrap(ctx, val.x));
-			JS_SetPropertyStr(ctx, result, "y", js_traits<float>::wrap(ctx, val.y));
-			return result;
-		}
-	};
-
-	/** Conversion traits for Vec2u
-	 */
-	template<>
-	struct js_traits<Vec2u>
-	{
-		static Vec2u unwrap(JSContext* ctx, JSValueConst val) {
-			return Vec2u(
-				detail::unwrap_free<unsigned int>(ctx, JS_GetPropertyStr(ctx, val, "x")),
-				detail::unwrap_free<unsigned int>(ctx, JS_GetPropertyStr(ctx, val, "y"))
-			);
-		}
-
-		static JSValue wrap(JSContext* ctx, Vec2u val) noexcept {
-			JSValue result = JS_NewObject(ctx);
-			JS_SetPropertyStr(ctx, result, "x", js_traits<unsigned int>::wrap(ctx, val.x));
-			JS_SetPropertyStr(ctx, result, "y", js_traits<unsigned int>::wrap(ctx, val.y));
-			return result;
-		}
-	};
-
-	/** Conversion traits for Vec2i
-	 */
-	template<>
-	struct js_traits<Vec2i>
-	{
-		static Vec2i unwrap(JSContext* ctx, JSValueConst val) {
-			return Vec2i(
-				detail::unwrap_free<int>(ctx, JS_GetPropertyStr(ctx, val, "x")),
-				detail::unwrap_free<int>(ctx, JS_GetPropertyStr(ctx, val, "y"))
-			);
-		}
-
-		static JSValue wrap(JSContext* ctx, Vec2i val) noexcept {
-			JSValue result = JS_NewObject(ctx);
-			JS_SetPropertyStr(ctx, result, "x", js_traits<int>::wrap(ctx, val.x));
-			JS_SetPropertyStr(ctx, result, "y", js_traits<int>::wrap(ctx, val.y));
-			return result;
-		}
-	};
-} // namespace qjs
-#endif
 
 static_assert(std::is_default_constructible_v<Vec2f>);
 static_assert(std::is_default_constructible_v<Vec2u>);

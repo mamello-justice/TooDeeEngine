@@ -9,7 +9,7 @@
 #include <SFML/Graphics.hpp>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjspp.h>
+#include "quickjs.h"
 #endif
 
 #include "Scene.hpp"
@@ -32,13 +32,13 @@ public:
 	bool m_shouldRender = false;
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	qjs::runtime	m_jsRuntime;
-	qjs::context	m_jsContext;
-	qjs::module		m_vec2Module;
+	JSRuntime* m_jsRuntime;
+	JSContext* m_jsContext;
 #endif
 
 	GameEngine();
 	GameEngine(bool rendering);
+	~GameEngine();
 
 	void init();
 	void update();
@@ -75,6 +75,8 @@ public:
 	void handleJavascriptScriptExecution(std::shared_ptr<Entity> entity);
 #endif
 
+	const sf::RenderTexture& renderTarget() const;
+
 	sf::RenderTexture& renderTarget();
 
 	sf::RenderWindow& window();
@@ -84,17 +86,3 @@ public:
 	void sScripting();
 	void sCollision();
 };
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-namespace qjs
-{
-	/** Conversion traits for GameEngine
-	 */
-	template<>
-	struct js_traits<GameEngine>
-	{
-		static GameEngine unwrap(JSContext* ctx, JSValueConst val);
-		static JSValue wrap(JSContext* ctx, GameEngine& g) noexcept;
-	};
-} // namespace qjs
-#endif

@@ -3,10 +3,6 @@
 #include <string>
 #include <tuple>
 
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjspp.h>
-#endif
-
 #include "Components.hpp"
 
 class EntityManager;
@@ -14,10 +10,6 @@ class EntityManager;
 class Entity
 {
 	friend class EntityManager;
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	friend struct qjs::js_traits<Entity>;
-#endif
 
 	ComponentTuple mComponents;
 
@@ -64,17 +56,3 @@ public:
 
 	const std::string& tag() const;
 };
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-namespace qjs
-{
-	/** Conversion traits for Entity
-	 */
-	template<>
-	struct js_traits<Entity>
-	{
-		static Entity unwrap(JSContext* ctx, JSValueConst val);
-		static JSValue wrap(JSContext* ctx, const Entity& e) noexcept;
-	};
-} // namespace qjs
-#endif // TOO_DEE_ENGINE_QJS_SCRIPTING

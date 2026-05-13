@@ -3,7 +3,8 @@
 #include <SFML/Graphics.hpp>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjspp.h>
+#include "quickjs.h"
+#include "qjs.hpp"
 #endif
 
 #include "Animation.hpp"
@@ -52,44 +53,6 @@ CNativeScript::CNativeScript(const std::function<void(Entity&)>& updateFunc) : o
 CQJSScript::CQJSScript(const std::string& n) : name(n) {
 	// TODO: Run onCreate script function
 }
-
-namespace qjs
-{
-	CTransform js_traits<CTransform>::unwrap(JSContext* ctx, JSValueConst val) {
-		throw std::runtime_error("Not Implemented");
-	}
-
-	JSValue js_traits<CTransform>::wrap(JSContext* ctx, const CTransform& component) noexcept {
-		JSValue result = JS_NewObject(ctx);
-		JS_SetPropertyStr(ctx, result, "pos", js_traits<Vec2f>::wrap(ctx, component.pos));
-		JS_SetPropertyStr(ctx, result, "prevPos", js_traits<Vec2f>::wrap(ctx, component.prevPos));
-		JS_SetPropertyStr(ctx, result, "scale", js_traits<Vec2f>::wrap(ctx, component.scale));
-		JS_SetPropertyStr(ctx, result, "velocity", js_traits<Vec2f>::wrap(ctx, component.velocity));
-		JS_SetPropertyStr(ctx, result, "angle", js_traits<float>::wrap(ctx, component.angle));
-		return result;
-	}
-
-	CBoundingBox js_traits<CBoundingBox>::unwrap(JSContext* ctx, JSValueConst val) {
-		throw std::runtime_error("Not Implemented");
-	}
-
-	JSValue js_traits<CBoundingBox>::wrap(JSContext* ctx, const CBoundingBox& component) noexcept {
-		JSValue result = JS_NewObject(ctx);
-		JS_SetPropertyStr(ctx, result, "size", js_traits<Vec2f>::wrap(ctx, component.size));
-		JS_SetPropertyStr(ctx, result, "halfSize", js_traits<Vec2f>::wrap(ctx, component.halfSize));
-		return result;
-	}
-
-	CBoundingCircle js_traits<CBoundingCircle>::unwrap(JSContext* ctx, JSValueConst val) {
-		throw std::runtime_error("Not Implemented");
-	}
-
-	JSValue js_traits<CBoundingCircle>::wrap(JSContext* ctx, const CBoundingCircle& component) noexcept {
-		JSValue result = JS_NewObject(ctx);
-		JS_SetPropertyStr(ctx, result, "radius", js_traits<float>::wrap(ctx, component.radius));
-		return result;
-	}
-} // namespace qjs
 #endif
 
 std::string getComponentName(ComponentEnum c) {

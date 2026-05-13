@@ -39,7 +39,7 @@ target_link_libraries(TooDeeEditor
 
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
-    target_link_libraries(TooDeeEditor PRIVATE quickjspp)
+    target_link_libraries(TooDeeEditor PRIVATE qjs)
 endif()
 
 # Conditionally link example targets only if they were built

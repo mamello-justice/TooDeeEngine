@@ -5,7 +5,7 @@ add_subdirectory(sfml)
 add_subdirectory(engine)
 
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
-    add_subdirectory(quickjspp)
+    add_subdirectory(quickjs)
 endif()
 
 if(TOO_DEE_ENGINE_BUILD_EDITOR)

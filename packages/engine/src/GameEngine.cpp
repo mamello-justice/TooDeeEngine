@@ -9,34 +9,48 @@
 #include "spdlog/spdlog.h"
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjspp.h>
+#include "quickjs.h"
+#include "qjs.hpp"
 #endif
-
 
 #include "Assets.hpp"
 #include "Components.hpp"
 #include "Physics.hpp"
 #include "Scene.hpp"
 #include "Script.hpp"
-#include "SFMLTraits.hpp"
 #include "Vec2.hpp"
 
-GameEngine::GameEngine() :
-	m_jsContext(m_jsRuntime),
-	m_vec2Module(m_jsContext.ctx, "@too-dee-core/vec2") {
+GameEngine::GameEngine() {
 	init();
 }
 
 GameEngine::GameEngine(bool rendering) :
-	m_shouldRender(rendering),
-	m_jsContext(m_jsRuntime),
-	m_vec2Module(m_jsContext.ctx, "@too-dee-core/vec2") {
+	m_shouldRender(rendering) {
 	init();
+}
+
+GameEngine::~GameEngine() {
+	if (m_jsContext) {
+		JS_FreeContext(m_jsContext);
+		m_jsContext = nullptr;
+	}
+	if (m_jsRuntime) {
+		JS_FreeRuntime(m_jsRuntime);
+		m_jsRuntime = nullptr;
+	}
 }
 
 void GameEngine::init() {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-	Vec2f::qjs_register_self(m_vec2Module);
+	m_jsRuntime = JS_NewRuntime();
+
+	if (m_jsRuntime) {
+		m_jsContext = JS_NewContext(m_jsRuntime);
+		if (!m_jsContext) {
+			JS_FreeRuntime(m_jsRuntime);
+			m_jsRuntime = nullptr;
+		}
+	}
 #endif
 
 	m_preSceneSystems.push_back(std::bind(&GameEngine::sUserInput, this));
@@ -78,6 +92,10 @@ void GameEngine::update() {
 }
 
 void GameEngine::quit() { m_running = false; }
+
+const sf::RenderTexture& GameEngine::renderTarget() const {
+	return m_renderTarget;
+}
 
 sf::RenderTexture& GameEngine::renderTarget() {
 	return m_renderTarget;
@@ -169,33 +187,59 @@ void GameEngine::sMovement() {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 void GameEngine::handleJavascriptScriptExecution(std::shared_ptr<Entity> e) {
 	// Setup Global
-	m_jsContext.global()["TooDeeEngine"] = qjs::js_traits<GameEngine>::wrap(m_jsContext.ctx, *this);
+	JSValue jsGlobal = JS_GetGlobalObject(m_jsContext);
+	JSValue jsEngine = JS_GetValueOf(m_jsContext, *this);
+	JS_SetPropertyStr(m_jsContext, jsGlobal, "TooDeeEngine", jsEngine);
 
 	// Setup Script Module
-	auto& script = Assets::Instance().getScript(e->get<CQJSScript>().name);
-	m_jsContext.eval(
-		script.getContent(),
-		script.getPath().c_str(),
-		JS_EVAL_TYPE_MODULE);
-	m_jsContext.eval(
-		std::format("import * as script from '{}';\nglobalThis.onUpdate = script.onUpdate;", script.getPath()),
-		"<import>",
-		JS_EVAL_TYPE_MODULE);
+	auto scriptName = e->get<CQJSScript>().name;
+	auto& script = Assets::Instance().getScript(scriptName);
+	JSValue moduleEval = JS_Eval(m_jsContext, script.getContent().c_str(), script.getContent().size(), script.getPath().c_str(), JS_EVAL_TYPE_MODULE);
+
+	if (JS_IsException(moduleEval)) {
+		JSValue exception = JS_GetException(m_jsContext);
+		const char* str = JS_ToCString(m_jsContext, exception);
+		std::cerr << "Exception in script " << scriptName << ": " << str << std::endl;
+		JS_FreeCString(m_jsContext, str);
+		JS_FreeValue(m_jsContext, exception);
+	}
+
+	JS_FreeValue(m_jsContext, moduleEval);
+
+	std::string mainScript =
+		std::format("import * as script from '{}';\n", script.getPath()) +
+		"globalThis.onUpdate = script.onUpdate;";
+
+	JSValue mainEval = JS_Eval(m_jsContext, mainScript.c_str(), mainScript.size(), "main.js", JS_EVAL_TYPE_MODULE);
+
+	if (JS_IsException(mainEval)) {
+		JSValue exception = JS_GetException(m_jsContext);
+		const char* str = JS_ToCString(m_jsContext, exception);
+		std::cerr << "Exception in script main.js: " << str << std::endl;
+		JS_FreeCString(m_jsContext, str);
+		JS_FreeValue(m_jsContext, exception);
+	}
+
+	JS_FreeValue(m_jsContext, mainEval);
 
 	// Entity -> JSValue
-	auto jsEntity = qjs::js_traits<Entity>::wrap(m_jsContext.ctx, *e);
+	JSValue jsEntity = JS_GetValueOf(m_jsContext, *e);
 
 	// Execute Update Script
-	auto onUpdate = m_jsContext.global()["onUpdate"].as<std::function<JSValue(JSValue)>>();
-	try {
-		auto newJSEntity = onUpdate(jsEntity);
-		auto newEntity = qjs::js_traits<Entity>::unwrap(m_jsContext.ctx, newJSEntity);
-	}
-	catch (qjs::exception e) {
-		auto err = e.get_value().as<std::string_view>();
-		spdlog::error("Failed to run script update\n\t{}", err);
+	JSValue jsOnUpdate = JS_GetPropertyStr(m_jsContext, jsGlobal, "onUpdate");
+
+	JSValue args[1] = { jsEntity };
+
+	JSValue result = JS_Call(m_jsContext, jsOnUpdate, jsGlobal, 2, args);
+	if (JS_IsException(result)) {
+		JSValue exception = JS_GetException(m_jsContext);
+		const char* str = JS_ToCString(m_jsContext, exception);
+		std::cerr << "Failed to call onUpdate: " << scriptName << "\n\t" << str << std::endl;
+		JS_FreeCString(m_jsContext, str);
+		JS_FreeValue(m_jsContext, exception);
 	}
 
+	JS_UpdateFromValue(m_jsContext, jsEntity, *e);
 }
 #endif
 
@@ -246,19 +290,3 @@ void GameEngine::sCollision() {
 	}
 
 }
-
-
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-namespace qjs
-{
-	GameEngine js_traits<GameEngine>::unwrap(JSContext* ctx, JSValueConst val) {
-		throw std::runtime_error("Not Implemented");
-	}
-
-	JSValue js_traits<GameEngine>::wrap(JSContext* ctx, GameEngine& g) noexcept {
-		JSValue result = JS_NewObject(ctx);
-		JS_SetPropertyStr(ctx, result, "renderTarget", js_traits<sf::RenderTarget>::wrap(ctx, g.renderTarget()));
-		return result;
-	}
-} // namespace qjs
-#endif

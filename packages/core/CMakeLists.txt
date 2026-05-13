@@ -29,8 +29,3 @@ target_link_libraries(TooDeeCore
     spdlog::spdlog
     sfml-system
 )
-
-if (TOO_DEE_ENGINE_QJS_SCRIPTING)
-    target_compile_definitions(TooDeeCore PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
-    target_link_libraries(TooDeeCore PRIVATE quickjspp)
-endif()

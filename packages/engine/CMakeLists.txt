@@ -25,7 +25,6 @@ target_sources(TooDeeEngine
     src/Renderer.cpp
     src/Scene.cpp
     src/Script.cpp
-    src/SFMLTraits.cpp
 )
 
 target_include_directories(TooDeeEngine
@@ -46,5 +45,6 @@ target_link_libraries(TooDeeEngine
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     message(STATUS "JavaScript Scripting Enabled")
     target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
-    target_link_libraries(TooDeeEngine PRIVATE quickjspp)
+    target_link_libraries(TooDeeEngine PRIVATE qjs)
+    target_sources(TooDeeEngine PRIVATE src/qjs.cpp)
 endif()

@@ -9,7 +9,7 @@
 #include <SFML/Graphics.hpp>
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-#include <quickjspp.h>
+#include "quickjs.h"
 #endif
 
 #include "spdlog/spdlog.h"
@@ -203,7 +203,7 @@ void Editor::unloadExample() {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 void Editor::updateQjsStats() {
     JSMemoryUsage qjsStats;
-    JS_ComputeMemoryUsage(m_gameEngine->m_jsRuntime.rt, &qjsStats);
+    JS_ComputeMemoryUsage(m_gameEngine->m_jsRuntime, &qjsStats);
 
     m_qjsStats.malloc_size = bytesize::bytesize(std::max(0, (int)qjsStats.malloc_size)).format();
     m_qjsStats.memory_used_size = bytesize::bytesize(std::max(0, (int)qjsStats.memory_used_size)).format();
@@ -425,34 +425,34 @@ void Editor::sGUI() {
 #ifdef MOVING_SHAPES_EXAMPLE
             if (ImGui::MenuItem("Moving Shapes")) {
                 loadExample(Example::MovingShapes);
-        }
+            }
 #endif
 
 #ifdef NATIVE_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("Native Scripting")) {
                 loadExample(Example::NativeScripting);
-    }
+            }
 #endif
 
 #ifdef JAVASCRIPT_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("JavaScript Scripting")) {
                 loadExample(Example::JavaScriptScripting);
-}
+            }
 #endif
 
 #ifdef TYPESCRIPT_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("TypeScript Scripting")) {
                 loadExample(Example::TypeScriptScripting);
-    }
+            }
 #endif
 
 #ifdef LUA_SCRIPTING_EXAMPLE
             if (ImGui::MenuItem("Lua Scripting")) {
                 loadExample(Example::LuaScripting);
-}
+            }
 #endif
             ImGui::EndMenu();
-        }
+            }
 #endif
 
         if (ImGui::BeginMenu("Help")) {
@@ -461,7 +461,7 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
-    }
+            }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     if (ImGui::Begin("Viewport")) {
@@ -760,7 +760,7 @@ void Editor::sGUI() {
     }
 
     ImGui::SFML::Render(m_gameEngine->window());
-}
+            }
 
 bool isControlF4(const sf::Event::KeyPressed* keyPressed) {
     bool isControl =
