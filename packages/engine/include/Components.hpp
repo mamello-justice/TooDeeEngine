@@ -151,7 +151,37 @@ public:
 	CQJSScript() = default;
 	CQJSScript(const std::string& n);
 };
-#endif
+
+namespace qjs
+{
+	/** Conversion traits for CTransform
+	 */
+	template<>
+	struct js_traits<CTransform>
+	{
+		static CTransform unwrap(JSContext* ctx, JSValueConst val);
+		static JSValue wrap(JSContext* ctx, const CTransform&) noexcept;
+	};
+
+	/** Conversion traits for CBoundingBox
+	 */
+	template<>
+	struct js_traits<CBoundingBox>
+	{
+		static CBoundingBox unwrap(JSContext* ctx, JSValueConst val);
+		static JSValue wrap(JSContext* ctx, const CBoundingBox&) noexcept;
+	};
+
+	/** Conversion traits for CBoundingCircle
+	 */
+	template<>
+	struct js_traits<CBoundingCircle>
+	{
+		static CBoundingCircle unwrap(JSContext* ctx, JSValueConst val);
+		static JSValue wrap(JSContext* ctx, const CBoundingCircle&) noexcept;
+	};
+} // namespace qjs
+#endif // TOO_DEE_ENGINE_QJS_SCRIPTING
 
 using ComponentTuple = std::tuple<
 	CAnimation,
@@ -259,6 +289,7 @@ bool hasComponentByEnum(const EntityType& entity, ComponentEnum comp) {
 		return false;
 	}
 }
+
 
 static_assert(std::is_default_constructible_v<CAnimation>);
 static_assert(std::is_default_constructible_v<CBoundingBox>);

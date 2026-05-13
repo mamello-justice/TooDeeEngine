@@ -25,6 +25,7 @@ target_sources(TooDeeEngine
     src/Renderer.cpp
     src/Scene.cpp
     src/Script.cpp
+    src/SFMLTraits.cpp
 )
 
 target_include_directories(TooDeeEngine

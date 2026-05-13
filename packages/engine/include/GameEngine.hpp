@@ -93,20 +93,8 @@ namespace qjs
 	template<>
 	struct js_traits<GameEngine>
 	{
-		static JSValue wrap(JSContext* ctx, GameEngine& g) noexcept {
-			qjs::context context(ctx);
-
-			auto jsSize = qjs::js_traits<Vec2u>::wrap(ctx, g.renderTarget().getSize());
-			auto size = qjs::js_traits<qjs::value>::unwrap(ctx, jsSize);
-
-			auto renderTarget = context.new_object();
-			renderTarget["size"] = size;
-
-			auto result = context.new_object();
-			result["renderTarget"] = renderTarget;
-
-			return result.release();
-		}
+		static GameEngine unwrap(JSContext* ctx, JSValueConst val);
+		static JSValue wrap(JSContext* ctx, GameEngine& g) noexcept;
 	};
 } // namespace qjs
 #endif

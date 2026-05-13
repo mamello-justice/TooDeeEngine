@@ -262,60 +262,57 @@ namespace qjs
 	struct js_traits<Vec2f>
 	{
 		static Vec2f unwrap(JSContext* ctx, JSValueConst val) {
-			Vec2f result;
-
-			auto v = js_traits<qjs::value>::unwrap(ctx, val);
-			result.x = v["x"].as<float>();
-			result.y = v["y"].as<float>();
-			return result;
+			return Vec2f(
+				detail::unwrap_free<float>(ctx, JS_GetPropertyStr(ctx, val, "x")),
+				detail::unwrap_free<float>(ctx, JS_GetPropertyStr(ctx, val, "y"))
+			);
 		}
 
 		static JSValue wrap(JSContext* ctx, Vec2f val) noexcept {
-			qjs::context context(ctx);
-			auto result = context.new_object();
-			result["x"] = context.new_value(val.x);
-			result["y"] = context.new_value(val.y);
-			return result.release();
+			JSValue result = JS_NewObject(ctx);
+			JS_SetPropertyStr(ctx, result, "x", js_traits<float>::wrap(ctx, val.x));
+			JS_SetPropertyStr(ctx, result, "y", js_traits<float>::wrap(ctx, val.y));
+			return result;
 		}
 	};
+
+	/** Conversion traits for Vec2u
+	 */
 	template<>
 	struct js_traits<Vec2u>
 	{
 		static Vec2u unwrap(JSContext* ctx, JSValueConst val) {
-			auto v = js_traits<qjs::value>::unwrap(ctx, val);
-
-			Vec2u result;
-			result.x = v["x"].as<unsigned int>();
-			result.y = v["y"].as<unsigned int>();
-			return result;
+			return Vec2u(
+				detail::unwrap_free<unsigned int>(ctx, JS_GetPropertyStr(ctx, val, "x")),
+				detail::unwrap_free<unsigned int>(ctx, JS_GetPropertyStr(ctx, val, "y"))
+			);
 		}
 
 		static JSValue wrap(JSContext* ctx, Vec2u val) noexcept {
-			qjs::context context(ctx);
-			auto result = context.new_object();
-			result["x"] = context.new_value(val.x);
-			result["y"] = context.new_value(val.y);
-			return result.release();
+			JSValue result = JS_NewObject(ctx);
+			JS_SetPropertyStr(ctx, result, "x", js_traits<unsigned int>::wrap(ctx, val.x));
+			JS_SetPropertyStr(ctx, result, "y", js_traits<unsigned int>::wrap(ctx, val.y));
+			return result;
 		}
 	};
+
+	/** Conversion traits for Vec2i
+	 */
 	template<>
 	struct js_traits<Vec2i>
 	{
 		static Vec2i unwrap(JSContext* ctx, JSValueConst val) {
-			auto v = js_traits<qjs::value>::unwrap(ctx, val);
-
-			Vec2i result;
-			result.x = v["x"].as<int>();
-			result.y = v["y"].as<int>();
-			return result;
+			return Vec2i(
+				detail::unwrap_free<int>(ctx, JS_GetPropertyStr(ctx, val, "x")),
+				detail::unwrap_free<int>(ctx, JS_GetPropertyStr(ctx, val, "y"))
+			);
 		}
 
 		static JSValue wrap(JSContext* ctx, Vec2i val) noexcept {
-			qjs::context context(ctx);
-			auto result = context.new_object();
-			result["x"] = context.new_value(val.x);
-			result["y"] = context.new_value(val.y);
-			return result.release();
+			JSValue result = JS_NewObject(ctx);
+			JS_SetPropertyStr(ctx, result, "x", js_traits<int>::wrap(ctx, val.x));
+			JS_SetPropertyStr(ctx, result, "y", js_traits<int>::wrap(ctx, val.y));
+			return result;
 		}
 	};
 } // namespace qjs

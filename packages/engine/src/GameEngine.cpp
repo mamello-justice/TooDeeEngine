@@ -18,6 +18,7 @@
 #include "Physics.hpp"
 #include "Scene.hpp"
 #include "Script.hpp"
+#include "SFMLTraits.hpp"
 #include "Vec2.hpp"
 
 GameEngine::GameEngine() :
@@ -185,18 +186,16 @@ void GameEngine::handleJavascriptScriptExecution(std::shared_ptr<Entity> e) {
 	auto jsEntity = qjs::js_traits<Entity>::wrap(m_jsContext.ctx, *e);
 
 	// Execute Update Script
-	auto onUpdate = m_jsContext.global()["onUpdate"].as<std::function<void(JSValue)>>();
-	try { onUpdate(jsEntity); }
+	auto onUpdate = m_jsContext.global()["onUpdate"].as<std::function<JSValue(JSValue)>>();
+	try {
+		auto newJSEntity = onUpdate(jsEntity);
+		auto newEntity = qjs::js_traits<Entity>::unwrap(m_jsContext.ctx, newJSEntity);
+	}
 	catch (qjs::exception e) {
 		auto err = e.get_value().as<std::string_view>();
 		spdlog::error("Failed to run script update\n\t{}", err);
 	}
 
-	// JSValue -> Entity
-	try { (*e)(m_jsContext.ctx, jsEntity); }
-	catch (...) {
-		spdlog::error("Failed to update entity: {}", e->id());
-	}
 }
 #endif
 
@@ -247,3 +246,19 @@ void GameEngine::sCollision() {
 	}
 
 }
+
+
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+namespace qjs
+{
+	GameEngine js_traits<GameEngine>::unwrap(JSContext* ctx, JSValueConst val) {
+		throw std::runtime_error("Not Implemented");
+	}
+
+	JSValue js_traits<GameEngine>::wrap(JSContext* ctx, GameEngine& g) noexcept {
+		JSValue result = JS_NewObject(ctx);
+		JS_SetPropertyStr(ctx, result, "renderTarget", js_traits<sf::RenderTarget>::wrap(ctx, g.renderTarget()));
+		return result;
+	}
+} // namespace qjs
+#endif

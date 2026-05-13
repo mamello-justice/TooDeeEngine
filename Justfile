@@ -4,7 +4,7 @@ set unstable := true
 EDITOR := 'TooDeeEditor'
 ARCHITECTURE := 'x64'
 BUILD_DIR := 'build'
-CMAKE_GENERATOR := 'Visual Studio 17 2022'
+CMAKE_GENERATOR := 'Visual Studio 18 2026'
 
 target_name(target) := if target == "hello_world" { "HelloWorldApp" }\
     else if target == "moving_shapes" { "MovingShapesApp" }\
@@ -26,7 +26,7 @@ clean:
     cmake --build {{ BUILD_DIR }} --target clean
 
 build-js:
-    nx run-many --target=build --parallel --all
+    pnpm nx run-many --target=build --parallel --all
 
 build:
     cmake --build {{ BUILD_DIR }} --config Debug
