@@ -86,6 +86,7 @@ namespace JavaScriptScripting
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
         e->add<CQJSScript>("bounding_circle_collision_script");
+        m_gameEngine->callScriptFunction(e, "onCreate");
 #endif
     }
 
@@ -99,6 +100,7 @@ namespace JavaScriptScripting
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
         e->add<CQJSScript>("bounding_box_collision_script");
+        m_gameEngine->callScriptFunction(e, "onCreate");
 #endif
     }
 

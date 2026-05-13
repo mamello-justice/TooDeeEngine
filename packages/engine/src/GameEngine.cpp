@@ -185,7 +185,7 @@ void GameEngine::sMovement() {
 }
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
-void GameEngine::handleJavascriptScriptExecution(std::shared_ptr<Entity> e) {
+void GameEngine::callScriptFunction(std::shared_ptr<Entity> e, const std::string& funcName) {
 	// Setup Global
 	JSValue jsGlobal = JS_GetGlobalObject(m_jsContext);
 	JSValue jsEngine = JS_GetValueOf(m_jsContext, *this);
@@ -206,9 +206,12 @@ void GameEngine::handleJavascriptScriptExecution(std::shared_ptr<Entity> e) {
 
 	JS_FreeValue(m_jsContext, moduleEval);
 
-	std::string mainScript =
-		std::format("import * as script from '{}';\n", script.getPath()) +
-		"globalThis.onUpdate = script.onUpdate;";
+	std::string mainScript = std::format(
+		"import * as script from '{}';\nglobalThis.{} = script.{};",
+		script.getPath(),
+		funcName,
+		funcName
+	);
 
 	JSValue mainEval = JS_Eval(m_jsContext, mainScript.c_str(), mainScript.size(), "main.js", JS_EVAL_TYPE_MODULE);
 
@@ -225,16 +228,16 @@ void GameEngine::handleJavascriptScriptExecution(std::shared_ptr<Entity> e) {
 	// Entity -> JSValue
 	JSValue jsEntity = JS_GetValueOf(m_jsContext, *e);
 
-	// Execute Update Script
-	JSValue jsOnUpdate = JS_GetPropertyStr(m_jsContext, jsGlobal, "onUpdate");
+	// Execute Script
+	JSValue jsFunc = JS_GetPropertyStr(m_jsContext, jsGlobal, funcName.c_str());
 
 	JSValue args[1] = { jsEntity };
 
-	JSValue result = JS_Call(m_jsContext, jsOnUpdate, jsGlobal, 2, args);
+	JSValue result = JS_Call(m_jsContext, jsFunc, jsGlobal, 2, args);
 	if (JS_IsException(result)) {
 		JSValue exception = JS_GetException(m_jsContext);
 		const char* str = JS_ToCString(m_jsContext, exception);
-		std::cerr << "Failed to call onUpdate: " << scriptName << "\n\t" << str << std::endl;
+		std::cerr << "Failed to call " << funcName << ": " << scriptName << "\n\t" << str << std::endl;
 		JS_FreeCString(m_jsContext, str);
 		JS_FreeValue(m_jsContext, exception);
 	}
@@ -255,7 +258,11 @@ void GameEngine::sScripting() {
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 			if (e->has<CQJSScript>()) {
-				handleJavascriptScriptExecution(e);
+				if (!e->isAlive()) {
+					callScriptFunction(e, "onDestroy");
+				}
+				callScriptFunction(e, "onUpdate");
+
 			}
 #endif
 		}
