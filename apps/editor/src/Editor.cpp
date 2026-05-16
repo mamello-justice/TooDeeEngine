@@ -350,7 +350,6 @@ void Editor::sRender() {
     }
 
     if (m_appState.DrawGrid) {
-        sf::Text gridText(Assets::Instance().getFont("tech"), "", 10);
         float leftX = float(m_gameEngine->renderTarget().getView().getCenter().x) - wWidth / 2.0f;
         float rightX = leftX + wWidth + m_gridSize.x;
         float nextGridX = leftX - float((int)leftX % (int)m_gridSize.x);
@@ -370,6 +369,10 @@ void Editor::sRender() {
 
             m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
 
+        }
+
+        sf::Text gridText(Assets::Instance().getFont("tech"), "", 10);
+        for (float y = 0; y < wHeight; y += float(m_gridSize.y)) {
             for (float x = nextGridX; x < rightX; x += float(m_gridSize.x)) {
                 std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
                 std::string yCell = std::to_string((int)y / (int)m_gridSize.y);

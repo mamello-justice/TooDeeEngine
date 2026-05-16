@@ -30,6 +30,7 @@ GameEngine::GameEngine(bool rendering) :
 }
 
 GameEngine::~GameEngine() {
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	if (m_jsContext) {
 		JS_FreeContext(m_jsContext);
 		m_jsContext = nullptr;
@@ -38,6 +39,7 @@ GameEngine::~GameEngine() {
 		JS_FreeRuntime(m_jsRuntime);
 		m_jsRuntime = nullptr;
 	}
+#endif
 }
 
 void GameEngine::init() {
@@ -263,10 +265,10 @@ void GameEngine::sScripting() {
 				}
 				callScriptFunction(e, "onUpdate");
 
-			}
-#endif
 		}
+#endif
 	}
+}
 }
 
 void GameEngine::sCollision() {

@@ -9,6 +9,9 @@ void Renderer::render(std::shared_ptr<GameEngine> engine) {
     engine->renderTarget().clear();
 
     if (engine->m_shouldRender && engine->currentScene()) {
+        // TODO: Remove custom scene rendering after everything is in entity
+        engine->currentScene()->sRender();
+
         for (const auto& e : engine->currentScene()->getEntityManager().getEntities()) {
             if (e->has<CAnimation>() && e->has<CTransform>()) {
                 auto& cTrans = e->get<CTransform>();
@@ -49,9 +52,6 @@ void Renderer::render(std::shared_ptr<GameEngine> engine) {
                 engine->renderTarget().draw(rect);
             }
         }
-
-        // TODO: Remove custom scene rendering after everything is in entity
-        engine->currentScene()->sRender();
     }
 
     engine->renderTarget().display();

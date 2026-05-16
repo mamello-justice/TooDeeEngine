@@ -28,7 +28,7 @@ void Assets::addTexture(const std::string& textureName, const std::filesystem::p
 	}
 	else {
 		m_textureMap[textureName].setSmooth(smooth);
-		spdlog::info("Loaded Texture: [{}] = ", textureName, path.string());
+		spdlog::info("Loaded Texture: [{}] = {}", textureName, path.string());
 	}
 }
 
@@ -90,7 +90,7 @@ void Assets::loadFromFile(const std::filesystem::path& config, const std::filesy
 			auto name = section.substr(8, section.size());
 			auto path = reader.GetString(section, "file", "");
 			auto smooth = reader.GetBoolean(section, "smooth", false);
-			addTexture(name, base / path, smooth);
+			addTexture(name, base / std::filesystem::canonical(path), smooth);
 		}
 	}
 
@@ -108,7 +108,7 @@ void Assets::loadFromFile(const std::filesystem::path& config, const std::filesy
 		if (section.starts_with("font.")) {
 			auto name = section.substr(5, section.size());
 			auto path = reader.GetString(section, "file", "");
-			addFont(name, base / path);
+			addFont(name, base / std::filesystem::canonical(path));
 		}
 	}
 
@@ -116,7 +116,7 @@ void Assets::loadFromFile(const std::filesystem::path& config, const std::filesy
 		if (section.starts_with("script.")) {
 			auto name = section.substr(7, section.size());
 			auto path = reader.GetString(section, "file", "");
-			addScript(name, base / path);
+			addScript(name, base / std::filesystem::canonical(path));
 		}
 	}
 }
