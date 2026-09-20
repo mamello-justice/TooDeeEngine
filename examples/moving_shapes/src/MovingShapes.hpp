@@ -37,8 +37,6 @@ namespace MovingShapes
 
     class Example : public Scene {
     protected:
-        void init();
-
         void update() override;
         void sRender() override;
 

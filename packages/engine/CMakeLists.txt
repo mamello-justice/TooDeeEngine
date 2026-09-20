@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
 
-message(STATUS "Building TooDeeEngine")
+project(TooDeeEngine LANGUAGES CXX)
 
-project(TooDeeEngine)
+message(STATUS "Building TooDeeEngine")
 
 # Library Target
 add_library(TooDeeEngine STATIC)
@@ -47,4 +47,10 @@ if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_link_libraries(TooDeeEngine PRIVATE qjs)
     target_sources(TooDeeEngine PRIVATE src/qjs.cpp)
+endif()
+
+if (TOO_DEE_ENGINE_LUA_SCRIPTING)
+    message(STATUS "Lua Scripting Enabled")
+    target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_LUA_SCRIPTING)
+    target_link_libraries(TooDeeEngine PRIVATE sol2::sol2)
 endif()

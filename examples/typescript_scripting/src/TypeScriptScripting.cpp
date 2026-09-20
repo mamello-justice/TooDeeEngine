@@ -47,16 +47,7 @@ namespace TypeScriptScripting
         return is;
     }
 
-    Example::Example(std::shared_ptr<GameEngine> gameEngine) :
-        Scene(gameEngine) {
-        init();
-    }
-
-    void Example::init() {}
-
-    void Example::update() {}
-
-    void Example::sRender() {}
+    Example::Example(std::shared_ptr<GameEngine> gameEngine) : Scene(gameEngine) {}
 
     void Example::loadLevel(const std::string& filename) {
         std::ifstream file(filename);

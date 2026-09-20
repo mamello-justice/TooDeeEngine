@@ -42,6 +42,11 @@ if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_link_libraries(TooDeeEditor PRIVATE qjs)
 endif()
 
+if (TOO_DEE_ENGINE_LUA_SCRIPTING)
+    target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_LUA_SCRIPTING)
+    target_link_libraries(TooDeeEditor PRIVATE sol2::sol2)
+endif()
+
 # Conditionally link example targets only if they were built
 if(TOO_DEE_ENGINE_BUILD_EXAMPLES)
     target_compile_definitions(TooDeeEditor PRIVATE BUILD_EXAMPLES)

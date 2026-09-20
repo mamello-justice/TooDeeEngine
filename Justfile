@@ -23,7 +23,12 @@ setup *$TOO_DEE_ENGINE_EXAMPLE_TARGET:
     cmake -B {{ BUILD_DIR }} -G "{{ CMAKE_GENERATOR }}" -A {{ ARCHITECTURE }}
 
 clean:
-    cmake --build {{ BUILD_DIR }} --target clean
+    cmake --build {{ BUILD_DIR }} --target clean || true
+    pnpm nx reset
+    rm -rf tmp build
+
+clean-all: clean
+    rm -rf node_modules
 
 build-js:
     pnpm nx run-many --target=build --parallel --all
@@ -43,3 +48,9 @@ example target: (setup target) build
 [working-directory('apps/editor')]
 edit: build
     ../../build/apps/editor/Debug/TooDeeEditor
+
+run *args: build
+    build/apps/runner/Debug/tde {{args}}
+
+test: build
+    ctest --test-dir build/tests -C Debug

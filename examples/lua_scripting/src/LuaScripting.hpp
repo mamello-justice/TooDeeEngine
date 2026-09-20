@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
+
 #include <SFML/Graphics.hpp>
 
 #include "TooDeeEngine.hpp"
@@ -35,12 +36,6 @@ namespace LuaScripting
     std::istream& operator>>(std::istream&, RectangleConfig&);
 
     class Example : public Scene {
-    protected:
-        void init();
-
-        void update() override;
-        void sRender() override;
-
     public:
         Example(std::shared_ptr<GameEngine> gameEngine);
 

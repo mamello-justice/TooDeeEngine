@@ -23,7 +23,7 @@ protected:
 public:
 	Scene(std::shared_ptr<GameEngine> gameEngine);
 
-	virtual void update() = 0;
+	virtual void update() {};
 
 	void registerAction(const sf::Keyboard::Scan& scancode, const std::string& action);
 
@@ -38,7 +38,7 @@ public:
 	virtual void sDoAction(const Action& action) {}
 
 	[[deprecated("Define entities and let the engine render them")]]
-	virtual void sRender() = 0;
+	virtual void sRender() {};
 
 	bool isPaused() const;
 

@@ -7,6 +7,10 @@
 #include "qjs.hpp"
 #endif
 
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+#include <sol/sol.hpp>
+#endif
+
 #include "Animation.hpp"
 #include "Entity.hpp"
 #include "Vec2.hpp"
@@ -52,6 +56,12 @@ CNativeScript::CNativeScript(const std::function<void(Entity&)>& updateFunc) : o
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 CQJSScript::CQJSScript(const std::string& n) : name(n) {
 	// TODO: Run onCreate script function
+}
+#endif
+
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+CLuaScript::CLuaScript(const std::string& n) : name(n) {
+	// TODO: run onCreate script function
 }
 #endif
 

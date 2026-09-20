@@ -153,6 +153,16 @@ public:
 };
 #endif // TOO_DEE_ENGINE_QJS_SCRIPTING
 
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+class CLuaScript : public Component {
+public:
+	std::string name;
+
+	CLuaScript() = default;
+	CLuaScript(const std::string& n);
+};
+#endif // TOO_DEE_ENGINE_LUA_SCRIPTING
+
 using ComponentTuple = std::tuple<
 	CAnimation,
 	CBoundingBox,
@@ -162,6 +172,9 @@ using ComponentTuple = std::tuple<
 	CInput,
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	CQJSScript,
+#endif
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+	CLuaScript,
 #endif
 	CLabel,
 	CLifespan,

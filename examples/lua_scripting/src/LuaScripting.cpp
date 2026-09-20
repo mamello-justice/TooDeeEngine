@@ -46,16 +46,7 @@ namespace LuaScripting
         return is;
     }
 
-    Example::Example(std::shared_ptr<GameEngine> gameEngine) :
-        Scene(gameEngine) {
-        init();
-    }
-
-    void Example::init() {}
-
-    void Example::update() {}
-
-    void Example::sRender() {}
+    Example::Example(std::shared_ptr<GameEngine> gameEngine) : Scene(gameEngine) {}
 
     void Example::loadLevel(const std::string& filename) {
         std::ifstream file(filename);
@@ -83,6 +74,11 @@ namespace LuaScripting
         e->add<CTransform>(config.pos, config.velocity);
         e->add<CCircle>(config.radius, 32, config.color, config.color, 0.f);
         e->add<CBoundingCircle>(config.radius);
+
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+        e->add<CLuaScript>("bounding_circle_collision_script");
+        m_gameEngine->callScriptFunction(e, "onCreate");
+#endif
     }
 
     void Example::spawnRectangle(const RectangleConfig& config) {
@@ -92,5 +88,10 @@ namespace LuaScripting
         e->add<CTransform>(config.pos, config.velocity);
         e->add<CRectangle>(config.size, config.color, config.color, 0.f);
         e->add<CBoundingBox>(config.size);
+
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+        e->add<CLuaScript>("bounding_box_collision_script");
+        m_gameEngine->callScriptFunction(e, "onCreate");
+#endif
     }
 } // namespace LuaScripting

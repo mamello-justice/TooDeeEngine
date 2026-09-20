@@ -71,9 +71,7 @@ public:
 
 	void handleEvent(std::optional<sf::Event> event);
 
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	void callScriptFunction(std::shared_ptr<Entity> entity, const std::string& funcName);
-#endif
 
 	const sf::RenderTexture& renderTarget() const;
 

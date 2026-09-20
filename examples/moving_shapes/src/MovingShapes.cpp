@@ -47,11 +47,7 @@ namespace MovingShapes
     }
 
     Example::Example(std::shared_ptr<GameEngine> gameEngine) :
-        Scene(gameEngine), m_label(Assets::Instance().getFont("tech")) {
-        init();
-    }
-
-    void Example::init() {}
+        Scene(gameEngine), m_label(Assets::Instance().getFont("tech")) {}
 
     void Example::update() {
         auto wSize = m_gameEngine->renderTarget().getSize();

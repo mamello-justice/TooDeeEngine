@@ -8,7 +8,6 @@
 
 class HelloWorld : public Scene {
 protected:
-    void update() override;
     void sRender() override;
 
 public:

@@ -10,8 +10,6 @@
 HelloWorld::HelloWorld(std::shared_ptr<GameEngine> gameEngine)
     : Scene(gameEngine) {}
 
-void HelloWorld::update() {}
-
 void HelloWorld::sRender() {
     sf::Text text(Assets::Instance().getFont("tech"), "Hello World!", 100);
     text.setPosition({

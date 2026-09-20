@@ -20,5 +20,7 @@
         }
       }
     }
-  ]
+  ],
+  "analytics": false,
+  "neverConnectToCloud": true
 }

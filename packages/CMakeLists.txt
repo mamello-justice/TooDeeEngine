@@ -8,6 +8,12 @@ if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     add_subdirectory(quickjs)
 endif()
 
+if (TOO_DEE_ENGINE_LUA_SCRIPTING)
+    add_subdirectory(lua)
+    add_subdirectory(sol2)
+    target_link_libraries(sol2 INTERFACE lua)
+endif()
+
 if(TOO_DEE_ENGINE_BUILD_EDITOR)
     add_subdirectory(imgui)
     add_subdirectory(imgui-sfml)

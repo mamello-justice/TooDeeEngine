@@ -36,12 +36,6 @@ namespace JavaScriptScripting
     std::istream& operator>>(std::istream&, RectangleConfig&);
 
     class Example : public Scene {
-    protected:
-        void init();
-
-        void update() override;
-        void sRender() override;
-
     public:
         Example(std::shared_ptr<GameEngine> gameEngine);
 

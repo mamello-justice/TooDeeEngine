@@ -618,9 +618,13 @@ runtime
 # Nx cache and workspace data
 .nx/cache
 .nx/workspace-data
+.nx/polygraph
+.nx/self-healing
 
 # AI rules/instructions
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
+.kilo/plans
+.claude/worktrees
 
 TODO.md

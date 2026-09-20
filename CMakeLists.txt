@@ -7,36 +7,32 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Force MSVC to use dynamic runtime
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
-# Read environment variables set by justfile
-if(DEFINED ENV{GIT_PROGRESS})
-    set(GIT_PROGRESS $ENV{GIT_PROGRESS})
-else()
-    set(GIT_PROGRESS false)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
 endif()
 
-if(DEFINED ENV{TOO_DEE_ENGINE_BUILD_EDITOR})
-    set(TOO_DEE_ENGINE_BUILD_EDITOR $ENV{TOO_DEE_ENGINE_BUILD_EDITOR})
-else()
-    set(TOO_DEE_ENGINE_BUILD_EDITOR false)
-endif()
+# ===== ENV VARIABLES -> NORMAL VARIABLES =====
 
-if(DEFINED ENV{TOO_DEE_ENGINE_BUILD_EXAMPLES})
-    set(TOO_DEE_ENGINE_BUILD_EXAMPLES $ENV{TOO_DEE_ENGINE_BUILD_EXAMPLES})
-else()
-    set(TOO_DEE_ENGINE_BUILD_EXAMPLES false)
-endif()
+set(ENV_LIST
+    GIT_PROGRESS
+    TOO_DEE_ENGINE_BUILD_EDITOR
+    TOO_DEE_ENGINE_BUILD_CLI
+    TOO_DEE_ENGINE_BUILD_EXAMPLES
+    TOO_DEE_ENGINE_QJS_SCRIPTING
+    TOO_DEE_ENGINE_LUA_SCRIPTING
+    TOO_DEE_ENGINE_ENABLE_TESTING
+)
 
-if(DEFINED ENV{TOO_DEE_ENGINE_QJS_SCRIPTING})
-    set(TOO_DEE_ENGINE_QJS_SCRIPTING $ENV{TOO_DEE_ENGINE_QJS_SCRIPTING})
-else()
-    set(TOO_DEE_ENGINE_QJS_SCRIPTING false)
-endif()
+foreach(var ${ENV_LIST})
+    # Copy value if the environment variable is defined
+    if(DEFINED ENV{${var}})
+        set(${var} "$ENV{${var}}")
+    else()
+        set(${var} false)
+    endif()
+endforeach()
 
-if(DEFINED ENV{TOO_DEE_ENGINE_LUA_SCRIPTING})
-    set(TOO_DEE_ENGINE_LUA_SCRIPTING $ENV{TOO_DEE_ENGINE_LUA_SCRIPTING})
-else()
-    set(TOO_DEE_ENGINE_LUA_SCRIPTING false)
-endif()
+# ===== ADD SUBDIRECTORIES =====
 
 add_subdirectory(packages)
 
@@ -44,11 +40,16 @@ if(TOO_DEE_ENGINE_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-# Conditionally add subdirectories or targets
 if(TOO_DEE_ENGINE_BUILD_EDITOR)
     add_subdirectory(apps/editor)
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DDEBUG)
+if(TOO_DEE_ENGINE_BUILD_CLI)
+    add_subdirectory(apps/cli)
+endif()
+
+if (TOO_DEE_ENGINE_ENABLE_TESTING)
+    enable_testing()
+    
+    add_subdirectory(tests)
 endif()

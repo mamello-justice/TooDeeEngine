@@ -1,5 +1,11 @@
 packages:
-  - "apps/*"
-  - "examples/*"
-  - "examples/typescript_scripting/assets/scripts/*"
-  - "packages/*"
+  - apps/*
+  - examples/*
+  - examples/typescript_scripting/assets/scripts/*
+  - packages/*
+
+allowBuilds:
+  '@swc/core': false
+  nx: true
+
+minimumReleaseAge: 10080

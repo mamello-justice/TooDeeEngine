@@ -13,6 +13,10 @@
 #include "qjs.hpp"
 #endif
 
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+#include <sol/sol.hpp>
+#endif
+
 #include "Assets.hpp"
 #include "Components.hpp"
 #include "Physics.hpp"
@@ -186,67 +190,75 @@ void GameEngine::sMovement() {
 	}
 }
 
-#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 void GameEngine::callScriptFunction(std::shared_ptr<Entity> e, const std::string& funcName) {
-	// Setup Global
-	JSValue jsGlobal = JS_GetGlobalObject(m_jsContext);
-	JSValue jsEngine = JS_GetValueOf(m_jsContext, *this);
-	JS_SetPropertyStr(m_jsContext, jsGlobal, "TooDeeEngine", jsEngine);
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	if (e->has<CQJSScript>()) {
+		// Setup Global
+		JSValue jsGlobal = JS_GetGlobalObject(m_jsContext);
+		JSValue jsEngine = JS_GetValueOf(m_jsContext, *this);
+		JS_SetPropertyStr(m_jsContext, jsGlobal, "TooDeeEngine", jsEngine);
 
-	// Setup Script Module
-	auto scriptName = e->get<CQJSScript>().name;
-	auto& script = Assets::Instance().getScript(scriptName);
-	JSValue moduleEval = JS_Eval(m_jsContext, script.getContent().c_str(), script.getContent().size(), script.getPath().c_str(), JS_EVAL_TYPE_MODULE);
+		// Setup Script Module
+		auto scriptName = e->get<CQJSScript>().name;
+		auto& script = Assets::Instance().getScript(scriptName);
+		JSValue moduleEval = JS_Eval(m_jsContext, script.getContent().c_str(), script.getContent().size(), script.getPath().c_str(), JS_EVAL_TYPE_MODULE);
 
-	if (JS_IsException(moduleEval)) {
-		JSValue exception = JS_GetException(m_jsContext);
-		const char* str = JS_ToCString(m_jsContext, exception);
-		std::cerr << "Exception in script " << scriptName << ": " << str << std::endl;
-		JS_FreeCString(m_jsContext, str);
-		JS_FreeValue(m_jsContext, exception);
+		if (JS_IsException(moduleEval)) {
+			JSValue exception = JS_GetException(m_jsContext);
+			const char* str = JS_ToCString(m_jsContext, exception);
+			std::cerr << "Exception in script " << scriptName << ": " << str << std::endl;
+			JS_FreeCString(m_jsContext, str);
+			JS_FreeValue(m_jsContext, exception);
+		}
+
+		JS_FreeValue(m_jsContext, moduleEval);
+
+		std::string mainScript = std::format(
+			"import * as script from '{}';\nglobalThis.{} = script.{};",
+			script.getPath(),
+			funcName,
+			funcName
+		);
+
+		JSValue mainEval = JS_Eval(m_jsContext, mainScript.c_str(), mainScript.size(), "main.js", JS_EVAL_TYPE_MODULE);
+
+		if (JS_IsException(mainEval)) {
+			JSValue exception = JS_GetException(m_jsContext);
+			const char* str = JS_ToCString(m_jsContext, exception);
+			std::cerr << "Exception in script main.js: " << str << std::endl;
+			JS_FreeCString(m_jsContext, str);
+			JS_FreeValue(m_jsContext, exception);
+		}
+
+		JS_FreeValue(m_jsContext, mainEval);
+
+		// Entity -> JSValue
+		JSValue jsEntity = JS_GetValueOf(m_jsContext, *e);
+
+		// Execute Script
+		JSValue jsFunc = JS_GetPropertyStr(m_jsContext, jsGlobal, funcName.c_str());
+
+		JSValue args[1] = { jsEntity };
+
+		JSValue result = JS_Call(m_jsContext, jsFunc, jsGlobal, 2, args);
+		if (JS_IsException(result)) {
+			JSValue exception = JS_GetException(m_jsContext);
+			const char* str = JS_ToCString(m_jsContext, exception);
+			std::cerr << "Failed to call " << funcName << ": " << scriptName << "\n\t" << str << std::endl;
+			JS_FreeCString(m_jsContext, str);
+			JS_FreeValue(m_jsContext, exception);
+		}
+
+		JS_UpdateFromValue(m_jsContext, jsEntity, *e);
 	}
-
-	JS_FreeValue(m_jsContext, moduleEval);
-
-	std::string mainScript = std::format(
-		"import * as script from '{}';\nglobalThis.{} = script.{};",
-		script.getPath(),
-		funcName,
-		funcName
-	);
-
-	JSValue mainEval = JS_Eval(m_jsContext, mainScript.c_str(), mainScript.size(), "main.js", JS_EVAL_TYPE_MODULE);
-
-	if (JS_IsException(mainEval)) {
-		JSValue exception = JS_GetException(m_jsContext);
-		const char* str = JS_ToCString(m_jsContext, exception);
-		std::cerr << "Exception in script main.js: " << str << std::endl;
-		JS_FreeCString(m_jsContext, str);
-		JS_FreeValue(m_jsContext, exception);
-	}
-
-	JS_FreeValue(m_jsContext, mainEval);
-
-	// Entity -> JSValue
-	JSValue jsEntity = JS_GetValueOf(m_jsContext, *e);
-
-	// Execute Script
-	JSValue jsFunc = JS_GetPropertyStr(m_jsContext, jsGlobal, funcName.c_str());
-
-	JSValue args[1] = { jsEntity };
-
-	JSValue result = JS_Call(m_jsContext, jsFunc, jsGlobal, 2, args);
-	if (JS_IsException(result)) {
-		JSValue exception = JS_GetException(m_jsContext);
-		const char* str = JS_ToCString(m_jsContext, exception);
-		std::cerr << "Failed to call " << funcName << ": " << scriptName << "\n\t" << str << std::endl;
-		JS_FreeCString(m_jsContext, str);
-		JS_FreeValue(m_jsContext, exception);
-	}
-
-	JS_UpdateFromValue(m_jsContext, jsEntity, *e);
-}
 #endif
+
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+	if (e->has<CLuaScript>()) {
+
+	}
+#endif
+}
 
 void GameEngine::sScripting() {
 	if (currentScene()) {
@@ -265,10 +277,10 @@ void GameEngine::sScripting() {
 				}
 				callScriptFunction(e, "onUpdate");
 
-		}
+			}
 #endif
+		}
 	}
-}
 }
 
 void GameEngine::sCollision() {
