@@ -23,12 +23,12 @@ target_include_directories(MovingShapes
 target_link_libraries(MovingShapes
     PUBLIC
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
+    SFML::System
+    SFML::Window
+    SFML::Graphics
     TooDeeCore
     TooDeeEngine
-    INIH
+    unofficial::inih::inireader
 )
 
 if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "moving_shapes")
@@ -51,9 +51,9 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "moving_shapes")
 
     target_link_libraries(MovingShapesApp
         PUBLIC
-        sfml-system
-        sfml-window
-        sfml-graphics
+        SFML::System
+        SFML::Window
+        SFML::Graphics
         TooDeeCore
         TooDeeEngine
         MovingShapes

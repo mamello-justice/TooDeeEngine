@@ -23,9 +23,9 @@ target_include_directories(HelloWorld
 target_link_libraries(HelloWorld
     PUBLIC
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
+    SFML::System
+    SFML::Window
+    SFML::Graphics
     TooDeeCore
     TooDeeEngine
 )
@@ -50,9 +50,9 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "hello_world")
 
     target_link_libraries(HelloWorldApp
         PUBLIC
-        sfml-system
-        sfml-window
-        sfml-graphics
+        SFML::System
+        SFML::Window
+        SFML::Graphics
         TooDeeCore
         TooDeeEngine
         HelloWorld

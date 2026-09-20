@@ -1,6 +1,0 @@
-[submodule "packages/quickjs"]
-	path = packages/quickjs
-	url = https://github.com/quickjs-ng/quickjs.git
-[submodule "packages/sol2"]
-	path = packages/sol2
-	url = https://github.com/ThePhD/sol2.git

@@ -35,16 +35,18 @@ target_include_directories(TooDeeEngine
 target_link_libraries(TooDeeEngine
     PRIVATE
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
+    SFML::System
+    SFML::Window
+    SFML::Graphics
     TooDeeCore
-    INIH
+    unofficial::inih::inireader
 )
 
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     message(STATUS "JavaScript Scripting Enabled")
     target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
+
+    find_package(qjs CONFIG REQUIRED)
     target_link_libraries(TooDeeEngine PRIVATE qjs)
     target_sources(TooDeeEngine PRIVATE src/qjs.cpp)
 endif()
@@ -52,5 +54,8 @@ endif()
 if (TOO_DEE_ENGINE_LUA_SCRIPTING)
     message(STATUS "Lua Scripting Enabled")
     target_compile_definitions(TooDeeEngine PRIVATE TOO_DEE_ENGINE_LUA_SCRIPTING)
+
+    find_package(Lua REQUIRED)
+    find_package(sol2 CONFIG REQUIRED)
     target_link_libraries(TooDeeEngine PRIVATE sol2::sol2)
 endif()

@@ -4,6 +4,11 @@ project(TooDeeEditor LANGUAGES CXX)
 
 message(STATUS "Building Editor")
 
+# Find Packages
+find_package(imgui CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(ImGui-SFML CONFIG REQUIRED)
+
 # Executable Target
 add_executable(TooDeeEditor)
 
@@ -27,23 +32,28 @@ target_include_directories(TooDeeEditor
 target_link_libraries(TooDeeEditor
     PRIVATE
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
+    SFML::System
+    SFML::Window
+    SFML::Graphics
     imgui
     ImGui-SFML::ImGui-SFML
-    INIH
+    unofficial::inih::inireader
     TooDeeCore
     TooDeeEngine
 )
 
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
+    
+    find_package(qjs CONFIG REQUIRED)
     target_link_libraries(TooDeeEditor PRIVATE qjs)
 endif()
 
 if (TOO_DEE_ENGINE_LUA_SCRIPTING)
     target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_LUA_SCRIPTING)
+    
+    find_package(Lua REQUIRED)
+    find_package(sol2 CONFIG REQUIRED)
     target_link_libraries(TooDeeEditor PRIVATE sol2::sol2)
 endif()
 

@@ -27,5 +27,5 @@ target_include_directories(TooDeeCore
 target_link_libraries(TooDeeCore
     PRIVATE
     spdlog::spdlog
-    sfml-system
+    SFML::System
 )

@@ -23,12 +23,12 @@ target_include_directories(TypeScriptScripting
 target_link_libraries(TypeScriptScripting
     PUBLIC
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
+    SFML::System
+    SFML::Window
+    SFML::Graphics
     TooDeeCore
     TooDeeEngine
-    INIH
+    unofficial::inih::inireader
 )
 
 if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "typescript_scripting")
@@ -52,9 +52,9 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "typescript_scripting")
 
     target_link_libraries(TypeScriptScriptingApp
         PUBLIC
-        sfml-system
-        sfml-window
-        sfml-graphics
+        SFML::System
+        SFML::Window
+        SFML::Graphics
         TooDeeCore
         TooDeeEngine
         TypeScriptScripting

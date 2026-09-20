@@ -23,12 +23,12 @@ target_include_directories(NativeScripting
 target_link_libraries(NativeScripting
     PUBLIC
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
+    SFML::System
+    SFML::Window
+    SFML::Graphics
     TooDeeCore
     TooDeeEngine
-    INIH
+    unofficial::inih::inireader
 )
 
 if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "native_scripting")
@@ -52,9 +52,9 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "native_scripting")
 
     target_link_libraries(NativeScriptingApp
         PUBLIC
-        sfml-system
-        sfml-window
-        sfml-graphics
+        SFML::System
+        SFML::Window
+        SFML::Graphics
         TooDeeCore
         TooDeeEngine
         NativeScripting

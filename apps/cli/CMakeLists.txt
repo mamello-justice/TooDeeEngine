@@ -25,12 +25,10 @@ target_include_directories(tde
 target_link_libraries(tde
     PRIVATE
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
-    imgui
-    ImGui-SFML::ImGui-SFML
-    INIH
+    SFML::System
+    SFML::Window
+    SFML::Graphics
+    unofficial::inih::inireader
     TooDeeCore
     TooDeeEngine
 )

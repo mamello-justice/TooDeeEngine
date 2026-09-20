@@ -4,15 +4,10 @@ project(TooDeeEditor LANGUAGES CXX)
 
 message(STATUS "Setting up tests")
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.18.0.zip
-)
+# Find Packages
+find_package(GTest CONFIG REQUIRED)
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
+# Test Targets
 add_executable(
   hello_test
   hello_test.cpp

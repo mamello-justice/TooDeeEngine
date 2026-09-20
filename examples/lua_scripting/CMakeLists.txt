@@ -23,12 +23,12 @@ target_include_directories(LuaScripting
 target_link_libraries(LuaScripting
     PUBLIC
     spdlog::spdlog
-    sfml-system
-    sfml-window
-    sfml-graphics
+    SFML::System
+    SFML::Window
+    SFML::Graphics
     TooDeeCore
     TooDeeEngine
-    INIH
+    unofficial::inih::inireader
 )
 
 if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "lua_scripting")
@@ -51,9 +51,9 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "lua_scripting")
 
     target_link_libraries(LuaScriptingApp
         PUBLIC
-        sfml-system
-        sfml-window
-        sfml-graphics
+        SFML::System
+        SFML::Window
+        SFML::Graphics
         TooDeeCore
         TooDeeEngine
         LuaScripting

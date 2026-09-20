@@ -1,0 +1,86 @@
+{
+    "name": "too-dee-engine",
+    "version": "1.0.0",
+    "builtin-baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
+    "dependencies": [
+        {
+            "name": "inih",
+            "features": [
+                "cpp"
+            ]
+        },
+        "sfml",
+        "spdlog"
+    ],
+    "features": {
+        "gui": {
+            "description": "Dependencies for the graphical interface",
+            "dependencies": [
+                {
+                    "name": "imgui",
+                    "features": [
+                        "docking-experimental"
+                    ]
+                },
+                "imgui-sfml"
+            ]
+        },
+        "lua": {
+            "description": "Dependencies for Lua scripting",
+            "dependencies": [
+                "lua",
+                "sol2"
+            ]
+        },
+        "qjs": {
+            "description": "Dependencies for QuickJS scripting",
+            "dependencies": [
+                "quickjs-ng"
+            ]
+        },
+        "tests": {
+            "description": "Dependencies required to run test cases",
+            "dependencies": [
+                "gtest"
+            ]
+        }
+    },
+    "overrides": [
+        {
+            "name": "gtest",
+            "version": "1.17.0"
+        },
+        {
+            "name": "imgui",
+            "version": "1.91.9"
+        },
+        {
+            "name": "imgui-sfml",
+            "version": "3.0"
+        },
+        {
+            "name": "inih",
+            "version": "62"
+        },
+        {
+            "name": "lua",
+            "version": "5.4.4"
+        },
+        {
+            "name": "quickjs-ng",
+            "version": "0.15.1"
+        },
+        {
+            "name": "sfml",
+            "version": "3.0.2"
+        },
+        {
+            "name": "sol2",
+            "version": "3.5.0"
+        },
+        {
+            "name": "spdlog",
+            "version": "1.17.0"
+        }
+    ]
+}
