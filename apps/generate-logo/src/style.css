@@ -1,0 +1,81 @@
+:root {
+    --text: #17181c;
+    --bg: #ffffff;
+
+    --inter-font: 'Inter', Roboto, sans-serif;
+
+    font: 18px/145% var(--inter-font);
+    letter-spacing: 0.18px;
+    color-scheme: light dark;
+    color: var(--text);
+    background: var(--bg);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    @media (max-width: 1024px) {
+        font-size: 16px;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text: #ffffff;
+        --bg: #17181c;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+html,
+body {
+    height: 100vh;
+}
+
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    gap: 1rem;
+
+    img {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    height: calc(100% - 5rem);
+
+    button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    #preview-container {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 200px;
+        height: 200px;
+        background-image:
+            repeating-conic-gradient(#e0e0e0 0% 25%, #a9a9a9 0% 50%),
+            repeating-conic-gradient(#e0e0e0 0% 25%, #a9a9a9 0% 50%);
+        background-size: 16px 16px;
+        background-position: 0 0, 8px 8px;
+        border-radius: 32px;
+    }
+}

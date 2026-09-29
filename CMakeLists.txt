@@ -5,10 +5,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Force MSVC to use dynamic runtime
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DDEBUG)
-endif()
-
 # ===== ENV VARIABLES -> NORMAL VARIABLES =====
 
 set(ENV_LIST
@@ -22,11 +18,8 @@ set(ENV_LIST
 )
 
 foreach(var ${ENV_LIST})
-    # Copy value if the environment variable is defined
     if(DEFINED ENV{${var}})
         set(${var} "$ENV{${var}}")
-    else()
-        set(${var} false)
     endif()
 endforeach()
 
@@ -80,7 +73,14 @@ endif()
 # Set the Toolchain File BEFORE project() ---
 set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake" CACHE FILEPATH "")
 
-project(TooDeeEngine LANGUAGES CXX)
+project(TooDeeEngine
+    VERSION 1.0.0
+    LANGUAGES CXX
+)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+endif()
 
 # ===== FIND PACKAGES =====
 
@@ -88,6 +88,8 @@ find_package(SFML COMPONENTS System Window Graphics CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(unofficial-inih CONFIG REQUIRED)
 
+# Option to build shared libraries (OFF = static by default)
+option(TOO_DEE_ENGINE_BUILD_SHARED "Build TooDeeCore and TooDeeEngine as shared libraries" OFF)
 
 # ===== ADD SUBDIRECTORIES =====
 
@@ -111,3 +113,78 @@ if (TOO_DEE_ENGINE_ENABLE_TESTING)
     
     add_subdirectory(tests)
 endif()
+
+# ===== INSTALL & PACKAGE CONFIG =====
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(
+    EXPORT TooDeeTargets
+    FILE TooDeeTargets.cmake
+    NAMESPACE TooDeeEngine::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/TooDeeEngine
+    COMPONENT engine
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/TooDeeEngineConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TooDeeConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/TooDeeEngineConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/TooDeeEngine
+)
+
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/TooDeeEngineConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/TooDeeEngineConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/TooDeeEngine
+    COMPONENT engine
+)
+
+# ===== PACKAGING (CPack) =====
+
+set(CPACK_PACKAGE_NAME "TooDeeEngine")
+set(CPACK_PACKAGE_VENDOR "TooDeeEngine")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TooDeeEngine 2D Game Engine")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/mamello-justice/TooDeeEngine")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/dist")
+
+# Per-component packaging
+set(CPACK_COMPONENTS_ALL engine editor cli)
+set(CPACK_COMPONENT_ENGINE_DISPLAY_NAME "TooDeeEngine Library")
+set(CPACK_COMPONENT_ENGINE_DESCRIPTION "Static/Shared libraries and headers")
+set(CPACK_COMPONENT_EDITOR_DISPLAY_NAME "TooDeeEditor")
+set(CPACK_COMPONENT_EDITOR_DESCRIPTION "ImGui-based game editor")
+set(CPACK_COMPONENT_CLI_DISPLAY_NAME "tde CLI")
+set(CPACK_COMPONENT_CLI_DESCRIPTION "Command-line interface tool")
+
+# Windows MSI via WiX Toolset
+if(WIN32)
+    set(CPACK_GENERATOR "WIX;ZIP")
+    set(CPACK_WIX_UPGRADE_GUID "A5D71F3E-67C1-4F20-B8E8-93F5B8C7E2D1")
+    set(CPACK_WIX_PRODUCT_GUID "C8F7A6B5-E4D3-4C2B-A190-87654321FEDC")
+    set(CPACK_WIX_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+    set(CPACK_WIX_ARCHITECTURE "x64")
+    set(CPACK_WIX_INCLUDE_EXPRESS_CODE "ON")
+endif()
+
+# Linux
+if(UNIX AND NOT APPLE)
+    set(CPACK_GENERATOR "TGZ;DEB")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsfml-system3, libsfml-window3, libsfml-graphics3")
+endif()
+
+# macOS
+if(APPLE)
+    set(CPACK_GENERATOR "TGZ;DragNDrop")
+endif()
+
+include(CPack)

@@ -2,13 +2,27 @@ cmake_minimum_required(VERSION 3.28)
 
 project(TooDeeEngine LANGUAGES CXX)
 
+include(GNUInstallDirs)
+
 message(STATUS "Building TooDeeEngine")
 
-# Library Target
-add_library(TooDeeEngine STATIC)
+# Option to build as shared or static library
+option(TOO_DEE_ENGINE_BUILD_SHARED "Build TooDeeEngine as a shared library" OFF)
+
+if(TOO_DEE_ENGINE_BUILD_SHARED)
+    add_library(TooDeeEngine SHARED)
+    set_target_properties(TooDeeEngine PROPERTIES
+        POSITION_INDEPENDENT_CODE ON
+        WINDOWS_EXPORT_ALL_SYMBOLS ON
+    )
+else()
+    add_library(TooDeeEngine STATIC)
+endif()
+
+add_library(TooDeeEngine::TooDeeEngine ALIAS TooDeeEngine)
 
 target_compile_features(TooDeeEngine
-    PRIVATE
+    PUBLIC
     cxx_std_23
 )
 
@@ -29,16 +43,18 @@ target_sources(TooDeeEngine
 
 target_include_directories(TooDeeEngine
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/TooDeeEngine>
 )
 
 target_link_libraries(TooDeeEngine
-    PRIVATE
-    spdlog::spdlog
+    PUBLIC
     SFML::System
     SFML::Window
     SFML::Graphics
     TooDeeCore
+    PRIVATE
+    spdlog::spdlog
     unofficial::inih::inireader
 )
 
@@ -59,3 +75,23 @@ if (TOO_DEE_ENGINE_LUA_SCRIPTING)
     find_package(sol2 CONFIG REQUIRED)
     target_link_libraries(TooDeeEngine PRIVATE sol2::sol2)
 endif()
+
+# ============================================================
+# Install
+# ============================================================
+
+install(
+    TARGETS TooDeeEngine
+    EXPORT TooDeeTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT engine
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/TooDeeEngine
+    COMPONENT engine
+    FILES_MATCHING PATTERN "*.hpp"
+)

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*"
+             Name="TooDeeEditor"
+             Language="1033"
+             Version="$(var.ProductVersion)"
+             Manufacturer="TooDeeEngine"
+             UpgradeCode="C568C6A3-F8D8-4A2B-9F0C-2C1F1B3F6A1F"
+             Win64="yes">
+        <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+        <Media Id="1" Cabinet="TooDeeEditor.cab" EmbedCab="yes" />
+
+        <Property Id="ARPPRODUCTICON" Value="EditorIcon" />
+        <Property Id="ARPNOREPAIR" Value="1" />
+        <Icon Id="EditorIcon" SourceFile="$(var.SrcEditorExe)" />
+
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="TooDeeEditor" />
+            </Directory>
+        </Directory>
+
+        <Feature Id="MainApplication" Title="TooDeeEditor" Level="1">
+            <ComponentGroupRef Id="EditorComponents" />
+        </Feature>
+        <Feature Id="Shortcuts" Title="Shortcuts" Level="1">
+            <ComponentRef Id="EditorDesktopShortcut" />
+            <ComponentRef Id="EditorStartMenuShortcut" />
+        </Feature>
+
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    </Product>
+
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Directory Id="AssetsDir" Name="assets">
+                <Directory Id="FontsDir" Name="fonts" />
+                <Directory Id="IconsDir" Name="icons">
+                    <Directory Id="PhosphorDir" Name="phosphor_color" />
+                </Directory>
+            </Directory>
+        </DirectoryRef>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="EditorComponents" Directory="INSTALLFOLDER">
+            <Component Id="EditorExecutable" Guid="A2B1E0B1-8474-45A1-A799-DC7F0F3C85AA" Win64="yes">
+                <File Id="EditorExe" Source="$(var.SrcEditorExe)" KeyPath="yes" />
+            </Component>
+            <Component Id="EditorConfig" Guid="B3C4D5E6-F7A8-42B9-A1C0-3D4E5F6789AB" Win64="yes">
+                <File Id="EditorConfigIni" Source="$(var.EditorSourceDir)config.ini" KeyPath="yes" />
+                <File Id="EditorImGuiIni" Source="$(var.EditorSourceDir)imgui.ini" />
+            </Component>
+            <Component Id="EditorRuntime" Guid="C0D1E2F3-A4B5-46C7-28D9-90ABCDEF0123" Win64="yes">
+                <File Id="ImGuiSfmlDll" Source="$(var.RuntimeDir)ImGui-SFML.dll" KeyPath="yes" />
+                <File Id="SpdlogDll" Source="$(var.RuntimeDir)spdlog.dll" />
+                <File Id="FmtDll" Source="$(var.RuntimeDir)fmt.dll" />
+                <File Id="SfmlGraphicsDll" Source="$(var.RuntimeDir)sfml-graphics-3.dll" />
+                <File Id="SfmlWindowDll" Source="$(var.RuntimeDir)sfml-window-3.dll" />
+                <File Id="SfmlSystemDll" Source="$(var.RuntimeDir)sfml-system-3.dll" />
+                <File Id="FreetypeDll" Source="$(var.RuntimeDir)freetype.dll" />
+                <File Id="ZlibDll" Source="$(var.RuntimeDir)z.dll" />
+                <File Id="Bzip2Dll" Source="$(var.RuntimeDir)bz2.dll" />
+                <File Id="PngDll" Source="$(var.RuntimeDir)libpng16.dll" />
+                <File Id="BrotliDecodeDll" Source="$(var.RuntimeDir)brotlidec.dll" />
+                <File Id="BrotliCommonDll" Source="$(var.RuntimeDir)brotlicommon.dll" />
+            </Component>
+            <Component Id="EditorFonts" Directory="FontsDir" Guid="D5E6F7A8-B9C0-42D1-E2F3-456789ABCDEF" Win64="yes">
+                <File Id="EditorFont1" Source="$(var.EditorSourceDir)assets/fonts/orbitron.ttf" KeyPath="yes" />
+                <File Id="EditorFont2" Source="$(var.EditorSourceDir)assets/fonts/tech.ttf" />
+            </Component>
+            <Component Id="EditorIcons" Directory="PhosphorDir" Guid="E6F7A8B9-C0D1-42E2-F3A4-56789ABCDEF0" Win64="yes">
+                <File Id="EditorIcon1" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/play-bold.png" KeyPath="yes" />
+                <File Id="EditorIcon2" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/pause-bold.png" />
+                <File Id="EditorIcon3" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/stop-bold.png" />
+                <File Id="EditorIcon4" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/play-fill.png" />
+                <File Id="EditorIcon5" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/pause-fill.png" />
+                <File Id="EditorIcon6" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/stop-fill.png" />
+                <File Id="EditorIcon7" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/play-circle-fill.png" />
+                <File Id="EditorIcon8" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/pause-circle-fill.png" />
+                <File Id="EditorIcon9" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/stop-circle-fill.png" />
+                <File Id="EditorIcon10" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/arrow-counter-clockwise-bold.png" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <Component Id="EditorDesktopShortcut" Guid="A8B9C0D1-E2F3-43A4-15B6-789ABCDEF012" Win64="yes">
+            <Shortcut Id="EditorDesktopShortcut"
+                      Name="TooDeeEditor"
+                      Description="TooDeeEngine Game Editor"
+                      Target="[INSTALLFOLDER]TooDeeEditor.exe"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="EditorIcon" />
+            <RemoveFolder Id="RemoveEditorDesktopShortcut" Directory="DesktopFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\TooDeeEngine\TooDeeEditor" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+        <Component Id="EditorStartMenuShortcut" Guid="B9C0D1E2-F3A4-54B5-26C7-89ABCDEF0123" Win64="yes">
+            <Shortcut Id="EditorStartMenuShortcut"
+                      Name="TooDeeEditor"
+                      Description="TooDeeEngine Game Editor"
+                      Target="[INSTALLFOLDER]TooDeeEditor.exe"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="EditorIcon" />
+            <RemoveFolder Id="RemoveEditorStartMenuShortcut" Directory="ProgramMenuFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\TooDeeEngine\TooDeeEditor" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+    </Fragment>
+</Wix>

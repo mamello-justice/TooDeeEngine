@@ -1,0 +1,134 @@
+---
+title: Getting Started
+description: Build and run TooDeeEngine from source on Windows, Linux, or macOS.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide walks you through setting up and building TooDeeEngine from source.
+
+## Prerequisites
+
+| Requirement | Minimum Version |
+|---|---|
+| **C++ Compiler** | C++23 compatible (MSVC 19.35+, GCC 13+, Clang 17+) |
+| **CMake** | 3.28 or higher |
+| **Build Tool** | Just 1.0+ (Windows) or Make (Linux/macOS) |
+| **Git** | Any recent version |
+
+See the [Requirements](/reference/requirements/) page for detailed per-platform instructions.
+
+## Quick Start
+
+### 1. Install dependencies
+
+First, install [Just](https://github.com/casey/just) (the task runner used by this project):
+
+<Tabs>
+	<TabItem label="Windows">
+			Step 1: Install via [Scoop](https://scoop.sh/) or [Chocolatey](https://chocolatey.org/):
+			```bash
+			scoop install just
+			# or
+			choco install just
+			```
+	</TabItem>
+	<TabItem label="Linux">
+			Step 1: Install via your package manager:
+			```bash
+			# Debian/Ubuntu
+			sudo apt install just
+
+			# Fedora/RHEL
+			sudo dnf install just
+
+			# Arch Linux
+			sudo pacman -S just
+			```
+	</TabItem>
+	<TabItem label="macOS">
+			Step 1: Install via [Homebrew](https://brew.sh/):
+			```bash
+			brew install just
+			```
+	</TabItem>
+</Tabs>
+
+### 2. Configure the build
+
+```bash
+just setup
+```
+
+This runs CMake configuration with vcpkg dependency management. vcpkg will be fetched automatically and bootstrapped on first run.
+
+### 3. Build the engine
+
+```bash
+just build
+```
+
+### 4. Build in Release mode
+
+```bash
+just build-release
+```
+
+## Building Options
+
+You can control which components are built via environment variables (set in `.env`):
+
+| Variable | Description | Default |
+|---|---|---|
+| `TOO_DEE_ENGINE_BUILD_EDITOR` | Build the ImGui-based editor | `false` |
+| `TOO_DEE_ENGINE_BUILD_CLI` | Build the `tde` CLI tool | `false` |
+| `TOO_DEE_ENGINE_BUILD_EXAMPLES` | Build example games | `false` |
+| `TOO_DEE_ENGINE_QJS_SCRIPTING` | Enable QuickJS-ng JavaScript scripting | `false` |
+| `TOO_DEE_ENGINE_LUA_SCRIPTING` | Enable Lua scripting (via sol2) | `false` |
+| `TOO_DEE_ENGINE_ENABLE_TESTING` | Build and enable unit tests | `false` |
+
+### Building the Editor
+
+Set `TOO_DEE_ENGINE_BUILD_EDITOR=true` in `.env`, then:
+
+```bash
+just setup
+just build
+just edit
+```
+
+### Building the CLI
+
+Set `TOO_DEE_ENGINE_BUILD_CLI=true` in `.env`, then:
+
+```bash
+just setup
+just build
+```
+
+### Building Shared Libraries
+
+By default, the engine is built as static libraries. To build shared libraries instead:
+
+```bash
+just setup-shared
+just build-shared
+```
+
+### Building Examples
+
+Set `TOO_DEE_ENGINE_BUILD_EXAMPLES=true` in `.env`, then:
+
+```bash
+just setup
+just build
+just example hello_world
+```
+
+Available examples: `hello_world`, `moving_shapes`, `native_scripting`, `javascript_scripting`, `typescript_scripting`, `lua_scripting`.
+
+## Next Steps
+
+- [Requirements](/reference/requirements/) for detailed per-platform system requirements
+- [Installation](/guides/installation/) for installing the engine as a library or using pre-built packages
+- [Examples](https://github.com/mamello-justice/TooDeeEngine/tree/main/examples) for sample games and use cases

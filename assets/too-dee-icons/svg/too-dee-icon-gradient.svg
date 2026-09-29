@@ -1,0 +1,18 @@
+<svg width="160" height="160" viewBox="-40 -40 240 240" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00B6F1"/>
+            <stop offset="30%" stop-color="#15A9DC"/>
+            <stop offset="48%" stop-color="#5297A4"/>
+            <stop offset="65%" stop-color="#E96F15"/>
+            <stop offset="100%" stop-color="#FF6F00"/>
+        </linearGradient>
+    </defs>
+    <rect x="-40" y="-40" width="240" height="240" rx="52.8" fill="url(#bg-gradient)"/>
+    <path
+        d="M 18 14 L 18 146 L 84 146 C 124 146, 146 122, 146 80 C 146 38, 124 14, 84 14 Z M 42 38 L 42 122 L 84 122 C 110 122, 122 106, 122 80 C 122 54, 110 38, 84 38 Z"
+        fill="white" fill-rule="evenodd" />
+    <path
+        d="M 58 58 L 58 102 L 84 102 C 100 102, 106 93, 106 80 C 106 67, 100 58, 84 58 Z M 72 70 L 72 90 L 84 90 C 90 90, 92 86, 92 80 C 92 74, 90 70, 84 70 Z"
+        fill="white" fill-rule="evenodd" />
+</svg>

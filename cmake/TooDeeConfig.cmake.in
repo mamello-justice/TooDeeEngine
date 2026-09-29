@@ -1,0 +1,20 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(SFML COMPONENTS System Window Graphics CONFIG REQUIRED)
+find_dependency(spdlog CONFIG REQUIRED)
+find_dependency(unofficial-inih CONFIG REQUIRED)
+
+if(@TOO_DEE_ENGINE_QJS_SCRIPTING@)
+    find_dependency(qjs CONFIG REQUIRED)
+endif()
+
+if(@TOO_DEE_ENGINE_LUA_SCRIPTING@)
+    find_dependency(Lua REQUIRED)
+    find_dependency(sol2 CONFIG REQUIRED)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/TooDeeTargets.cmake")
+
+check_required_components(TooDeeEngine)

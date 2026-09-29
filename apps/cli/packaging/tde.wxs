@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*"
+             Name="tde"
+             Language="1033"
+             Version="$(var.ProductVersion)"
+             Manufacturer="TooDeeEngine"
+             UpgradeCode="D7F5B2C1-E4A1-4B8C-9D3E-5F7A8B6C1D2E"
+             Win64="yes">
+        <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+        <Media Id="1" Cabinet="tde.cab" EmbedCab="yes" />
+
+        <Property Id="ARPNOREPAIR" Value="1" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="TooDeeEngine" />
+            </Directory>
+        </Directory>
+
+        <Feature Id="MainApplication" Title="tde CLI" Level="1">
+            <Component Id="CliExecutable" Guid="B3C4D5E6-F7A8-42B9-A1C0-3D4E5F6789AB" Win64="yes">
+                <File Id="CliExe" Source="$(var.SrcCliExe)" KeyPath="yes" />
+            </Component>
+            <Component Id="CliRuntime" Guid="C4D5E6F7-A8B9-42C0-D1E2-3F456789ABCD" Win64="yes">
+                <File Id="CliSpdlogDll" Source="$(var.RuntimeDir)spdlog.dll" KeyPath="yes" />
+                <File Id="CliFmtDll" Source="$(var.RuntimeDir)fmt.dll" />
+                <File Id="CliSfmlGraphicsDll" Source="$(var.RuntimeDir)sfml-graphics-3.dll" />
+                <File Id="CliSfmlWindowDll" Source="$(var.RuntimeDir)sfml-window-3.dll" />
+                <File Id="CliSfmlSystemDll" Source="$(var.RuntimeDir)sfml-system-3.dll" />
+                <File Id="CliFreetypeDll" Source="$(var.RuntimeDir)freetype.dll" />
+                <File Id="CliZlibDll" Source="$(var.RuntimeDir)z.dll" />
+                <File Id="CliBzip2Dll" Source="$(var.RuntimeDir)bz2.dll" />
+                <File Id="CliPngDll" Source="$(var.RuntimeDir)libpng16.dll" />
+                <File Id="CliBrotliDecodeDll" Source="$(var.RuntimeDir)brotlidec.dll" />
+                <File Id="CliBrotliCommonDll" Source="$(var.RuntimeDir)brotlicommon.dll" />
+            </Component>
+        </Feature>
+
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    </Product>
+</Wix>

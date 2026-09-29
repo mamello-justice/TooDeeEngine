@@ -1,40 +1,47 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: Welcome to TooDeeEngine
+description: A lightweight, high-performance 2D game engine built with C++ using SFML for rendering and ImGui for UI and editor tooling.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
+  tagline: A lightweight, high-performance 2D game engine built with C++
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Getting Started
+      link: /guides/getting-started/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
-      variant: minimal
+    - text: Requirements
+      link: /reference/requirements/
+      icon: document
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+# TooDeeEngine
+
+A lightweight, high-performance 2D game engine built with **C++23** using [SFML](https://www.sfml-dev.org/) for rendering and [ImGui](https://github.com/ocornut/imgui) for UI and editor tooling. TooDeeEngine provides a flexible entity-component system, physics simulation, and an integrated editor for rapid game development.
+
+## Features
+
+- **Entity-Component System (ECS)**: Efficient and flexible architecture for game object management
+- **Scene Management**: Easy switching between multiple game scenes
+- **Animation System**: Built-in support for sprite animations
+- **Physics Engine**: Gravity, collision detection (bounding boxes and circles)
+- **Input Handling**: Keyboard and event-driven input system
+- **Asset Management**: Centralized loading and management of game assets
+- **Built-in Editor**: Real-time game editor powered by ImGui
+- **Scripting**: JavaScript (QuickJS-ng) and Lua (sol2) scripting support
+- **Library Exports**: Available as static or shared libraries for integration into your own projects
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="Getting Started" icon="rocket">
+		Build the engine, editor, and CLI from source on Windows, Linux, or macOS.
 	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
+	<Card title="Requirements" icon="terminal">
+		Check system requirements, supported compilers, and dependencies.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="Installation" icon="download">
+		Install the engine as a library or download pre-built editor/CLI packages.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="Examples" icon="code">
+		Browse example games demonstrating engine features and game mechanics.
 	</Card>
 </CardGrid>

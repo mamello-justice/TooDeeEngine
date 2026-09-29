@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project(TooDeeEditor LANGUAGES CXX)
 
+include(GNUInstallDirs)
+
 message(STATUS "Building Editor")
 
 # Find Packages
@@ -35,7 +37,7 @@ target_link_libraries(TooDeeEditor
     SFML::System
     SFML::Window
     SFML::Graphics
-    imgui
+    imgui::imgui
     ImGui-SFML::ImGui-SFML
     unofficial::inih::inireader
     TooDeeCore
@@ -90,3 +92,35 @@ if(TOO_DEE_ENGINE_BUILD_EXAMPLES)
         target_link_libraries(TooDeeEditor PRIVATE debug LuaScripting)
     endif()
 endif()
+
+# ============================================================
+# Install
+# ============================================================
+
+install(
+    TARGETS TooDeeEditor
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT editor
+)
+
+if(WIN32)
+    install(
+        FILES $<TARGET_RUNTIME_DLLS:TooDeeEditor>
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT editor
+    )
+endif()
+
+install(
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/config.ini
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT editor
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/assets/
+    DESTINATION ${CMAKE_INSTALL_BINDIR}/assets
+    COMPONENT editor
+)

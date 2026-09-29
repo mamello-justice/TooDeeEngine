@@ -1,0 +1,132 @@
+---
+title: Installation
+description: Install the TooDeeEngine library for development or download pre-built packages.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide covers installing TooDeeEngine as a library for your own projects, as well as downloading pre-built editor and CLI packages.
+
+## Installing the Engine Library
+
+After building the engine, you can install it system-wide (or to a prefix of your choice) so that other CMake projects can find it via `find_package(TooDeeEngine)`.
+
+### From Source (Recommended)
+
+Build and install the engine:
+
+```bash
+just setup
+just build-release
+just install
+```
+
+By default, the engine installs to the system prefix. To install to a custom location:
+
+```bash
+cmake --install build --config Release --prefix /path/to/install
+```
+
+### Using Shared Libraries
+
+To build and install shared libraries:
+
+```bash
+just setup-shared
+just build-shared
+just install-shared
+```
+
+### Consuming the Library
+
+In your project's `CMakeLists.txt`:
+
+```cmake
+find_package(TooDeeEngine REQUIRED)
+
+# Link against the installed engine targets
+target_link_libraries(your_target PRIVATE
+    TooDeeEngine::TooDeeEngine
+    TooDeeEngine::TooDeeCore
+)
+```
+
+The engine installs headers under `include/TooDeeEngine/` and libraries under `lib/` (or `bin/` for DLLs on Windows).
+
+### CMake Cache Variables
+
+When configuring your own project, you may need to set `TooDeeEngine_DIR` to point to the install location:
+
+```bash
+cmake -DTooDeeEngine_DIR=/path/to/install/lib/cmake/TooDeeEngine ...
+```
+
+## Pre-built Packages
+
+Pre-built packages are available for download on the [releases page](https://github.com/mamello-justice/TooDeeEngine/releases).
+
+### Windows (MSI)
+
+The Windows installer is built with the [WiX Toolset](https://wixtoolset.org/) and packages the editor (`TooDeeEditor.exe`) and CLI (`tde.exe`) as MSI files.
+
+<Tabs>
+	<TabItem label="Editor">
+		Download `TooDeeEditor-1.0.0.msi` and run the installer.
+	</TabItem>
+	<TabItem label="CLI">
+		Download `tde-1.0.0.msi` and run the installer.
+	</TabItem>
+</Tabs>
+
+### Linux (TGZ / DEB)
+
+Packaged as `.tar.gz` archives and Debian packages:
+
+```bash
+# Extract the archive
+tar -xzf tde-1.0.0-x64.tar.gz
+./tde --version
+
+# Or install the DEB package
+sudo dpkg -i tde_1.0.0_amd64.deb
+```
+
+### macOS (TGZ / DMG)
+
+Available as a `.tar.gz` archive and a `.dmg` disk image:
+
+```bash
+# Extract the archive
+tar -xzf TooDeeEditor-1.0.0-arm64.tar.gz
+./TooDeeEditor
+
+# Or open the DMG and drag to Applications
+```
+
+## Building Packages from Source
+
+You can build distributable packages using CPack:
+
+<Tabs>
+	<TabItem label="Editor">
+		```bash
+		just package-editor
+		```
+	</TabItem>
+	<TabItem label="CLI">
+		```bash
+		just package-cli
+		```
+	</TabItem>
+	<TabItem label="Engine Library">
+		```bash
+		just package-engine
+		```
+	</TabItem>
+</Tabs>
+
+To build all packages at once:
+
+```bash
+just package
+```

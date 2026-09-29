@@ -24,10 +24,13 @@ A lightweight, high-performance 2D game engine built with C++ using **SFML** for
 
 ## System Requirements
 
-- **OS**: Windows/Linux/macOS
-- **Compiler**: MSVC (Visual Studio 17 2022) or GCC/Clang
+- **OS**: Windows 10/11, Linux (Ubuntu 22.04+, Fedora 40+), macOS 12+
+- **Compiler**: MSVC 19.35+, GCC 13+, or Clang 17+
 - **CMake**: Version 3.28 or higher
 - **C++ Standard**: C++23 or higher
+- **Just**: Task runner (1.0+)
+
+See the [Requirements](apps/website/src/content/docs/reference/requirements.md) page for detailed per-platform instructions.
 
 ## Dependencies
 
@@ -35,34 +38,48 @@ A lightweight, high-performance 2D game engine built with C++ using **SFML** for
 - **ImGui**: Immediate Mode GUI for editor and debugging
 - **ImGui-SFML**: SFML backend for ImGui
 - **inih**: INI file parser for configuration
+- **QuickJS-ng**: JavaScript runtime for scripting (optional)
+- **Lua**: Lua runtime for scripting (optional)
+- **sol2**: C++ bindings for Lua (optional)
+- **spdlog**: High-performance C++ logging framework (bundled via vcpkg)
 
 ## Getting Started
 
 ### Prerequisites
 
-Ensure you have CMake 3.28+ and a C++23 compatible compiler installed.
+Ensure you have CMake 3.28+ and a C++23 compatible compiler installed. See the [Requirements](apps/website/src/content/docs/reference/requirements.md) page for per-platform instructions.
 
-### Building from Source
+### Setup
 
-#### Setup
 ```bash
 just setup
 ```
 
-#### Debug Build
+### Debug Build
+
 ```bash
 just build
 ```
 
-#### Release Build
+### Release Build
+
 ```bash
 just build-release
 ```
 
-#### Launch the Editor
+### Launch the Editor
+
 ```bash
 just edit
 ```
+
+### Install the Engine Library
+
+```bash
+just install
+```
+
+See the [Installation Guide](apps/website/src/content/docs/guides/installation.mdx) for details on using the installed library in your own projects.
 
 ## Architecture
 
@@ -134,11 +151,48 @@ fps=60
 
 ## Building for Distribution
 
-To create a release package:
+The engine, editor, and CLI can be packaged into distributable archives and installers.
+
+### Install the Engine Library (dev version)
+
+Install headers, libraries, and CMake package config to a prefix:
+
+```bash
+just install
+```
+
+To install to a custom location:
+
+```bash
+cmake --install build --config Release --prefix /path/to/install
+```
+
+### Package the Editor & CLI
+
+On Windows (WiX MSI):
+
+```bash
+just package-editor
+just package-cli
+# or use the WiX toolset directly
+just wix-editor
+just wix-cli
+```
+
+On Linux/macOS:
+
+```bash
+just package-editor
+just package-cli
+```
+
+### Package Everything
 
 ```bash
 just package
 ```
+
+Packages are generated in the `build/` directory (or `dist/` for WiX).
 
 ## Contributing
 
@@ -165,7 +219,6 @@ Copyright © 2025 Mamello Justice
 - [ ] Sound and music system
 - [ ] Particle effects
 - [ ] Advanced physics (rigid bodies)
-- [ ] Scripting support (Lua)
 - [ ] Mobile platform support
 
 ---

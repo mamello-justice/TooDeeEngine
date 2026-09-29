@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.28)
 
 project(tde LANGUAGES CXX)
 
-message(STATUS "Building Editor")
+include(GNUInstallDirs)
+
+message(STATUS "Building CLI")
 
 # Executable Target
 add_executable(tde)
@@ -31,4 +33,22 @@ target_link_libraries(tde
     unofficial::inih::inireader
     TooDeeCore
     TooDeeEngine
+)
+
+# ============================================================
+# Install
+# ============================================================
+
+if(WIN32)
+    install(
+        FILES $<TARGET_RUNTIME_DLLS:tde>
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT cli
+    )
+endif()
+
+install(
+    TARGETS tde
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT cli
 )
