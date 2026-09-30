@@ -51,7 +51,6 @@ void Editor::init(const std::string& configPath) {
         exit(1);
     }
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    ImGui::GetIO().ConfigFlags |= ImGuiDockNodeFlags_PassthruCentralNode;
     updateStyles();
 
     // Register Systems
