@@ -90,7 +90,8 @@ void Assets::loadFromFile(const std::filesystem::path& config, const std::filesy
 			auto name = section.substr(8, section.size());
 			auto path = reader.GetString(section, "file", "");
 			auto smooth = reader.GetBoolean(section, "smooth", false);
-			addTexture(name, base / std::filesystem::canonical(path), smooth);
+			auto fullPath = std::filesystem::canonical(base / path);
+			addTexture(name, fullPath, smooth);
 		}
 	}
 
@@ -108,7 +109,8 @@ void Assets::loadFromFile(const std::filesystem::path& config, const std::filesy
 		if (section.starts_with("font.")) {
 			auto name = section.substr(5, section.size());
 			auto path = reader.GetString(section, "file", "");
-			addFont(name, base / std::filesystem::canonical(path));
+			auto fullPath = std::filesystem::canonical(base / path);
+			addFont(name, fullPath);
 		}
 	}
 
@@ -116,7 +118,8 @@ void Assets::loadFromFile(const std::filesystem::path& config, const std::filesy
 		if (section.starts_with("script.")) {
 			auto name = section.substr(7, section.size());
 			auto path = reader.GetString(section, "file", "");
-			addScript(name, base / std::filesystem::canonical(path));
+			auto fullPath = std::filesystem::canonical(base / path);
+			addScript(name, fullPath);
 		}
 	}
 }
