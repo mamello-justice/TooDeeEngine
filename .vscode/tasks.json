@@ -15,11 +15,13 @@
             }
         },
         {
-            "label": "build-js",
+            "label": "build-typescript",
             "type": "shell",
-            "command": "just",
+            "command": "pnpm",
             "args": [
-                "build-js"
+                "nx",
+                "build",
+                "@too-dee-engine/typescript-scripting-example"
             ],
             "problemMatcher": "$msCompile",
             "group": {
