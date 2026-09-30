@@ -1,226 +1,42 @@
 # TooDeeEngine 🎮
 
-A lightweight, high-performance 2D game engine built with C++ using **SFML** for rendering and **ImGui** for UI and editor tooling. TooDeeEngine provides a flexible entity-component system, physics simulation, and an integrated editor for rapid game development.
+A lightweight, high-performance 2D game engine built with **C++23** using [SFML](https://www.sfml-dev.org/) for rendering and [ImGui](https://github.com/ocornut/imgui) for UI and editor tooling. It provides a flexible entity-component system, physics simulation, JavaScript and Lua scripting, and an integrated editor for rapid game development.
 
 ![Editor Screenshot](screenshots/Editor.png)
 
-## Features
+## Documentation
 
-### Core Engine
-- **Entity-Component System (ECS)**: Efficient and flexible architecture for game object management
-- **Scene Management**: Easy switching between multiple game scenes
-- **Animation System**: Built-in support for sprite animations
-- **Physics Engine**: Gravity, collision detection (bounding boxes and circles)
-- **Input Handling**: Keyboard and event-driven input system
-- **Asset Management**: Centralized loading and management of game assets
-
-### Editor
-
-> Set `TOO_DEE_ENGINE_BUILD_EDITOR=true` in `.env` file to build editor
-
-- **Built-in Editor**: Real-time game editor powered by ImGui
-- **Configuration Files**: Support for `.ini` configuration files
-- **Font Support**: Flexible font rendering and management
-
-## System Requirements
-
-- **OS**: Windows 10/11, Linux (Ubuntu 22.04+, Fedora 40+), macOS 12+
-- **Compiler**: MSVC 19.35+, GCC 13+, or Clang 17+
-- **CMake**: Version 3.28 or higher
-- **C++ Standard**: C++23 or higher
-- **Just**: Task runner (1.0+)
-
-See the [Requirements](apps/website/src/content/docs/reference/requirements.md) page for detailed per-platform instructions.
-
-## Dependencies
-
-- **SFML**: Simple and Fast Multimedia Library for graphics and windowing
-- **ImGui**: Immediate Mode GUI for editor and debugging
-- **ImGui-SFML**: SFML backend for ImGui
-- **inih**: INI file parser for configuration
-- **QuickJS-ng**: JavaScript runtime for scripting (optional)
-- **Lua**: Lua runtime for scripting (optional)
-- **sol2**: C++ bindings for Lua (optional)
-- **spdlog**: High-performance C++ logging framework (bundled via vcpkg)
-
-## Getting Started
-
-### Prerequisites
-
-Ensure you have CMake 3.28+ and a C++23 compatible compiler installed. See the [Requirements](apps/website/src/content/docs/reference/requirements.md) page for per-platform instructions.
-
-### Setup
+All documentation lives on the website in [`apps/website`](apps/website) (Astro + Starlight).
 
 ```bash
-just setup
+pnpm install
+pnpm nx dev website
 ```
 
-### Debug Build
+| Page | Contents |
+|---|---|
+| [Getting Started](apps/website/src/content/docs/guides/getting-started.mdx) | Build the engine, editor, CLI, and examples |
+| [Installation](apps/website/src/content/docs/guides/installation.mdx) | Install the engine library or pre-built packages |
+| [Configuration](apps/website/src/content/docs/guides/configuration.mdx) | INI game config and `.env` build options |
+| [Examples](apps/website/src/content/docs/guides/examples.mdx) | Example games and scripting demos |
+| [Packaging](apps/website/src/content/docs/guides/packaging.mdx) | Archives, installers, and universal packages |
+| [Requirements](apps/website/src/content/docs/reference/requirements.md) | Per-platform toolchains and dependencies |
+| [Architecture](apps/website/src/content/docs/reference/architecture.mdx) | ECS, components, and the game loop |
+
+## Quick Start
 
 ```bash
-just build
+just setup   # configure with CMake + vcpkg
+just build   # debug build
+just edit    # launch the editor
 ```
-
-### Release Build
-
-```bash
-just build-release
-```
-
-### Launch the Editor
-
-```bash
-just edit
-```
-
-### Install the Engine Library
-
-```bash
-just install
-```
-
-See the [Installation Guide](apps/website/src/content/docs/guides/installation.mdx) for details on using the installed library in your own projects.
-
-## Architecture
-
-### Entity-Component System
-
-The engine uses a type-safe ECS architecture where entities are containers for components:
-
-```cpp
-// Create an entity and add components
-Entity entity = entityManager.addEntity("player");
-entity.add<CTransform>(100, 100);
-entity.add<CShape>(32, 32);
-entity.add<CInput>();
-entity.add<CAnimation>();
-```
-
-### Core Components
-
-- **CTransform**: Position and velocity
-- **CShape**: Visual representation (rectangle/circle)
-- **CAnimation**: Frame-based animations
-- **CInput**: Keyboard input handling
-- **CGravity**: Gravity physics
-- **CBoundingBox/CBoundingCircle**: Collision detection
-- **CState**: Entity state machine
-- **CScore**: Score tracking
-- **CLifespan**: Entity lifetime management
-
-### Game Loop
-
-The engine operates on a standard game loop:
-
-1. **Input**: Process user input
-2. **Update**: Update game logic and physics
-3. **Render**: Draw entities and UI
-4. **Management**: Handle entity lifecycle
-
-## Examples
-
-> Set `TOO_DEE_ENGINE_BUILD_EXAMPLES=true` in `.env` file to build examples
-
-TooDeeEngine includes example games demonstrating various engine features and game mechanics:
-
-- **[HelloWorld](examples/HelloWorld/README.md)** - Basic engine setup and sprite rendering
-- **[MovingShapes](examples/MovingShapes/README.md)** - Simple physics-based movement and collision
-
-Each example includes a dedicated README with detailed information about features, controls, and learning objectives.
-
-### Running Examples
-
-```bash
-just example HelloWorld
-just example MovingShapes
-```
-
-## Configuration
-
-Games are configured using INI files:
-
-```ini
-[window]
-width=1200
-height=800
-title=MyGame
-
-[game]
-fps=60
-```
-
-## Building for Distribution
-
-The engine, editor, and CLI can be packaged into distributable archives and installers.
-
-### Install the Engine Library (dev version)
-
-Install headers, libraries, and CMake package config to a prefix:
-
-```bash
-just install
-```
-
-To install to a custom location:
-
-```bash
-cmake --install build --config Release --prefix /path/to/install
-```
-
-### Package the Editor & CLI
-
-On Windows (WiX MSI):
-
-```bash
-just package-editor
-just package-cli
-# or use the WiX toolset directly
-just wix-editor
-just wix-cli
-```
-
-On Linux/macOS:
-
-```bash
-just package-editor
-just package-cli
-```
-
-### Package Everything
-
-```bash
-just package
-```
-
-Packages are generated in the `build/` directory (or `dist/` for WiX).
 
 ## Contributing
 
-Contributions are welcome! Please follow these guidelines:
-- Write clear commit messages
-- Add tests for new features
-- Follow the existing code style
-- Update documentation as needed
+Contributions are not being accepted at this time. See
+[Contributing](apps/website/src/content/docs/project/contributing.mdx) and
+[AGENTS.md](AGENTS.md).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Copyright © 2025 Mamello Justice
-
-## Getting Help
-
-- Check the `examples/` directory for reference implementations
-- Review engine headers in `packages/engine/include/` for API documentation
-
-## Roadmap
-
-- [ ] Network multiplayer support
-- [ ] Sound and music system
-- [ ] Particle effects
-- [ ] Advanced physics (rigid bodies)
-- [ ] Mobile platform support
-
----
-
-**Start building your 2D games with TooDeeEngine today!** 🚀
+MIT — see [LICENSE](LICENSE). Copyright © 2026 Mamello Justice.

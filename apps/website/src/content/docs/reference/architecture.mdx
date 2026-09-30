@@ -1,0 +1,67 @@
+---
+title: Architecture
+description: Entity-component system, core components, and the TooDeeEngine game loop.
+---
+
+## Entity-Component System
+
+The engine uses a type-safe ECS architecture where entities are containers for components:
+
+```cpp
+// Create an entity and add components
+Entity entity = entityManager.addEntity("player");
+entity.add<CTransform>(100, 100);
+entity.add<CShape>(32, 32);
+entity.add<CInput>();
+entity.add<CAnimation>();
+```
+
+Systems query entities for the components they need and update them each tick.
+
+## Core Components
+
+- **CTransform**: Position and velocity
+- **CShape**: Visual representation (rectangle/circle)
+- **CAnimation**: Frame-based animations
+- **CInput**: Keyboard input handling
+- **CGravity**: Gravity physics
+- **CBoundingBox/CBoundingCircle**: Collision detection
+- **CState**: Entity state machine
+- **CScore**: Score tracking
+- **CLifespan**: Entity lifetime management
+
+## Scene Management
+
+Scenes group entities and can be switched at runtime, so each level or menu can live in
+its own file. See the `tde_scenes` example.
+
+## Game Loop
+
+The engine operates on a standard game loop:
+
+1. **Input**: Process user input
+2. **Update**: Update game logic and physics
+3. **Render**: Draw entities and UI
+4. **Management**: Handle entity lifecycle
+
+## Editor
+
+The built-in editor is an ImGui application that runs alongside the engine for
+real-time inspection and editing. It also supports `.ini` configuration files and
+flexible font rendering and management.
+
+## Source Layout
+
+| Path | Contents |
+|---|---|
+| `packages/engine` | Main game engine implementation |
+| `packages/core` | Core engine functionality |
+| `packages/quickjs` | QuickJS-ng JavaScript runtime |
+| `apps/editor` | ImGui-based editor application |
+| `examples` | Example games |
+| `tests` | Unit tests (GoogleTest) |
+
+## Related
+
+- [Examples](/guides/examples/) for ECS usage in practice
+- [Configuration](/guides/configuration/) for INI files

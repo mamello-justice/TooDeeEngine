@@ -1,0 +1,44 @@
+---
+title: Configuration
+description: INI configuration files and .env build options for TooDeeEngine.
+---
+
+TooDeeEngine is configured with two kinds of configuration: INI files for games at
+runtime, and environment variables in `.env` to control what gets built.
+
+## INI Game Configuration
+
+Games are configured using INI files, parsed by [inih](https://github.com/benhoyt/inih):
+
+```ini
+[window]
+width=1200
+height=800
+title=MyGame
+
+[game]
+fps=60
+```
+
+See the [`tde_with_config`](https://github.com/mamello-justice/TooDeeEngine/tree/main/examples/tde_with_config)
+example for a complete configuration file.
+
+## Build Options (`.env`)
+
+Set these in the `.env` file at the repository root to control which components are built:
+
+| Variable | Description | Default |
+|---|---|---|
+| `TOO_DEE_ENGINE_BUILD_EDITOR` | Build the ImGui-based editor | `false` |
+| `TOO_DEE_ENGINE_BUILD_CLI` | Build the `tde` CLI tool | `false` |
+| `TOO_DEE_ENGINE_BUILD_EXAMPLES` | Build example games | `false` |
+| `TOO_DEE_ENGINE_QJS_SCRIPTING` | Enable QuickJS-ng JavaScript scripting | `false` |
+| `TOO_DEE_ENGINE_LUA_SCRIPTING` | Enable Lua scripting (via sol2) | `false` |
+| `TOO_DEE_ENGINE_ENABLE_TESTING` | Build and enable unit tests | `false` |
+
+After changing them, re-run `just setup` to reconfigure CMake.
+
+## Related
+
+- [Getting Started](/guides/getting-started/) for build and run commands
+- [Examples](/guides/examples/) for configuration in practice

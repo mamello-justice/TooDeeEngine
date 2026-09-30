@@ -1,0 +1,75 @@
+---
+title: Packaging
+description: Build distributable archives, installers, and universal packages for TooDeeEngine.
+---
+
+The engine, editor, and CLI can be packaged into distributable archives and installers.
+All artifacts are written to the `dist/` directory.
+
+## Artifact Naming
+
+Artifacts are named `too-dee-engine-<version>-<os>-<arch>-<linkage>.<ext>`, e.g.
+`too-dee-engine-1.0.0-linux-x64-static.tar.gz` or
+`too-dee-engine-1.0.0-windows-x64-static.zip`.
+
+## Per-Platform Package
+
+Builds and packages the current platform (engine, editor, and CLI) with CPack:
+
+```bash
+just package-platform
+```
+
+This produces a portable archive plus a native installer when the platform provides
+one (MSI on Windows, DEB on Linux, DMG on macOS).
+
+Use `just package-archive` to build the portable archive only, and run
+`just build-shared` beforehand to package shared libraries instead of static ones.
+
+## All-in-One Universal Package
+
+Collects every per-platform archive found in `dist/` into a single package:
+
+```bash
+just package-universal
+```
+
+This yields `too-dee-engine-<version>-all-universal.nupkg` — a NuGet package holding
+one payload per platform under `tools/<os>-<arch>-<linkage>/`, so package managers can
+distribute the whole release as one artifact.
+
+To publish it to a NuGet feed, add `-DSTRICT_NUGET_NAME=ON` to rename the file to
+`<id>.<version>.nupkg`, the naming NuGet validates on push.
+
+Since the universal package is meant to be all-in-one, download the per-platform
+archives of every platform into `dist/` before running it (locally it will only
+contain the platform you built on).
+
+## Package Everything
+
+```bash
+just package
+```
+
+Generates all packages in `dist/`.
+
+## Individual Packages
+
+```bash
+just package-editor
+just package-cli
+just package-engine
+```
+
+## Continuous Integration
+
+[`.github/workflows/build-and-package.yml`](https://github.com/mamello-justice/TooDeeEngine/blob/main/.github/workflows/build-and-package.yml)
+builds and packages the engine on Windows, Linux, and macOS (without the examples),
+runs the test suite in a separate job, assembles the all-in-one universal package
+from every per-platform archive, and attaches everything to a GitHub release when a
+`v*` tag is pushed.
+
+## Related
+
+- [Installation](/guides/installation/) to consume the engine as a library
+- [Requirements](/reference/requirements/) for toolchain prerequisites

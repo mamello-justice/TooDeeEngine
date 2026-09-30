@@ -32,12 +32,23 @@ export default defineConfig({
 					items: [
 						{ label: 'Getting Started', slug: 'guides/getting-started' },
 						{ label: 'Installation', slug: 'guides/installation' },
+						{ label: 'Configuration', slug: 'guides/configuration' },
+						{ label: 'Examples', slug: 'guides/examples' },
+						{ label: 'Packaging', slug: 'guides/packaging' },
 					],
 				},
 				{
 					label: 'Reference',
 					items: [
 						{ autogenerate: { directory: 'reference' } },
+					],
+				},
+				{
+					label: 'Project',
+					items: [
+						{ label: 'Contributing', slug: 'project/contributing' },
+						{ label: 'Roadmap', slug: 'project/roadmap' },
+						{ label: 'License', slug: 'project/license' },
 					],
 				},
 			],

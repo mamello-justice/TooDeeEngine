@@ -1,0 +1,192 @@
+name: Build & Package
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: build-package-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build & package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    env:
+      # Mirrors .env, which is not tracked in git
+      TOO_DEE_ENGINE_BUILD_EDITOR: "true"
+      TOO_DEE_ENGINE_BUILD_CLI: "true"
+      TOO_DEE_ENGINE_BUILD_EXAMPLES: "false"
+      TOO_DEE_ENGINE_QJS_SCRIPTING: "true"
+      TOO_DEE_ENGINE_LUA_SCRIPTING: "true"
+      TOO_DEE_ENGINE_ENABLE_TESTING: "false"
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-binary-cache
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
+            libxi-dev libgl1-mesa-dev libudev-dev
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v4
+        with:
+          path: .vcpkg-binary-cache
+          key: vcpkg-binary-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-binary-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Restore vcpkg installed tree
+        uses: actions/cache@v4
+        with:
+          path: build/vcpkg_installed
+          key: vcpkg-installed-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('vcpkg.json', 'CMakeLists.txt') }}
+          restore-keys: |
+            vcpkg-installed-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Configure
+        run: just setup
+
+      - name: Build & package
+        run: just package-archive
+
+      - name: Upload per-platform packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.os }}
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/*.dmg
+            dist/*.msi
+            dist/*.deb
+          if-no-files-found: error
+
+      - name: Upload package info
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-info
+          path: build/TooDeePackageInfo.cmake
+          if-no-files-found: error
+
+  test:
+    name: Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    env:
+      TOO_DEE_ENGINE_ENABLE_TESTING: "true"
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-binary-cache
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev \
+            libxi-dev libgl1-mesa-dev libudev-dev
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v4
+        with:
+          path: .vcpkg-binary-cache
+          key: vcpkg-binary-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-binary-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Restore vcpkg installed tree
+        uses: actions/cache@v4
+        with:
+          path: build/vcpkg_installed
+          key: vcpkg-installed-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('vcpkg.json', 'CMakeLists.txt') }}
+          restore-keys: |
+            vcpkg-installed-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Configure
+        run: just setup
+
+      - name: Run tests
+        run: just test
+
+  universal:
+    name: All-in-One universal package
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download per-platform packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: package-*
+          path: dist
+          merge-multiple: true
+
+      - name: Assemble universal package
+        run: >
+          cmake
+          -DPACKAGE_INFO_FILE=dist/TooDeePackageInfo.cmake
+          -DDIST_DIR=dist
+          -P cmake/packaging/PackUniversal.cmake
+
+      - name: Upload universal package
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-universal
+          path: dist/*.nupkg
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build, test, universal]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: package-*
+          path: release
+          merge-multiple: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.zip
+            release/*.tar.gz
+            release/*.dmg
+            release/*.msi
+            release/*.deb
+            release/*.nupkg
+          generate_release_notes: true

@@ -1,0 +1,75 @@
+---
+title: Examples
+description: Example games demonstrating engine features, scripting, and game mechanics.
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+Example games live in the [`examples/`](https://github.com/mamello-justice/TooDeeEngine/tree/main/examples)
+directory of the repository. Each one has its own README with features, controls, and learning objectives.
+
+## Building Examples
+
+Examples are disabled by default. Set `TOO_DEE_ENGINE_BUILD_EXAMPLES=true` in your `.env` file, then:
+
+```bash
+just setup
+just build
+```
+
+## Running Examples
+
+```bash
+just example hello_world
+just example moving_shapes
+```
+
+## Available Examples
+
+### Basics
+
+<CardGrid>
+	<Card title="Hello World" icon="rocket">
+		Minimal engine setup: initialization, window creation, and sprite rendering.
+	</Card>
+	<Card title="Moving Shapes" icon="seti:config">
+		Physics-based movement, collision detection and response, and advanced entity management.
+	</Card>
+</CardGrid>
+
+### Scripting
+
+<CardGrid>
+	<Card title="Native Scripting" icon="seti:c">
+		Movement and collision using C++ scripts.
+	</Card>
+	<Card title="JavaScript Scripting" icon="seti:js">
+		Movement and collision using QuickJS-ng scripts.
+	</Card>
+	<Card title="TypeScript Scripting" icon="seti:ts">
+		Movement and collision using TypeScript compiled to JavaScript.
+	</Card>
+	<Card title="Lua Scripting" icon="seti:lua">
+		Movement and collision using Lua scripts via sol2.
+	</Card>
+</CardGrid>
+
+### Project Files
+
+<CardGrid>
+	<Card title="Project" icon="document">
+		Working with TooDeeEngine (*.tde) project files.
+	</Card>
+	<Card title="Scenes" icon="layers">
+		Organizing a game into multiple scenes within a project.
+	</Card>
+	<Card title="Project with Config" icon="seti:config">
+		Combining a project file with an INI configuration file.
+	</Card>
+</CardGrid>
+
+## Next Steps
+
+- [Configuration](/guides/configuration/) for INI files and build options
+- [Architecture](/reference/architecture/) for the ECS and game loop
+- [Getting Started](/guides/getting-started/) to build the examples from source

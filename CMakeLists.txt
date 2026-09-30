@@ -157,6 +157,53 @@ set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/mamello-justice/TooDeeEngine"
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/dist")
 
+# ===== ARTIFACT NAMING =====
+# Per-platform archives are named:
+#   too-dee-engine-<version>-<os>-<arch>-<linkage>.<ext>
+# and the all-in-one universal package is named:
+#   too-dee-engine-<version>-all-universal.nupkg
+
+set(TOO_DEE_ENGINE_PACKAGE_ID "too-dee-engine")
+
+if(WIN32)
+    set(TOO_DEE_ENGINE_OS_ID "windows")
+elseif(APPLE)
+    set(TOO_DEE_ENGINE_OS_ID "macos")
+else()
+    set(TOO_DEE_ENGINE_OS_ID "linux")
+endif()
+
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TOO_DEE_ENGINE_SYSTEM_PROCESSOR)
+if(TOO_DEE_ENGINE_SYSTEM_PROCESSOR MATCHES "^(x86_64|amd64)$")
+    set(TOO_DEE_ENGINE_ARCH_ID "x64")
+elseif(TOO_DEE_ENGINE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$")
+    set(TOO_DEE_ENGINE_ARCH_ID "arm64")
+else()
+    set(TOO_DEE_ENGINE_ARCH_ID "${TOO_DEE_ENGINE_SYSTEM_PROCESSOR}")
+endif()
+
+if(TOO_DEE_ENGINE_BUILD_SHARED)
+    set(TOO_DEE_ENGINE_LINKAGE_ID "shared")
+else()
+    set(TOO_DEE_ENGINE_LINKAGE_ID "static")
+endif()
+
+set(TOO_DEE_ENGINE_ARTIFACT_NAME
+    "${TOO_DEE_ENGINE_PACKAGE_ID}-${PROJECT_VERSION}-${TOO_DEE_ENGINE_OS_ID}-${TOO_DEE_ENGINE_ARCH_ID}-${TOO_DEE_ENGINE_LINKAGE_ID}")
+set(TOO_DEE_ENGINE_UNIVERSAL_ARTIFACT_NAME
+    "${TOO_DEE_ENGINE_PACKAGE_ID}-${PROJECT_VERSION}-all-universal")
+
+# Consumed by cmake/packaging/PackUniversal.cmake
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TooDeePackageInfo.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/TooDeePackageInfo.cmake"
+    @ONLY
+)
+
+# Every generator below derives the artifact name from
+# TOO_DEE_ENGINE_ARTIFACT_NAME
+set(CPACK_PACKAGE_FILE_NAME "${TOO_DEE_ENGINE_ARTIFACT_NAME}")
+
 # Per-component packaging
 set(CPACK_COMPONENTS_ALL engine editor cli)
 set(CPACK_COMPONENT_ENGINE_DISPLAY_NAME "TooDeeEngine Library")
@@ -166,23 +213,23 @@ set(CPACK_COMPONENT_EDITOR_DESCRIPTION "ImGui-based game editor")
 set(CPACK_COMPONENT_CLI_DISPLAY_NAME "tde CLI")
 set(CPACK_COMPONENT_CLI_DESCRIPTION "Command-line interface tool")
 
-# Windows MSI via WiX Toolset
+# Windows: portable ZIP + MSI via WiX Toolset
 if(WIN32)
-    set(CPACK_GENERATOR "WIX;ZIP")
+    set(CPACK_GENERATOR "ZIP;WIX")
     set(CPACK_WIX_UPGRADE_GUID "A5D71F3E-67C1-4F20-B8E8-93F5B8C7E2D1")
     set(CPACK_WIX_PRODUCT_GUID "C8F7A6B5-E4D3-4C2B-A190-87654321FEDC")
     set(CPACK_WIX_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-    set(CPACK_WIX_ARCHITECTURE "x64")
+    set(CPACK_WIX_ARCHITECTURE "${TOO_DEE_ENGINE_ARCH_ID}")
     set(CPACK_WIX_INCLUDE_EXPRESS_CODE "ON")
 endif()
 
-# Linux
+# Linux: portable TGZ + DEB
 if(UNIX AND NOT APPLE)
     set(CPACK_GENERATOR "TGZ;DEB")
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsfml-system3, libsfml-window3, libsfml-graphics3")
 endif()
 
-# macOS
+# macOS: portable TGZ + DMG
 if(APPLE)
     set(CPACK_GENERATOR "TGZ;DragNDrop")
 endif()

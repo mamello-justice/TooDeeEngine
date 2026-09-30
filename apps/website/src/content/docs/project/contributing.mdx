@@ -1,0 +1,37 @@
+---
+title: Contributing
+description: Contribution status and project information for TooDeeEngine.
+---
+
+:::caution
+Contributions are not being accepted at this time. Pull requests opened on the
+repository may be closed without review. This page will be updated when external
+contributions open up.
+:::
+
+## Reporting Issues
+
+Bug reports and feature requests are still welcome via
+[GitHub issues](https://github.com/mamello-justice/TooDeeEngine/issues). Please
+include your platform, compiler, and the steps needed to reproduce the problem.
+
+## Project Information
+
+- Build and test with `just build` and `just test`
+- Engine code is C++23; see [AGENTS.md](https://github.com/mamello-justice/TooDeeEngine/blob/main/AGENTS.md)
+  for the project structure and conventions
+- Engine headers in `packages/engine/include/` document the public API
+- The [`examples/`](https://github.com/mamello-justice/TooDeeEngine/tree/main/examples)
+  directory contains reference implementations
+
+## Documentation Site
+
+This site lives in `apps/website`. Run it from the repository root with [Nx](https://nx.dev):
+
+```bash
+pnpm install
+pnpm nx dev website
+```
+
+Pages live in `apps/website/src/content/docs/` and the sidebar is defined in
+`apps/website/astro.config.mjs`.
