@@ -12,9 +12,12 @@ const __dirname = path.dirname(__filename);
 
 const ASSETS_DIR = normalizePath(path.resolve(__dirname, '../../assets'))
 const ICONS = normalizePath(path.resolve(__dirname, '../../assets/too-dee-icons'))
+const base = process.env.ASTRO_BASE ?? '/'
 
 // https://astro.build/config
 export default defineConfig({
+	site: process.env.ASTRO_SITE,
+	base,
 	integrations: [
 		starlight({
 			plugins: [starlightBlog()],

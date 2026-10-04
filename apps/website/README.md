@@ -24,3 +24,7 @@ pnpm nx preview website   # preview the production build
 ```
 
 See [Starlight's docs](https://starlight.astro.build/) and the [Astro documentation](https://docs.astro.build) for more.
+
+## Deployment
+
+The `Deploy website` GitHub Actions workflow builds the site for pull requests and deploys it to GitHub Pages on pushes to `main` (or when run manually). In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. The deployed site is served from `https://mamello-justice.github.io/TooDeeEngine/`.
