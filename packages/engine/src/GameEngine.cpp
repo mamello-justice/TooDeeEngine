@@ -1,6 +1,7 @@
 #include "GameEngine.hpp"
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -46,6 +47,64 @@ GameEngine::~GameEngine() {
 #endif
 }
 
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+namespace
+{
+	// Root identifier for modules backed by the engine script registry
+	constexpr std::string_view QJS_MODULE_ROOT = "tde/";
+
+	bool isEngineModule(std::string_view name) {
+		return name.starts_with(QJS_MODULE_ROOT);
+	}
+
+	std::string engineModuleName(const std::string& scriptName) {
+		return std::string(QJS_MODULE_ROOT) + scriptName;
+	}
+
+	char* qjsModuleNormalize(JSContext* ctx, const char* moduleBaseName, const char* moduleName, void* opaque) {
+		if (isEngineModule(moduleName)) {
+			return js_strdup(ctx, moduleName);
+		}
+
+		JS_ThrowReferenceError(ctx, "Could not load module '%s'", moduleName);
+		return nullptr;
+	}
+
+	JSModuleDef* qjsModuleLoader(JSContext* ctx, const char* moduleName, void* opaque) {
+		if (!isEngineModule(moduleName)) {
+			JS_ThrowReferenceError(ctx, "Could not load module '%s'", moduleName);
+			return nullptr;
+		}
+
+		std::string_view scriptName(moduleName + QJS_MODULE_ROOT.size());
+
+		Script script;
+		try {
+			script = Assets::Instance().getScript(std::string(scriptName));
+		}
+		catch (const std::runtime_error&) {
+			JS_ThrowReferenceError(ctx, "Script '%.*s' is not registered", (int)scriptName.size(), scriptName.data());
+			return nullptr;
+		}
+
+		const std::string& content = script.getContent();
+
+		JSValue module = JS_Eval(ctx, content.c_str(), content.size(), moduleName,
+			JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
+
+		if (JS_IsException(module)) {
+			JS_FreeValue(ctx, module);
+			return nullptr;
+		}
+
+		JSModuleDef* def = static_cast<JSModuleDef*>(JS_VALUE_GET_PTR(module));
+		JS_FreeValue(ctx, module);
+
+		return def;
+	}
+} // namespace
+#endif
+
 void GameEngine::init() {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	m_jsRuntime = JS_NewRuntime();
@@ -55,6 +114,9 @@ void GameEngine::init() {
 		if (!m_jsContext) {
 			JS_FreeRuntime(m_jsRuntime);
 			m_jsRuntime = nullptr;
+		}
+		else {
+			JS_SetModuleLoaderFunc(m_jsRuntime, qjsModuleNormalize, qjsModuleLoader, nullptr);
 		}
 	}
 #endif
@@ -199,48 +261,62 @@ void GameEngine::callScriptFunction(std::shared_ptr<Entity> e, const std::string
 		JS_SetPropertyStr(m_jsContext, jsGlobal, "TooDeeEngine", jsEngine);
 
 		// Setup Script Module
-		auto scriptName = e->get<CQJSScript>().name;
-		auto& script = Assets::Instance().getScript(scriptName);
-		JSValue moduleEval = JS_Eval(m_jsContext, script.getContent().c_str(), script.getContent().size(), script.getPath().c_str(), JS_EVAL_TYPE_MODULE);
+		const auto& scriptName = e->get<CQJSScript>().name;
+		const auto& script = Assets::Instance().getScript(scriptName);
 
-		if (JS_IsException(moduleEval)) {
+		JSValue module = JS_Eval(
+			m_jsContext,
+			script.getContent().c_str(),
+			script.getContent().size(),
+			engineModuleName(scriptName).c_str(),
+			JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY
+		);
+
+		if (JS_IsException(module)) {
 			JSValue exception = JS_GetException(m_jsContext);
 			const char* str = JS_ToCString(m_jsContext, exception);
 			std::cerr << "Exception in script " << scriptName << ": " << str << std::endl;
 			JS_FreeCString(m_jsContext, str);
 			JS_FreeValue(m_jsContext, exception);
+			JS_FreeValue(m_jsContext, module);
+			return;
 		}
 
-		JS_FreeValue(m_jsContext, moduleEval);
+		// Compile-only leaves the module uninstantiated: JS_EvalFunction is what
+		// allocates the exported binding table (var_refs) that
+		// JS_GetModuleNamespace reads. It consumes 'module', so dup it first to
+		// keep a reference for the namespace lookup below.
+		JSValue moduleRef = JS_DupValue(m_jsContext, module);
+		JSModuleDef* moduleDef = static_cast<JSModuleDef*>(JS_VALUE_GET_PTR(moduleRef));
 
-		std::string mainScript = std::format(
-			"import * as script from '{}';\nglobalThis.{} = script.{};",
-			script.getPath(),
-			funcName,
-			funcName
-		);
+		// Instantiates, links and evaluates the module; returns its promise.
+		JSValue evaluated = JS_EvalFunction(m_jsContext, module);
 
-		JSValue mainEval = JS_Eval(m_jsContext, mainScript.c_str(), mainScript.size(), "main.js", JS_EVAL_TYPE_MODULE);
-
-		if (JS_IsException(mainEval)) {
+		if (JS_IsException(evaluated)) {
 			JSValue exception = JS_GetException(m_jsContext);
 			const char* str = JS_ToCString(m_jsContext, exception);
-			std::cerr << "Exception in script main.js: " << str << std::endl;
+			std::cerr << "Exception in script " << scriptName << ": " << str << std::endl;
 			JS_FreeCString(m_jsContext, str);
 			JS_FreeValue(m_jsContext, exception);
+			JS_FreeValue(m_jsContext, evaluated);
+			JS_FreeValue(m_jsContext, moduleRef);
+			return;
 		}
+		JS_FreeValue(m_jsContext, evaluated);
 
-		JS_FreeValue(m_jsContext, mainEval);
+		JSValue namespaceObj = JS_GetModuleNamespace(m_jsContext, moduleDef);
+		JS_FreeValue(m_jsContext, moduleRef);
+		JSValue jsFunc = JS_GetPropertyStr(m_jsContext, namespaceObj, funcName.c_str());
+		JS_FreeValue(m_jsContext, namespaceObj);
 
 		// Entity -> JSValue
 		JSValue jsEntity = JS_GetValueOf(m_jsContext, *e);
 
 		// Execute Script
-		JSValue jsFunc = JS_GetPropertyStr(m_jsContext, jsGlobal, funcName.c_str());
-
 		JSValue args[1] = { jsEntity };
 
-		JSValue result = JS_Call(m_jsContext, jsFunc, jsGlobal, 2, args);
+		JSValue result = JS_Call(m_jsContext, jsFunc, jsGlobal, 1, args);
+		JS_FreeValue(m_jsContext, jsFunc);
 		if (JS_IsException(result)) {
 			JSValue exception = JS_GetException(m_jsContext);
 			const char* str = JS_ToCString(m_jsContext, exception);
@@ -256,7 +332,7 @@ void GameEngine::callScriptFunction(std::shared_ptr<Entity> e, const std::string
 #ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
 	if (e->has<CLuaScript>()) {
 
-	}
+}
 #endif
 }
 
