@@ -4,6 +4,9 @@
 #include <functional>
 #include <optional>
 #include <sstream>
+#include <filesystem>
+#include <cstdint>
+#include <vector>
 
 #include <SFML/Graphics.hpp>
 
@@ -113,7 +116,16 @@ class Editor {
     std::vector<std::function<void()>> m_renderSystems;
 
     std::stringstream   m_logger;
-    DirectoryNode       m_scriptsDirectoryTree;
+    DirectoryNode       m_assetDirectoryTree;
+    std::filesystem::path m_activeConfigPath;
+    std::filesystem::path m_activeConfigBase;
+    std::filesystem::path m_assetRoot;
+    char                m_assetSearch[256] = {};
+    char                m_hierarchySearch[256] = {};
+    int                 m_assetTypeFilter = 0;
+    std::vector<std::filesystem::path> m_pendingDroppedFiles;
+    ImVec2              m_pendingDropPosition = ImVec2(-1.0f, -1.0f);
+    std::uintptr_t      m_nativeWindowHandle = 0;
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
     JSMemoryUsageDisplay m_qjsStats;
@@ -124,9 +136,11 @@ class Editor {
     const Vec2f m_gridSize = { 64, 64 };
 
     void init(const std::string& configPath);
+    void importDroppedFiles(const std::filesystem::path& destination);
 
 public:
     Editor(const std::string& configPath);
+    ~Editor();
 
     void run();
     void update();
@@ -152,6 +166,9 @@ public:
     void toggleTextures();
     void toggleCollisions();
     void toggleAnimationNames();
+    void queueDroppedFiles(
+        std::vector<std::filesystem::path> paths,
+        const ImVec2& dropPosition);
 
     void sMetrics();
     void sViewport();

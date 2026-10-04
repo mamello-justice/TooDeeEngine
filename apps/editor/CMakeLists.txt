@@ -44,6 +44,10 @@ target_link_libraries(TooDeeEditor
     TooDeeEngine
 )
 
+if(WIN32)
+    target_link_libraries(TooDeeEditor PRIVATE comctl32 comdlg32 shell32)
+endif()
+
 if (TOO_DEE_ENGINE_QJS_SCRIPTING)
     target_compile_definitions(TooDeeEditor PRIVATE TOO_DEE_ENGINE_QJS_SCRIPTING)
     

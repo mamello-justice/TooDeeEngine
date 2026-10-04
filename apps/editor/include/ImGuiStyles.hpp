@@ -6,29 +6,82 @@
 
 namespace ImGui
 {
-    inline void SetupImGuiStyle(bool is_dark_style, float alpha_threshold) {
+    inline void SetupImGuiStyle(bool is_dark_style) {
         if (is_dark_style) { StyleColorsDark(); }
         else { StyleColorsLight(); }
 
         ImGuiStyle& style = ImGui::GetStyle();
 
-        // Adjusts the alpha values of the ImGui colors based on the alpha threshold.
-        for (int i = 0; i < ImGuiCol_COUNT; i++)
-        {
-            const auto color_id = static_cast<ImGuiCol>(i);
-            auto& color = style.Colors[i];
-            if (color.w < alpha_threshold || color_id == ImGuiCol_FrameBg || color_id == ImGuiCol_WindowBg || color_id == ImGuiCol_ChildBg)
-            {
-                color.w *= alpha_threshold;
-            }
+        if (is_dark_style) {
+            const ImVec4 background(0.105f, 0.105f, 0.105f, 1.0f);
+            const ImVec4 panel(0.155f, 0.155f, 0.155f, 1.0f);
+            const ImVec4 raised(0.22f, 0.22f, 0.22f, 1.0f);
+            const ImVec4 hover(0.30f, 0.30f, 0.30f, 1.0f);
+            const ImVec4 border(0.34f, 0.34f, 0.34f, 1.0f);
+            const ImVec4 accent(0.30f, 0.47f, 0.68f, 1.0f);
+            const ImVec4 accent_active(0.25f, 0.39f, 0.57f, 1.0f);
+
+            style.Colors[ImGuiCol_Text] = ImVec4(0.91f, 0.91f, 0.91f, 1.0f);
+            style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.55f, 0.55f, 0.55f, 1.0f);
+            style.Colors[ImGuiCol_WindowBg] = background;
+            style.Colors[ImGuiCol_ChildBg] = panel;
+            style.Colors[ImGuiCol_PopupBg] = raised;
+            style.Colors[ImGuiCol_Border] = border;
+            style.Colors[ImGuiCol_FrameBg] = raised;
+            style.Colors[ImGuiCol_FrameBgHovered] = hover;
+            style.Colors[ImGuiCol_FrameBgActive] = accent_active;
+            style.Colors[ImGuiCol_TitleBg] = panel;
+            style.Colors[ImGuiCol_TitleBgActive] = background;
+            style.Colors[ImGuiCol_TitleBgCollapsed] = background;
+            style.Colors[ImGuiCol_MenuBarBg] = panel;
+            style.Colors[ImGuiCol_ScrollbarBg] = background;
+            style.Colors[ImGuiCol_ScrollbarGrab] = raised;
+            style.Colors[ImGuiCol_ScrollbarGrabHovered] = hover;
+            style.Colors[ImGuiCol_ScrollbarGrabActive] = accent;
+            style.Colors[ImGuiCol_CheckMark] = ImVec4(0.91f, 0.91f, 0.91f, 1.0f);
+            style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.68f, 0.68f, 0.68f, 1.0f);
+            style.Colors[ImGuiCol_SliderGrabActive] = accent;
+            style.Colors[ImGuiCol_Button] = raised;
+            style.Colors[ImGuiCol_ButtonHovered] = hover;
+            style.Colors[ImGuiCol_ButtonActive] = accent_active;
+            style.Colors[ImGuiCol_Header] = raised;
+            style.Colors[ImGuiCol_HeaderHovered] = hover;
+            style.Colors[ImGuiCol_HeaderActive] = accent_active;
+            style.Colors[ImGuiCol_Separator] = border;
+            style.Colors[ImGuiCol_SeparatorHovered] = hover;
+            style.Colors[ImGuiCol_SeparatorActive] = accent;
+            style.Colors[ImGuiCol_ResizeGrip] = ImVec4(accent.x, accent.y, accent.z, 0.35f);
+            style.Colors[ImGuiCol_ResizeGripHovered] = hover;
+            style.Colors[ImGuiCol_ResizeGripActive] = accent;
+            style.Colors[ImGuiCol_Tab] = panel;
+            style.Colors[ImGuiCol_TabHovered] = hover;
+            style.Colors[ImGuiCol_TabActive] = background;
+            style.Colors[ImGuiCol_TabUnfocused] = background;
+            style.Colors[ImGuiCol_TabUnfocusedActive] = background;
+            style.Colors[ImGuiCol_DockingPreview] = ImVec4(accent.x, accent.y, accent.z, 0.7f);
+            style.Colors[ImGuiCol_DockingEmptyBg] = background;
+            style.Colors[ImGuiCol_NavHighlight] = hover;
         }
 
-        // Sets the border sizes and rounding.
+        style.WindowPadding = ImVec2(8.0f, 8.0f);
+        style.FramePadding = ImVec2(8.0f, 5.0f);
+        style.ItemSpacing = ImVec2(8.0f, 6.0f);
+        style.ItemInnerSpacing = ImVec2(6.0f, 4.0f);
+        style.IndentSpacing = 18.0f;
+        style.ScrollbarSize = 13.0f;
+        style.GrabMinSize = 8.0f;
         style.ChildBorderSize = 1.0f;
         style.FrameBorderSize = 0.0f;
         style.PopupBorderSize = 1.0f;
         style.WindowBorderSize = 0.0f;
+        style.TabBorderSize = 0.0f;
+        style.WindowRounding = 4.0f;
+        style.ChildRounding = 4.0f;
         style.FrameRounding = 3.0f;
+        style.PopupRounding = 4.0f;
+        style.ScrollbarRounding = 8.0f;
+        style.GrabRounding = 3.0f;
+        style.TabRounding = 3.0f;
         style.Alpha = 1.0f;
     }
 

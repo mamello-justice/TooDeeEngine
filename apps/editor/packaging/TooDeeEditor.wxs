@@ -80,6 +80,13 @@
                 <File Id="EditorIcon8" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/pause-circle-fill.png" />
                 <File Id="EditorIcon9" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/stop-circle-fill.png" />
                 <File Id="EditorIcon10" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/arrow-counter-clockwise-bold.png" />
+                <File Id="EditorFolderIcon" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/folder-fill.png" />
+                <File Id="EditorFileIcon" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/file-fill.png" />
+                <File Id="EditorImageFileIcon" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/file-image-fill.png" />
+                <File Id="EditorJavaScriptFileIcon" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/file-js-fill.png" />
+                <File Id="EditorCodeFileIcon" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/file-code-fill.png" />
+                <File Id="EditorIniFileIcon" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/file-ini-fill.png" />
+                <File Id="EditorTextFileIcon" Source="$(var.EditorSourceDir)assets/icons/phosphor_color/file-txt-fill.png" />
             </Component>
         </ComponentGroup>
     </Fragment>
