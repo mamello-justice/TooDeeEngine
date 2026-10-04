@@ -45,6 +45,9 @@ void Editor::init(const std::string& configPath) {
     m_gameEngine->window().create(sf::VideoMode::getDesktopMode(), "TooDeeEditor");
     m_gameEngine->window().setFramerateLimit(60);
 
+    sf::Image icon = Assets::Instance().getTexture("too_dee_icon").copyToImage();
+    m_gameEngine->window().setIcon(icon);
+
     // Initialize ImGui
     if (!ImGui::SFML::Init(m_gameEngine->window())) {
         std::cerr << "Failed to initialize ImGui" << std::endl;
@@ -192,7 +195,7 @@ void Editor::loadExample(Example name) {
     }
 
     reloadScripts();
-    }
+}
 
 void Editor::unloadExample() {
     m_gameEngine->removeScene(m_gameEngine->currentScene());
@@ -355,16 +358,16 @@ void Editor::sRender() {
 
         for (float x = nextGridX; x < rightX; x += float(m_gridSize.x)) {
             sf::Vertex line[] = {
-                sf::Vertex{Vec2f(x, 0)},
-                sf::Vertex{Vec2f(x, wHeight)} };
+                sf::Vertex{ Vec2f(x, 0) },
+                sf::Vertex{ Vec2f(x, wHeight) } };
 
             m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
         }
 
         for (float y = m_gridSize.y; y < wHeight; y += float(m_gridSize.y)) {
             sf::Vertex line[] = {
-                sf::Vertex{Vec2f(leftX, wHeight - y)},
-                sf::Vertex{Vec2f(rightX, wHeight - y)} };
+                sf::Vertex{ Vec2f(leftX, wHeight - y) },
+                sf::Vertex{ Vec2f(rightX, wHeight - y) } };
 
             m_gameEngine->renderTarget().draw(line, 2, sf::PrimitiveType::Lines);
 
@@ -454,7 +457,7 @@ void Editor::sGUI() {
             }
 #endif
             ImGui::EndMenu();
-            }
+        }
 #endif
 
         if (ImGui::BeginMenu("Help")) {
@@ -463,7 +466,7 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
-            }
+        }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     if (ImGui::Begin("Viewport")) {
@@ -762,7 +765,7 @@ void Editor::sGUI() {
     }
 
     ImGui::SFML::Render(m_gameEngine->window());
-            }
+    }
 
 bool isControlF4(const sf::Event::KeyPressed* keyPressed) {
     bool isControl =
