@@ -1,3 +1,17 @@
+#include "Editor.hpp"
+
+#include <algorithm>
+#include <cctype>
+#include <cstdint>
+#include <format>
+#include <iterator>
+#include <memory>
+#include <iostream>
+#include <optional>
+#include <fstream>
+#include <set>
+#include <cwchar>
+
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -10,18 +24,6 @@
 #include <commdlg.h>
 #include <shellapi.h>
 #endif
-
-#include "Editor.hpp"
-
-#include <algorithm>
-#include <cctype>
-#include <format>
-#include <memory>
-#include <iostream>
-#include <optional>
-#include <fstream>
-#include <set>
-#include <cwchar>
 
 #include <SFML/Graphics.hpp>
 
@@ -113,7 +115,7 @@ namespace
             return std::isalnum(character) || character == '_' || character == '-'
                 ? static_cast<char>(character)
                 : '_';
-        });
+            });
         return name.empty() ? "asset" : name;
     }
 
@@ -156,6 +158,52 @@ namespace
         return paths;
     }
 #endif
+
+    void endEditorWindow() {
+        const ImVec2 position = ImGui::GetWindowPos();
+        const ImVec2 size = ImGui::GetWindowSize();
+        const ImVec2 inset(0.5f, 0.5f);
+        ImGui::GetForegroundDrawList()->AddRect(
+            ImVec2(position.x + inset.x, position.y + inset.y),
+            ImVec2(position.x + size.x - inset.x, position.y + size.y - inset.y),
+            ImGui::GetColorU32(ImGuiCol_Border),
+            6.0f,
+            ImDrawFlags_RoundCornersAll);
+        ImGui::End();
+    }
+
+    void dockSpaceOverViewportWithMargin(float margin) {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        const ImVec2 dockSpaceSize(
+            std::max(0.0f, viewport->WorkSize.x - margin * 2.0f),
+            std::max(0.0f, viewport->WorkSize.y - margin * 2.0f));
+
+        ImGui::SetNextWindowPos(viewport->WorkPos);
+        ImGui::SetNextWindowSize(viewport->WorkSize);
+        ImGui::SetNextWindowViewport(viewport->ID);
+
+        const auto hostWindowFlags =
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoDocking |
+            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoNavFocus;
+        const std::string hostWindowName = std::format(
+            "WindowOverViewport_{:08X}",
+            viewport->ID);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin(hostWindowName.c_str(), nullptr, hostWindowFlags);
+        ImGui::PopStyleVar(3);
+
+        ImGui::SetCursorPos(ImVec2(margin, margin));
+        ImGui::DockSpace(ImGui::GetID("DockSpace"), dockSpaceSize);
+        ImGui::End();
+    }
 }
 
 Editor::Editor(const std::string& configPath) :
@@ -182,11 +230,12 @@ void Editor::init(const std::string& configPath) {
     m_assetRoot = (m_activeConfigBase / "assets").lexically_normal();
     Assets::Instance().loadFromFile(m_activeConfigPath.filename(), m_activeConfigBase);
 
-    // Set DEBUG Logger
-
     // Initialize Window
     m_gameEngine->window().create(sf::VideoMode::getDesktopMode(), "TooDeeEditor");
     m_gameEngine->window().setFramerateLimit(60);
+
+    sf::Image icon = Assets::Instance().getTexture("too_dee_icon").copyToImage();
+    m_gameEngine->window().setIcon(icon);
 
 #ifdef _WIN32
     const auto nativeWindow = static_cast<HWND>(m_gameEngine->window().getNativeHandle());
@@ -198,9 +247,6 @@ void Editor::init(const std::string& configPath) {
         DragAcceptFiles(nativeWindow, TRUE);
     }
 #endif
-
-    sf::Image icon = Assets::Instance().getTexture("too_dee_icon").copyToImage();
-    m_gameEngine->window().setIcon(icon);
 
     // Initialize ImGui
     if (!ImGui::SFML::Init(m_gameEngine->window())) {
@@ -228,20 +274,21 @@ void Editor::init(const std::string& configPath) {
 }
 
 void Editor::run() {
-    while (m_running) { update(); }
+    while (m_running) {
+        update();
+        render();
+    }
 }
 
 void Editor::update() {
-    // Update
     ImGui::SFML::Update(m_gameEngine->window(), m_deltaClock.restart());
 
     for (auto system : m_preEngineUpdateSystems) { system(); }
-
     m_gameEngine->update();
-
     for (auto system : m_postEngineUpdateSystems) { system(); }
+}
 
-    // Render
+void Editor::render() {
     m_gameEngine->window().clear();
     Renderer::render(m_gameEngine);
     for (auto system : m_renderSystems) { system(); }
@@ -275,11 +322,6 @@ void Editor::stop() {
 #endif
 }
 
-void Editor::restart() {
-    stop();
-    play();
-}
-
 #ifdef BUILD_EXAMPLES
 void Editor::loadExample(Example name) {
     m_selectedExample = name;
@@ -287,18 +329,20 @@ void Editor::loadExample(Example name) {
         m_activeConfigBase = std::filesystem::absolute(basePath).lexically_normal();
         m_activeConfigPath = m_activeConfigBase / "config.ini";
         m_assetRoot = m_activeConfigBase / "assets";
-    };
+        };
     switch (name) {
-#ifdef HELLO_WORLD_EXAMPLE
     case Example::HelloWorld: {
         std::string base_path("../../examples/hello_world");
         setAssetConfig(base_path);
         Assets::Instance().loadFromFile("config.ini", base_path);
-        auto scene = std::make_shared<HelloWorld>(m_gameEngine);
+        auto wSize = m_gameEngine->renderTarget().getSize();
+        auto scene = std::make_shared<Scene>(m_gameEngine);
+        auto e = scene->getEntityManager().addEntity("label");
+        e->add<CLabel>("Hello World!", "default", 50U);
+        e->add<CTransform>(Vec2f(wSize.x, wSize.y) / 2.f);
         m_gameEngine->changeScene("HelloWorld", scene);
         break;
     }
-#endif
 #ifdef MOVING_SHAPES_EXAMPLE
     case Example::MovingShapes: {
         spdlog::debug("Loading Moving Shapes example");
@@ -665,8 +709,16 @@ void Editor::sRender() {
 }
 
 void Editor::sGUI() {
-    ImGui::DockSpaceOverViewport();
+    ImGui::PushStyleColor(
+        ImGuiCol_Border,
+        ImGui::GetStyle().Colors[ImGuiCol_WindowBg]);
+    dockSpaceOverViewportWithMargin(8.0f);
+    ImGui::PopStyleColor();
 
+    const ImVec4 menuItemHovered = m_appState.DarkTheme
+        ? ImVec4(0.25f, 0.25f, 0.25f, 1.0f)
+        : ImVec4(0.84f, 0.84f, 0.84f, 1.0f);
+    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, menuItemHovered);
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("New")) { /* Handle New action */ }
@@ -699,11 +751,9 @@ void Editor::sGUI() {
 
 #ifdef BUILD_EXAMPLES
         if (ImGui::BeginMenu("Examples")) {
-#ifdef HELLO_WORLD_EXAMPLE
             if (ImGui::MenuItem("Hello World")) {
                 loadExample(Example::HelloWorld);
             }
-#endif
 
 #ifdef MOVING_SHAPES_EXAMPLE
             if (ImGui::MenuItem("Moving Shapes")) {
@@ -744,7 +794,8 @@ void Editor::sGUI() {
         }
 
         ImGui::EndMainMenuBar();
-        }
+    }
+    ImGui::PopStyleColor();
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 8.0f));
     if (ImGui::Begin("Viewport")) {
@@ -777,7 +828,7 @@ void Editor::sGUI() {
         m_viewportSize = ImVec2(std::max(0.0f, viewportSize.x), std::max(0.0f, viewportSize.y));
         ImGui::Image(m_gameEngine->renderTarget(), m_viewportSize);
     }
-    ImGui::End();
+    endEditorWindow();
     ImGui::PopStyleVar();
 
     if (ImGui::Begin("Hierarchy")) {
@@ -797,7 +848,7 @@ void Editor::sGUI() {
                 std::string loweredQuery = query;
                 std::transform(loweredQuery.begin(), loweredQuery.end(), loweredQuery.begin(), lowercase);
                 return loweredQuery.empty() || value.find(loweredQuery) != std::string::npos;
-            };
+                };
             ImGui::SetNextItemOpen(true);
             if (ImGui::TreeNode("Entities")) {
                 for (auto& [tag, entities] : m_gameEngine->currentScene()->getEntityManager().getEntityMap()) {
@@ -832,46 +883,205 @@ void Editor::sGUI() {
         }
 
     }
-    ImGui::End();
+    endEditorWindow();
 
     if (ImGui::Begin("Inspector")) {
         if (m_selectedEntity) {
             ImGui::Text(std::format("Entity - {}", m_selectedEntity->id()).c_str());
             ImGui::Text(std::format("Tag - {}", m_selectedEntity->tag()).c_str());
 
-            // Build list of available components
-            std::vector<const char*> availableNames;
-            std::vector<int> availableIndices;
-            auto allNames = getComponentNames();
-
+            bool hasAvailableComponents = false;
             for (int i = 0; i < getComponentCount(); ++i) {
                 if (!hasComponentByEnum(*m_selectedEntity, COMPONENTS[i])) {
-                    availableNames.push_back(allNames[i]);
-                    availableIndices.push_back(i);
+                    hasAvailableComponents = true;
+                    break;
                 }
             }
 
-            if (!availableNames.empty()) {
-                static int selectedComponent = 0;
-                if (ImGui::Combo("##AddComponent", &selectedComponent, availableNames.data(), (int)availableNames.size())) {
-                    m_logger << std::format("[INFO] Selected Component - {}", availableNames[selectedComponent]) << std::endl;
+            if (hasAvailableComponents) {
+                if (ImGui::Button("+##AddComponent", ImVec2(30.0f, 0.0f))) {
+                    ImGui::OpenPopup("AddComponentPopup");
                 }
 
-                ImGui::SameLine();
-                if (ImGui::Button("Add Component")) {
-                    int actualIndex = availableIndices[selectedComponent];
-                    addComponentByEnum(m_selectedEntity, COMPONENTS[actualIndex]);
-                    m_logger << std::format("[INFO] Added Component - {}", availableNames[selectedComponent]) << std::endl;
-                    selectedComponent = 0; // Reset selection
+                if (ImGui::BeginPopup("AddComponentPopup")) {
+                    for (int i = 0; i < getComponentCount(); ++i) {
+                        if (hasComponentByEnum(*m_selectedEntity, COMPONENTS[i])) {
+                            continue;
+                        }
+
+                        const auto componentName = getComponentName(COMPONENTS[i]);
+                        if (ImGui::MenuItem(componentName.c_str())) {
+                            addComponentByEnum(m_selectedEntity, COMPONENTS[i]);
+                            m_logger << std::format("[INFO] Added Component - {}", componentName) << std::endl;
+                            ImGui::CloseCurrentPopup();
+                        }
+                    }
+                    ImGui::EndPopup();
                 }
             }
             else {
                 ImGui::Text("All components added");
             }
 
+            const auto drawComponentHeader = [this](const char* tableId, const char* label, auto removeComponent) {
+                bool expanded = false;
+                if (ImGui::BeginTable(tableId, 2, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoSavedSettings)) {
+                    ImGui::TableSetupColumn("Header", ImGuiTableColumnFlags_WidthStretch);
+                    ImGui::TableSetupColumn("Remove", ImGuiTableColumnFlags_WidthFixed, 40.0f);
+                    ImGui::TableNextColumn();
+                    const auto framePadding = ImGui::GetStyle().FramePadding;
+                    const float buttonHeight = ImGui::GetFrameHeight() + ImGui::ICON_SIZE - ImGui::GetTextLineHeight();
+                    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(framePadding.x, (buttonHeight - ImGui::GetTextLineHeight()) * 0.5f));
+                    expanded = ImGui::CollapsingHeader(label, ImGuiTreeNodeFlags_DefaultOpen);
+                    ImGui::PopStyleVar();
+                    ImGui::TableNextColumn();
+                    if (ImGui::IconButton(std::format("##Remove{}", tableId), "trash_icon")) {
+                        removeComponent();
+                        m_logger << std::format("[INFO] Removed Component - {}", label) << std::endl;
+                    }
+                    ImGui::EndTable();
+                }
+                return expanded;
+            };
+
+            const auto drawColorControl = [](const char* label, sf::Color& color) {
+                float rgba[4] = {
+                    color.r / 255.0f,
+                    color.g / 255.0f,
+                    color.b / 255.0f,
+                    color.a / 255.0f
+                };
+                if (ImGui::ColorEdit4(label, rgba)) {
+                    color = sf::Color(
+                        static_cast<std::uint8_t>(std::clamp(rgba[0], 0.0f, 1.0f) * 255.0f),
+                        static_cast<std::uint8_t>(std::clamp(rgba[1], 0.0f, 1.0f) * 255.0f),
+                        static_cast<std::uint8_t>(std::clamp(rgba[2], 0.0f, 1.0f) * 255.0f),
+                        static_cast<std::uint8_t>(std::clamp(rgba[3], 0.0f, 1.0f) * 255.0f));
+                }
+            };
+
+            if (m_selectedEntity->has<CAnimation>()) {
+                auto& cAnimation = m_selectedEntity->get<CAnimation>();
+                if (drawComponentHeader("AnimationHeader", "Animation", [this] { m_selectedEntity->remove<CAnimation>(); })) {
+                    auto& animations = Assets::Instance().getAnimations();
+                    std::vector<const char*> animationNames;
+                    int selectedAnimation = -1;
+                    for (const auto& [name, animation] : animations) {
+                        if (animation.getName() == cAnimation.animation.getName()) {
+                            selectedAnimation = static_cast<int>(animationNames.size());
+                        }
+                        animationNames.push_back(name.c_str());
+                    }
+
+                    if (!animationNames.empty() &&
+                        ImGui::Combo("Animation##AnimationComponent", &selectedAnimation, animationNames.data(), static_cast<int>(animationNames.size())) &&
+                        selectedAnimation >= 0) {
+                        auto animation = animations.begin();
+                        std::advance(animation, selectedAnimation);
+                        cAnimation.animation = animation->second;
+                    }
+                    if (animationNames.empty()) {
+                        ImGui::TextDisabled("No animations loaded");
+                    }
+                    ImGui::Checkbox("Repeat##AnimationComponent", &cAnimation.repeat);
+                }
+            }
+
+            if (m_selectedEntity->has<CGravity>()) {
+                auto& cGravity = m_selectedEntity->get<CGravity>();
+                if (drawComponentHeader("GravityHeader", "Gravity", [this] { m_selectedEntity->remove<CGravity>(); })) {
+                    ImGui::DragFloat("Gravity##GravityComponent", &cGravity.gravity, 0.01f);
+                }
+            }
+
+            if (m_selectedEntity->has<CInput>()) {
+                auto& cInput = m_selectedEntity->get<CInput>();
+                if (drawComponentHeader("InputHeader", "Input", [this] { m_selectedEntity->remove<CInput>(); })) {
+                    ImGui::Checkbox("Up", &cInput.up);
+                    ImGui::Checkbox("Down", &cInput.down);
+                    ImGui::Checkbox("Left", &cInput.left);
+                    ImGui::Checkbox("Right", &cInput.right);
+                    ImGui::Checkbox("Shoot", &cInput.shoot);
+                    ImGui::Checkbox("Can Shoot", &cInput.canShoot);
+                    ImGui::Checkbox("Can Jump", &cInput.canJump);
+                }
+            }
+
+            if (m_selectedEntity->has<CLifespan>()) {
+                auto& cLifespan = m_selectedEntity->get<CLifespan>();
+                if (drawComponentHeader("LifespanHeader", "Lifespan", [this] { m_selectedEntity->remove<CLifespan>(); })) {
+                    ImGui::InputInt("Total##Lifespan", &cLifespan.lifespan);
+                    ImGui::InputInt("Remaining##Lifespan", &cLifespan.remaining);
+                }
+            }
+
+            if (m_selectedEntity->has<CNativeScript>()) {
+                auto& cScript = m_selectedEntity->get<CNativeScript>();
+                if (drawComponentHeader("NativeScriptHeader", "Native Script", [this] { m_selectedEntity->remove<CNativeScript>(); })) {
+                    ImGui::Text("On Create: %s", cScript.onCreate ? "Assigned" : "Not assigned");
+                    ImGui::Text("On Update: %s", cScript.onUpdate ? "Assigned" : "Not assigned");
+                    ImGui::Text("On Destroy: %s", cScript.onDestroy ? "Assigned" : "Not assigned");
+                }
+            }
+
+            if (m_selectedEntity->has<CScore>()) {
+                auto& cScore = m_selectedEntity->get<CScore>();
+                if (drawComponentHeader("ScoreHeader", "Score", [this] { m_selectedEntity->remove<CScore>(); })) {
+                    ImGui::InputInt("Value##Score", &cScore.score);
+                }
+            }
+
+            if (m_selectedEntity->has<CState>()) {
+                auto& cState = m_selectedEntity->get<CState>();
+                if (drawComponentHeader("StateHeader", "State", [this] { m_selectedEntity->remove<CState>(); })) {
+                    char buffer[256];
+                    std::strncpy(buffer, cState.state.c_str(), sizeof(buffer));
+                    buffer[sizeof(buffer) - 1] = '\0';
+                    if (ImGui::InputText("Value##State", buffer, sizeof(buffer))) {
+                        cState.state = buffer;
+                    }
+                }
+            }
+
+            if (m_selectedEntity->has<CLabel>()) {
+                auto& cLabel = m_selectedEntity->get<CLabel>();
+                if (drawComponentHeader("LabelHeader", "Label", [this] { m_selectedEntity->remove<CLabel>(); })) {
+                    ImGui::Indent();
+
+                    char buffer[256];
+                    std::strncpy(buffer, cLabel.label.c_str(), sizeof(buffer));
+                    if (ImGui::InputText("Text", buffer, sizeof(buffer))) {
+                        cLabel.label = buffer;
+                    }
+
+                    auto& fonts = Assets::Instance().getFonts();
+                    std::vector<const char*> fontNames;
+                    int selectedFont = -1;
+                    for (const auto& [name, font] : fonts) {
+                        if (name == cLabel.font) {
+                            selectedFont = static_cast<int>(fontNames.size());
+                        }
+                        fontNames.push_back(name.c_str());
+                    }
+                    if (!fontNames.empty() &&
+                        ImGui::Combo("Font##Label", &selectedFont, fontNames.data(), static_cast<int>(fontNames.size())) &&
+                        selectedFont >= 0) {
+                        auto font = fonts.begin();
+                        std::advance(font, selectedFont);
+                        cLabel.font = font->first;
+                    }
+                    int fontSize = static_cast<int>(cLabel.size);
+                    if (ImGui::InputInt("Size##Label", &fontSize)) {
+                        cLabel.size = static_cast<unsigned int>(std::max(fontSize, 1));
+                    }
+
+                    ImGui::Unindent();
+                }
+            }
+
             if (m_selectedEntity->has<CTransform>()) {
                 auto& cTrans = m_selectedEntity->get<CTransform>();
-                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (drawComponentHeader("TransformHeader", "Transform", [this] { m_selectedEntity->remove<CTransform>(); })) {
                     ImGui::Indent();
 
                     float position[2] = { cTrans.pos.x, cTrans.pos.y };
@@ -903,13 +1113,16 @@ void Editor::sGUI() {
 
             if (m_selectedEntity->has<CRectangle>()) {
                 auto& cRect = m_selectedEntity->get<CRectangle>();
-                if (ImGui::CollapsingHeader("Rectangle", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (drawComponentHeader("RectangleHeader", "Rectangle", [this] { m_selectedEntity->remove<CRectangle>(); })) {
                     ImGui::Indent();
 
                     float size[2] = { cRect.size.x, cRect.size.y };
                     ImGui::InputFloat2("Size##Rectangle", size, "%.1f", 0);
                     cRect.size.x = size[0];
                     cRect.size.y = size[1];
+                    drawColorControl("Fill##Rectangle", cRect.fill);
+                    drawColorControl("Outline##Rectangle", cRect.outline);
+                    ImGui::DragFloat("Thickness##Rectangle", &cRect.thickness, 0.1f, 0.0f);
 
                     ImGui::Unindent();
                 }
@@ -917,12 +1130,19 @@ void Editor::sGUI() {
 
             if (m_selectedEntity->has<CCircle>()) {
                 auto& cRect = m_selectedEntity->get<CCircle>();
-                if (ImGui::CollapsingHeader("Circle", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (drawComponentHeader("CircleHeader", "Circle", [this] { m_selectedEntity->remove<CCircle>(); })) {
                     ImGui::Indent();
 
                     if (ImGui::DragFloat("Radius##Circle", &cRect.radius, 1.0f, 0.0f)) {
                         if (cRect.radius < 0.0f) cRect.radius = 0.0f;
                     }
+                    int pointCount = static_cast<int>(cRect.points);
+                    if (ImGui::InputInt("Points##Circle", &pointCount)) {
+                        cRect.points = static_cast<size_t>(std::max(pointCount, 3));
+                    }
+                    drawColorControl("Fill##Circle", cRect.fill);
+                    drawColorControl("Outline##Circle", cRect.outline);
+                    ImGui::DragFloat("Thickness##Circle", &cRect.thickness, 0.1f, 0.0f);
 
                     ImGui::Unindent();
                 }
@@ -931,13 +1151,14 @@ void Editor::sGUI() {
 
             if (m_selectedEntity->has<CBoundingBox>()) {
                 auto& cBound = m_selectedEntity->get<CBoundingBox>();
-                if (ImGui::CollapsingHeader("Box Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (drawComponentHeader("BoundingBoxHeader", "Box Collider", [this] { m_selectedEntity->remove<CBoundingBox>(); })) {
                     ImGui::Indent();
 
                     float size[2] = { cBound.size.x, cBound.size.y };
                     ImGui::InputFloat2("Size##BoxCollider", size, "%.1f", 0);
                     cBound.size.x = size[0];
                     cBound.size.y = size[1];
+                    cBound.halfSize = cBound.size / 2.0f;
 
                     for (auto& e : m_gameEngine->currentScene()->getEntityManager().getEntities()) {
                         if (e == m_selectedEntity) { continue; }
@@ -956,7 +1177,7 @@ void Editor::sGUI() {
 
             if (m_selectedEntity->has<CBoundingCircle>()) {
                 auto& cBound = m_selectedEntity->get<CBoundingCircle>();
-                if (ImGui::CollapsingHeader("Circle Collider", ImGuiTreeNodeFlags_DefaultOpen)) {
+                if (drawComponentHeader("BoundingCircleHeader", "Circle Collider", [this] { m_selectedEntity->remove<CBoundingCircle>(); })) {
                     ImGui::Indent();
 
                     if (ImGui::DragFloat("Radius##CircleCollider", &cBound.radius, 1.0f, 0.0f)) {
@@ -970,29 +1191,77 @@ void Editor::sGUI() {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
             if (m_selectedEntity->has<CQJSScript>()) {
                 auto& cJSScript = m_selectedEntity->get<CQJSScript>();
-                auto& scriptPath = Assets::Instance().getScript(cJSScript.name).getPath();
-                if (ImGui::CollapsingHeader("JavaScript Script", ImGuiTreeNodeFlags_DefaultOpen)) {
-                    ImGui::Indent();
-
-                    ImGui::Text("Name: %s", cJSScript.name.c_str());
-                    ImGui::Text("Path: %s", scriptPath.c_str());
-                    if (ImGui::Button("Open Script")) {
-                        openFile(std::filesystem::current_path() / scriptPath);
+                if (drawComponentHeader("QJSScriptHeader", "JavaScript Script", [this] { m_selectedEntity->remove<CQJSScript>(); })) {
+                    auto& scripts = Assets::Instance().getScripts();
+                    std::vector<const char*> scriptNames;
+                    int selectedScript = -1;
+                    for (const auto& [name, script] : scripts) {
+                        if (name == cJSScript.name) {
+                            selectedScript = static_cast<int>(scriptNames.size());
+                        }
+                        scriptNames.push_back(name.c_str());
                     }
+                    if (!scriptNames.empty() &&
+                        ImGui::Combo("Script##QJSScript", &selectedScript, scriptNames.data(), static_cast<int>(scriptNames.size())) &&
+                        selectedScript >= 0) {
+                        auto script = scripts.begin();
+                        std::advance(script, selectedScript);
+                        cJSScript.name = script->first;
+                    }
+                    if (const auto script = scripts.find(cJSScript.name); script != scripts.end()) {
+                        ImGui::Text("Path: %s", script->second.getPath().c_str());
+                        if (ImGui::Button("Open Script##QJSScript")) {
+                            openFile(std::filesystem::current_path() / script->second.getPath());
+                        }
+                    }
+                    else {
+                        ImGui::TextDisabled("No script selected");
+                    }
+                }
+            }
+#endif
 
-                    ImGui::Unindent();
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+            if (m_selectedEntity->has<CLuaScript>()) {
+                auto& cLuaScript = m_selectedEntity->get<CLuaScript>();
+                if (drawComponentHeader("LuaScriptHeader", "Lua Script", [this] { m_selectedEntity->remove<CLuaScript>(); })) {
+                    auto& scripts = Assets::Instance().getScripts();
+                    std::vector<const char*> scriptNames;
+                    int selectedScript = -1;
+                    for (const auto& [name, script] : scripts) {
+                        if (name == cLuaScript.name) {
+                            selectedScript = static_cast<int>(scriptNames.size());
+                        }
+                        scriptNames.push_back(name.c_str());
+                    }
+                    if (!scriptNames.empty() &&
+                        ImGui::Combo("Script##LuaScript", &selectedScript, scriptNames.data(), static_cast<int>(scriptNames.size())) &&
+                        selectedScript >= 0) {
+                        auto script = scripts.begin();
+                        std::advance(script, selectedScript);
+                        cLuaScript.name = script->first;
+                    }
+                    if (const auto script = scripts.find(cLuaScript.name); script != scripts.end()) {
+                        ImGui::Text("Path: %s", script->second.getPath().c_str());
+                        if (ImGui::Button("Open Script##LuaScript")) {
+                            openFile(std::filesystem::current_path() / script->second.getPath());
+                        }
+                    }
+                    else {
+                        ImGui::TextDisabled("No script selected");
+                    }
                 }
             }
 #endif
 
         }
     }
-    ImGui::End();
+    endEditorWindow();
 
     if (ImGui::Begin("Console")) {
         ImGui::Text(m_logger.str().c_str());
     }
-    ImGui::End();
+    endEditorWindow();
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
     if (ImGui::Begin("Memory Stats")) {
@@ -1004,7 +1273,7 @@ void Editor::sGUI() {
         ImGui::Text("Arrays: %s", m_qjsStats.array_count.c_str());
         ImGui::Text("C functions: %s", m_qjsStats.c_func_count.c_str());
     }
-    ImGui::End();
+    endEditorWindow();
 #endif
 
     std::filesystem::path dropTarget = m_assetRoot;
@@ -1050,14 +1319,14 @@ void Editor::sGUI() {
         }
         ImGui::EndChild();
     }
-    ImGui::End();
+    endEditorWindow();
 
     if (!m_pendingDroppedFiles.empty()) {
         importDroppedFiles(dropTarget);
     }
 
     ImGui::SFML::Render(m_gameEngine->window());
-    }
+}
 
 bool isControlF4(const sf::Event::KeyPressed* keyPressed) {
     bool isControl =

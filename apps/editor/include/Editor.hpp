@@ -11,6 +11,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "imgui.h"
+#include "imgui-SFML.h"
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 #include "quickjs.h"
@@ -23,9 +24,7 @@
 
 #ifdef BUILD_EXAMPLES
 enum class Example {
-#ifdef HELLO_WORLD_EXAMPLE
     HelloWorld,
-#endif
 #ifdef MOVING_SHAPES_EXAMPLE
     MovingShapes,
 #endif
@@ -144,12 +143,12 @@ public:
 
     void run();
     void update();
+    void render();
     void quit();
 
     void play();
     void pause();
     void stop();
-    void restart();
 
 #ifdef BUILD_EXAMPLES
     void loadExample(Example name);

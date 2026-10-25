@@ -15,9 +15,9 @@
 #include "Entity.hpp"
 #include "Vec2.hpp"
 
-CLabel::CLabel() : label("") {}
+CLabel::CLabel() : label(""), font("default"), size(30U) {}
 
-CLabel::CLabel(const std::string& l) : label(l) {}
+CLabel::CLabel(const std::string& l, const std::string& f, unsigned int s) : label(l), font(f), size(s) {}
 
 CTransform::CTransform(const Vec2f& p) : pos(p), prevPos(p) {}
 
@@ -83,6 +83,10 @@ std::string getComponentName(ComponentEnum c) {
 	case ComponentEnum::QJSScript:
 		return "QJS Script";
 #endif
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+	case ComponentEnum::LuaScript:
+		return "Lua Script";
+#endif
 	case ComponentEnum::Label:
 		return "Label";
 	case ComponentEnum::Lifespan:
@@ -113,12 +117,12 @@ const char* const* getComponentNames() {
 		initialized = true;
 	}
 
-	static const char* ptrs[12];
-	for (size_t i = 0; i < 12; ++i) {
+	static std::array<const char*, COMPONENTS.size()> ptrs;
+	for (size_t i = 0; i < COMPONENTS.size(); ++i) {
 		ptrs[i] = names[i].c_str();
 	}
 
-	return ptrs;
+	return ptrs.data();
 }
 
 void addComponentByEnum(std::shared_ptr<Entity> entity, ComponentEnum comp) {
@@ -141,11 +145,24 @@ void addComponentByEnum(std::shared_ptr<Entity> entity, ComponentEnum comp) {
 	case ComponentEnum::Input:
 		entity->add<CInput>();
 		break;
+#ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
+	case ComponentEnum::QJSScript:
+		entity->add<CQJSScript>();
+		break;
+#endif
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+	case ComponentEnum::LuaScript:
+		entity->add<CLuaScript>();
+		break;
+#endif
 	case ComponentEnum::Label:
 		entity->add<CLabel>();
 		break;
 	case ComponentEnum::Lifespan:
 		entity->add<CLifespan>();
+		break;
+	case ComponentEnum::NativeScript:
+		entity->add<CNativeScript>();
 		break;
 	case ComponentEnum::Rectangle:
 		entity->add<CRectangle>();

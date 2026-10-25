@@ -38,9 +38,6 @@ namespace MovingShapes
     class Example : public Scene {
     protected:
         void update() override;
-        void sRender() override;
-
-        sf::Text m_label;
 
     public:
         Example(std::shared_ptr<GameEngine> gameEngine);

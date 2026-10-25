@@ -66,10 +66,6 @@ endif()
 # Conditionally link example targets only if they were built
 if(TOO_DEE_ENGINE_BUILD_EXAMPLES)
     target_compile_definitions(TooDeeEditor PRIVATE BUILD_EXAMPLES)
-    if(TARGET HelloWorld)
-        target_compile_definitions(TooDeeEditor PRIVATE HELLO_WORLD_EXAMPLE)
-        target_link_libraries(TooDeeEditor PRIVATE HelloWorld)
-    endif()
 
     if(TARGET MovingShapes)
         target_compile_definitions(TooDeeEditor PRIVATE MOVING_SHAPES_EXAMPLE)

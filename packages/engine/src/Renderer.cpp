@@ -51,6 +51,16 @@ void Renderer::render(std::shared_ptr<GameEngine> engine) {
                 rect.setPosition(cTrans.pos);
                 engine->renderTarget().draw(rect);
             }
+
+            if (e->has<CLabel>() && e->has<CTransform>()) {
+                auto& cTrans = e->get<CTransform>();
+                auto& cLabel = e->get<CLabel>();
+
+                auto label = sf::Text(Assets::Instance().getFont(cLabel.font), cLabel.label, cLabel.size);
+                label.setOrigin(Vec2f(label.getLocalBounds().size) / 2.f);
+                label.setPosition(cTrans.pos);
+                engine->renderTarget().draw(label);
+            }
         }
     }
 

@@ -20,9 +20,11 @@ public:
 class CLabel : public Component {
 public:
 	std::string label = "";
+	std::string font = "default";
+	unsigned int size = 30U;
 
 	CLabel();
-	CLabel(const std::string& l);
+	CLabel(const std::string& l, const std::string& f = "default", unsigned int s = 30U);
 };
 
 class CTransform : public Component {
@@ -195,6 +197,9 @@ enum class ComponentEnum {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	QJSScript,
 #endif
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+	LuaScript,
+#endif
 	Label,
 	Lifespan,
 	NativeScript,
@@ -215,6 +220,9 @@ constexpr std::array<ComponentEnum, COMPONENT_COUNT> COMPONENTS = {
 	ComponentEnum::Input,
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	ComponentEnum::QJSScript,
+#endif
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+	ComponentEnum::LuaScript,
 #endif
 	ComponentEnum::Label,
 	ComponentEnum::Lifespan,
@@ -253,6 +261,10 @@ bool hasComponentByEnum(const EntityType& entity, ComponentEnum comp) {
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 	case ComponentEnum::QJSScript:
 		return entity.template has<CQJSScript>();
+#endif
+#ifdef TOO_DEE_ENGINE_LUA_SCRIPTING
+	case ComponentEnum::LuaScript:
+		return entity.template has<CLuaScript>();
 #endif
 	case ComponentEnum::Label:
 		return entity.template has<CLabel>();

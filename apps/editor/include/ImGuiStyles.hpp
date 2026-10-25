@@ -13,16 +13,16 @@ namespace ImGui
         ImGuiStyle& style = ImGui::GetStyle();
 
         if (is_dark_style) {
-            const ImVec4 background(0.105f, 0.105f, 0.105f, 1.0f);
-            const ImVec4 panel(0.155f, 0.155f, 0.155f, 1.0f);
-            const ImVec4 raised(0.22f, 0.22f, 0.22f, 1.0f);
-            const ImVec4 hover(0.30f, 0.30f, 0.30f, 1.0f);
-            const ImVec4 border(0.34f, 0.34f, 0.34f, 1.0f);
-            const ImVec4 accent(0.30f, 0.47f, 0.68f, 1.0f);
-            const ImVec4 accent_active(0.25f, 0.39f, 0.57f, 1.0f);
+            const ImVec4 background(0.118f, 0.118f, 0.118f, 1.0f);
+            const ImVec4 panel(0.145f, 0.145f, 0.149f, 1.0f);
+            const ImVec4 raised(0.176f, 0.176f, 0.188f, 1.0f);
+            const ImVec4 hover(0.165f, 0.176f, 0.184f, 1.0f);
+            const ImVec4 border(0.235f, 0.235f, 0.235f, 1.0f);
+            const ImVec4 accent(0.0f, 0.478f, 0.8f, 1.0f);
+            const ImVec4 accent_active(0.0f, 0.353f, 0.62f, 1.0f);
 
-            style.Colors[ImGuiCol_Text] = ImVec4(0.91f, 0.91f, 0.91f, 1.0f);
-            style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.55f, 0.55f, 0.55f, 1.0f);
+            style.Colors[ImGuiCol_Text] = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
+            style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.52f, 0.52f, 0.52f, 1.0f);
             style.Colors[ImGuiCol_WindowBg] = background;
             style.Colors[ImGuiCol_ChildBg] = panel;
             style.Colors[ImGuiCol_PopupBg] = raised;
@@ -63,6 +63,11 @@ namespace ImGui
             style.Colors[ImGuiCol_NavHighlight] = hover;
         }
 
+        style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+        style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+        style.WindowMenuButtonPosition = ImGuiDir_None;
+        style.DockingSeparatorSize = 8.0f;
         style.WindowPadding = ImVec2(8.0f, 8.0f);
         style.FramePadding = ImVec2(8.0f, 5.0f);
         style.ItemSpacing = ImVec2(8.0f, 6.0f);
@@ -73,15 +78,15 @@ namespace ImGui
         style.ChildBorderSize = 1.0f;
         style.FrameBorderSize = 0.0f;
         style.PopupBorderSize = 1.0f;
-        style.WindowBorderSize = 0.0f;
+        style.WindowBorderSize = 1.0f;
         style.TabBorderSize = 0.0f;
-        style.WindowRounding = 4.0f;
-        style.ChildRounding = 4.0f;
+        style.WindowRounding = 6.0f;
+        style.ChildRounding = 6.0f;
         style.FrameRounding = 3.0f;
         style.PopupRounding = 4.0f;
         style.ScrollbarRounding = 8.0f;
         style.GrabRounding = 3.0f;
-        style.TabRounding = 3.0f;
+        style.TabRounding = 0.0f;
         style.Alpha = 1.0f;
     }
 

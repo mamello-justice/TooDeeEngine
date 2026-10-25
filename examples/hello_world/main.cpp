@@ -6,7 +6,6 @@
 #include "spdlog/spdlog.h"
 
 #include "TooDeeEngine.hpp"
-#include "HelloWorld.hpp"
 
 int main(int argc, char* argv[]) {
     spdlog::set_level(spdlog::level::info);
@@ -31,12 +30,20 @@ int main(int argc, char* argv[]) {
     gameEngine->window().create(sf::VideoMode::getDesktopMode(), "Hello World");
     gameEngine->window().setFramerateLimit(60);
 
+
     // Enable rendering
     gameEngine->m_shouldRender = true;
     if (gameEngine->renderTarget().resize(gameEngine->window().getSize())) {}
 
+    auto wSize = gameEngine->renderTarget().getSize();
+
     // Create scene
-    auto scene = std::make_shared<HelloWorld>(gameEngine);
+    auto scene = std::make_shared<Scene>(gameEngine);
+
+    // Add label entity
+    auto e = scene->getEntityManager().addEntity("label");
+    e->add<CLabel>("Hello World!", "default", 50U);
+    e->add<CTransform>(Vec2f(wSize.x, wSize.y) / 2.f);
 
     gameEngine->changeScene("HelloWorld", scene);
 
