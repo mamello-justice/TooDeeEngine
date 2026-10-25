@@ -2,7 +2,9 @@
 
 #include <memory>
 #include <map>
+#include <limits>
 #include <string>
+#include <stdexcept>
 #include <vector>
 
 #include "Entity.hpp"
@@ -43,8 +45,24 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag) {
 	return entity;
 }
 
+std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag, size_t id) {
+	if (id == std::numeric_limits<size_t>::max()) {
+		throw std::overflow_error("Entity ID is too large");
+	}
+	if (id >= mTotalEntities) mTotalEntities = id + 1;
+	auto entity = std::shared_ptr<Entity>(new Entity(id, tag));
+	mEntitiesToAdd.push_back(entity);
+	return entity;
+}
+
 const EntityVec& EntityManager::getEntities() const {
 	return mEntities;
+}
+
+EntityVec EntityManager::getAllEntities() const {
+	EntityVec entities = mEntities;
+	entities.insert(entities.end(), mEntitiesToAdd.begin(), mEntitiesToAdd.end());
+	return entities;
 }
 
 const EntityVec& EntityManager::getEntities(const std::string& tag) {

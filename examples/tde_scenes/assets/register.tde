@@ -1,0 +1,5 @@
+[protocol]
+version=1.0
+
+[font.default]
+file=../../../assets/fonts/default.ttf

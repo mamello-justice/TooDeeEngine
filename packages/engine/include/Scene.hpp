@@ -11,8 +11,11 @@
 #include "Vec2.hpp"
 
 class GameEngine;
+class RuntimeSerializer;
 
 class Scene {
+	friend class RuntimeSerializer;
+
 protected:
 	std::shared_ptr<GameEngine> m_gameEngine;
 	EntityManager m_entityManager;

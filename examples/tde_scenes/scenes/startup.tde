@@ -1,0 +1,14 @@
+[scene.startup]
+name=Startup
+
+[scene.startup.entity.message]
+tag=text
+
+[scene.startup.entity.message.component.label]
+text=Loaded from a separate scene file
+font=default
+size=32
+
+[scene.startup.entity.message.component.transform]
+x=480
+y=270

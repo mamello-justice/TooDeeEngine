@@ -1,0 +1,29 @@
+[project]
+version=1
+default_scene=hello
+
+[config.assets]
+file=assets.ini
+
+[window]
+title=TooDeeEngine Project
+width=960
+height=540
+frame_rate=60
+mode=windowed
+style=default
+
+[scene.hello]
+name=Hello
+
+[scene.hello.entity.greeting]
+tag=label
+
+[scene.hello.entity.greeting.component.label]
+text=Hello from a data-driven project
+font=default
+size=36
+
+[scene.hello.entity.greeting.component.transform]
+x=480
+y=270

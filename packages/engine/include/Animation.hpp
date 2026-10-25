@@ -82,6 +82,16 @@ public:
 	const std::string& getTextureName() const;
 
 	/**
+	 * @brief Get the current animation update count
+	 */
+	size_t getCurrentFrame() const;
+
+	/**
+	 * @brief Restore the current animation update count
+	 */
+	void setCurrentFrame(size_t frame);
+
+	/**
 	 * @brief Get the sprite rect for the current frame
 	 *
 	 * @return The sprite rect

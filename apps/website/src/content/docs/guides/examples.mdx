@@ -19,9 +19,18 @@ just build
 
 ## Running Examples
 
+The standalone sample apps are launched through `just`:
+
 ```bash
 just example hello_world
 just example moving_shapes
+```
+
+The project-based examples in `examples/tde_project` and `examples/tde_scenes` are not launched as separate executables. Run them through the CLI wrapper in this repo:
+
+```bash
+just run examples/tde_project
+just run examples/tde_scenes
 ```
 
 ## Available Examples

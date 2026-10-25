@@ -9,5 +9,6 @@
 #include "GameEngine.hpp"
 #include "Physics.hpp"
 #include "Renderer.hpp"
+#include "RuntimeSerializer.hpp"
 #include "Scene.hpp"
 #include "Script.hpp"

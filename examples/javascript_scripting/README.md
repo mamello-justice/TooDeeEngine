@@ -24,3 +24,7 @@ just example native_scripting
 - `JavascriptScripting.cpp` - Implementation file
 - `bounding_box_collision_script.js` - JavaScript script for bounding rectangles to screen
 - `bounding_circle_collision_script.js` - JavaScript script for bounding circles to screen
+
+## Next Steps
+
+- [TypeScript](../typescript_scripting/) - Adding types to javascript scripting

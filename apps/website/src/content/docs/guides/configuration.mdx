@@ -23,6 +23,36 @@ fps=60
 See the [`tde_with_config`](https://github.com/mamello-justice/TooDeeEngine/tree/main/examples/tde_with_config)
 example for a complete configuration file.
 
+Example games load window settings from `[window]` in their config file:
+
+```ini
+[window]
+width=900
+height=600
+frame_rate=60
+fullscreen=false
+icon=../../assets/too-dee-icons/png/icon-64.png
+```
+
+The icon path is resolved relative to the config file. If omitted, the
+TooDeeEngine icon is used. If width or height is omitted, that dimension uses
+the desktop resolution.
+
+Project manifests can reference one or more asset configuration files relative
+to the manifest. The section suffix is an informational label:
+
+```ini
+[config.assets]
+file=config/assets.ini
+
+[config.fonts]
+file=config/fonts.ini
+```
+
+Each referenced file contains the usual named entries such as `[font.default]`
+or `[texture.player]`; `file` paths in each asset entry remain relative to the
+file containing that entry.
+
 ## Build Options (`.env`)
 
 Set these in the `.env` file at the repository root to control which components are built:

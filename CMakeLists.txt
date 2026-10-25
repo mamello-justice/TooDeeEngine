@@ -78,6 +78,10 @@ project(TooDeeEngine
     LANGUAGES CXX
 )
 
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
 endif()

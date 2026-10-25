@@ -37,6 +37,7 @@ target_sources(TooDeeEngine
     src/GameEngine.cpp
     src/Physics.cpp
     src/Renderer.cpp
+    src/RuntimeSerializer.cpp
     src/Scene.cpp
     src/Script.cpp
 )

@@ -44,6 +44,18 @@ const std::string& Animation::getTextureName() const {
 	return m_textureName;
 }
 
+size_t Animation::getCurrentFrame() const {
+	return m_currentFrame;
+}
+
+void Animation::setCurrentFrame(size_t frame) {
+	m_currentFrame = frame;
+	if (m_speed == 0 || m_frameCount == 0) return;
+
+	const auto animationFrame = (m_currentFrame / m_speed) % m_frameCount;
+	m_spriteRect.position.x = static_cast<int>(animationFrame) * m_spriteRect.size.x;
+}
+
 const sf::IntRect& Animation::getSpriteRect() const {
 	return m_spriteRect;
 }

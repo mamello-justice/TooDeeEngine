@@ -125,7 +125,15 @@ just build
 just example hello_world
 ```
 
-Available examples: `hello_world`, `moving_shapes`, `native_scripting`, `javascript_scripting`, `typescript_scripting`, `lua_scripting`. See the [Examples](/guides/examples/) page for what each one demonstrates.
+Available examples: `hello_world`, `moving_shapes`, `native_scripting`, `javascript_scripting`, `typescript_scripting`, `lua_scripting`. These are standalone apps built and run via `just example`.
+
+Project-based examples such as `examples/tde_project` are launched through the repo's CLI wrapper instead of their own executable:
+
+```bash
+just run examples/tde_project
+```
+
+See the [Examples](/guides/examples/) page for what each one demonstrates.
 
 ## Next Steps
 

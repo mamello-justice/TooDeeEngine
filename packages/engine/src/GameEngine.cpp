@@ -4,10 +4,13 @@
 #include <string_view>
 #include <vector>
 #include <memory>
+#include <limits>
+#include <stdexcept>
 
 #include <SFML/Graphics.hpp>
 
 #include "spdlog/spdlog.h"
+#include "INIReader.h"
 
 #ifdef TOO_DEE_ENGINE_QJS_SCRIPTING
 #include "quickjs.h"
@@ -25,6 +28,25 @@
 #include "Script.hpp"
 #include "Vec2.hpp"
 
+namespace
+{
+	unsigned int readWindowDimension(const INIReader& reader, const std::string& key) {
+		if (!reader.HasValue("window", key)) return 0;
+		const auto value = reader.GetString("window", key, "");
+		try {
+			size_t parsed = 0;
+			const auto dimension = std::stoul(value, &parsed);
+			if (parsed != value.size() || dimension == 0 || dimension > std::numeric_limits<unsigned int>::max()) {
+				throw std::runtime_error("invalid dimension");
+			}
+			return static_cast<unsigned int>(dimension);
+		}
+		catch (const std::exception&) {
+			throw std::runtime_error("Invalid positive integer for [window] " + key + ": " + value);
+		}
+	}
+}
+
 GameEngine::GameEngine() {
 	init();
 }
@@ -32,6 +54,48 @@ GameEngine::GameEngine() {
 GameEngine::GameEngine(bool rendering) :
 	m_shouldRender(rendering) {
 	init();
+}
+
+void GameEngine::loadSettingsFromFile(const std::filesystem::path& path) {
+	if (!std::filesystem::is_regular_file(path)) {
+		throw std::runtime_error("Settings file does not exist: " + path.string());
+	}
+
+	INIReader reader(path.string());
+	if (reader.ParseError() != 0) {
+		throw std::runtime_error("Could not parse settings file: " + path.string());
+	}
+
+	m_windowSize = {
+		readWindowDimension(reader, "width"),
+		readWindowDimension(reader, "height")
+	};
+	m_frameRateLimit = readWindowDimension(reader, "frame_rate");
+	if (m_frameRateLimit == 0) m_frameRateLimit = 60;
+	m_fullscreen = reader.GetBoolean("window", "fullscreen", false);
+
+	const auto iconPath = reader.GetString("window", "icon", "");
+	m_windowIconPath = path.parent_path() / (iconPath.empty()
+		? std::filesystem::path("../../assets/too-dee-icons/png/icon-64.png")
+		: std::filesystem::path(iconPath));
+	m_windowIconPath = std::filesystem::absolute(m_windowIconPath).lexically_normal();
+}
+
+void GameEngine::createWindow(const std::string& title) {
+	auto size = m_windowSize;
+	const auto desktopSize = sf::VideoMode::getDesktopMode().size;
+	if (size.x == 0) size.x = desktopSize.x;
+	if (size.y == 0) size.y = desktopSize.y;
+
+	const auto state = m_fullscreen ? sf::State::Fullscreen : sf::State::Windowed;
+	m_window.create(sf::VideoMode(size), title, sf::Style::Default, state);
+	m_window.setFramerateLimit(m_frameRateLimit);
+
+	sf::Image icon;
+	if (!icon.loadFromFile(m_windowIconPath)) {
+		throw std::runtime_error("Could not load window icon: " + m_windowIconPath.string());
+	}
+	m_window.setIcon(icon);
 }
 
 GameEngine::~GameEngine() {
@@ -175,6 +239,11 @@ sf::RenderWindow& GameEngine::window() {
 
 std::shared_ptr<Scene> GameEngine::currentScene() {
 	return hasScene(m_currentScene) ? m_sceneMap.at(m_currentScene) : nullptr;
+}
+
+std::shared_ptr<Scene> GameEngine::getScene(const std::string& name) const {
+	const auto it = m_sceneMap.find(name);
+	return it == m_sceneMap.end() ? nullptr : it->second;
 }
 
 bool GameEngine::getIsRunning() const {

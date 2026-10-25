@@ -17,6 +17,7 @@ target_compile_features(tde
 target_sources(tde
     PRIVATE
     src/main.cpp
+    src/Project.cpp
 )
 
 target_include_directories(tde

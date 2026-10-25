@@ -27,6 +27,6 @@ if(TOO_DEE_ENGINE_EXAMPLE_TARGET STREQUAL "hello_world")
         SFML::Graphics
         TooDeeCore
         TooDeeEngine
+        spdlog::spdlog
     )
 endif()
-

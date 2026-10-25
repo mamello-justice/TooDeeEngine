@@ -1,7 +1,78 @@
 ---
 title: Architecture
-description: Entity-component system, core components, and the TooDeeEngine game loop.
+description: Runtime project loading, engine save/load, entity-component system, and the TooDeeEngine game loop.
 ---
+
+## Runtime Architecture
+
+The diagram shows the data-driven `tde` path alongside applications that construct the engine directly.
+
+```mermaid
+flowchart LR
+	subgraph Applications["Application entry points"]
+		Command["tde /path/to/game"]
+		NativeApp["C++ Native Application"]
+		Editor["TooDeeEditor"]
+	end
+
+	Command --> TDE["tde executable"]
+	TDE --> Resolve{"Resolve main.ini or main.tde"}
+	Resolve --> Manifest["INI-compatible project loader"]
+
+	subgraph ProjectFiles["Project files"]
+		Project["Project manifest"]
+		Runtime["Inline or referenced window settings"]
+		AssetsConfig["Referenced or inline asset config"]
+		SceneDocs["Inline or referenced scene docs"]
+		SceneData["scene -> entity -> component sections"]
+	end
+
+	Manifest --> Project
+	Project --> Runtime
+	Project --> AssetsConfig
+	Project --> SceneDocs
+	SceneDocs --> SceneData
+	Runtime --> Window["Window and render-target setup"]
+	AssetsConfig --> AssetManager["Asset manager"]
+	SceneData --> SceneLoader["Scene/entity loader"]
+
+	NativeApp --> EngineAPI["GameEngine APIs"]
+	Editor --> EngineAPI
+	TDE --> EngineAPI
+	SceneLoader --> EngineAPI
+	Window --> EngineAPI
+	EngineAPI --> RuntimeEngine["GameEngine"]
+	RuntimeEngine --> SceneRegistry["Registered scenes and active scene"]
+	SceneRegistry --> ECS["Entities and components"]
+	SceneRegistry --> Actions["Keyboard action map"]
+	RuntimeEngine --> Loop["Input, update, render"]
+	AssetManager --> Loop
+
+	RuntimeEngine --> SaveAPI["RuntimeSerializer save/load API"]
+	NativeApp --> SaveAPI
+	TDE --> SaveAPI
+	SaveAPI --> Snapshot["Versioned runtime snapshot"]
+	Snapshot --> SaveAPI
+	SaveAPI -->|"restore scenes, entities, components"| RuntimeEngine
+
+	Deferred["Future: main.lua and main.js entrypoints"] -.-> TDE
+```
+
+The `tde` runtime currently accepts data-driven `main.ini` and `main.tde` entrypoints. Lua and JavaScript project entrypoints are future work. C++ Native Applications and TooDeeEditor use the engine directly.
+
+## Project Section Shape
+
+INI sections are flat names; dotted names encode hierarchy by convention. Singular segments match asset declarations such as `[font.default]`:
+
+- `[scene.hello]`
+- `[scene.hello.entity.my_entity]`
+- `[scene.hello.entity.my_entity.component.label]`
+
+A scene or window section can instead contain `file=...`. The referenced file repeats the same section name, and its path is resolved relative to the file containing the reference.
+
+## Runtime Save/Load
+
+`RuntimeSerializer` is a public engine API and does not require a project manifest. It saves registered scenes, the active scene, pause and action state, entity IDs and tags, supported built-in component data, and engine simulation/render flags. Loading validates and reconstructs a temporary scene registry before replacing runtime state. Matching C++ `Scene` subclass instances are preserved. Native function objects and scripting VM internals are not serialized.
 
 ## Entity-Component System
 
@@ -9,11 +80,11 @@ The engine uses a type-safe ECS architecture where entities are containers for c
 
 ```cpp
 // Create an entity and add components
-Entity entity = entityManager.addEntity("player");
-entity.add<CTransform>(100, 100);
-entity.add<CShape>(32, 32);
-entity.add<CInput>();
-entity.add<CAnimation>();
+auto entity = entityManager.addEntity("player");
+entity->add<CTransform>(Vec2f(100, 100));
+entity->add<CRectangle>(Vec2f(32, 32), sf::Color::White, sf::Color::Black, 0.f);
+entity->add<CInput>();
+entity->add<CAnimation>();
 ```
 
 Systems query entities for the components they need and update them each tick.
@@ -21,7 +92,7 @@ Systems query entities for the components they need and update them each tick.
 ## Core Components
 
 - **CTransform**: Position and velocity
-- **CShape**: Visual representation (rectangle/circle)
+- **CCircle/CRectangle**: Visual representation
 - **CAnimation**: Frame-based animations
 - **CInput**: Keyboard input handling
 - **CGravity**: Gravity physics

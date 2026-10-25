@@ -29,9 +29,8 @@ int main(int argc, char* argv[]) {
     // Create Game Engine
     auto gameEngine = std::make_shared<GameEngine>();
 
-    // Init Window
-    gameEngine->window().create(sf::VideoMode({ 900, 600 }), "Native/C++ Scripting");
-    gameEngine->window().setFramerateLimit(60);
+    gameEngine->loadSettingsFromFile(configPath);
+    gameEngine->createWindow("Native/C++ Scripting");
 
     // Enable rendering
     gameEngine->m_shouldRender = true;

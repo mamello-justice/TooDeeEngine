@@ -27,8 +27,8 @@ int main(int argc, char* argv[]) {
 
     auto gameEngine = std::make_shared<GameEngine>();
 
-    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "Hello World");
-    gameEngine->window().setFramerateLimit(60);
+    gameEngine->loadSettingsFromFile(configPath);
+    gameEngine->createWindow("Hello World");
 
 
     // Enable rendering

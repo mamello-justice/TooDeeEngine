@@ -1,0 +1,12 @@
+[project]
+version=1
+default_scene=startup
+
+[config.assets]
+file=assets/register.tde
+
+[window]
+file=config/window.ini
+
+[scene.startup]
+file=scenes/startup.tde

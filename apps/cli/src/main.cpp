@@ -1,4 +1,7 @@
+#include <filesystem>
+#include <ctime>
 #include <string>
+#include <exception>
 
 #include <SFML/Graphics.hpp>
 
@@ -10,70 +13,35 @@
 
 #include "TooDeeCore.hpp"
 #include "TooDeeEngine.hpp"
+#include "Project.hpp"
 
 int main(int argc, char* argv[]) {
     spdlog::set_level(spdlog::level::info);
-    std::filesystem::path base;
-    if (argc == 1) {
-        base = std::filesystem::current_path();
-    }
-    else if (argc == 2) {
-        base = std::filesystem::path(argv[1]);
-    }
-    else {
-        spdlog::info("usage:\n\t {} <project-path>", argv[0]);
-        std::exit(1);
+    if (argc > 2) {
+        spdlog::error("usage: {} [project-path|main.ini|main.tde]", argv[0]);
+        return 1;
     }
 
-    if (!std::filesystem::is_directory(base)) {
-        spdlog::error("\"{}\" is not a directory", base.string());
-        std::exit(1);
-    }
+    try {
+        const auto entry = argc == 2 ? std::filesystem::path(argv[1]) : std::filesystem::current_path();
+        const auto project = loadProject(resolveProjectEntry(entry));
+        std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    std::filesystem::path config = base / "config.tde";
-    std::filesystem::path game = base / "main.tde";
+        auto gameEngine = std::make_shared<GameEngine>();
+        initializeProject(project, gameEngine);
 
-    if (!std::filesystem::exists(game)) {
-        spdlog::error("main.tde does not exist in {}", base.string());
-        std::exit(1);
-    }
+        while (gameEngine->window().isOpen() && gameEngine->getIsRunning()) {
+            gameEngine->update();
+            if (!gameEngine->getIsRunning()) break;
 
-    std::srand((unsigned int)time(NULL));
-
-    // Load config.tde from . or provided project path
-    // Format:
-    // What should go here?
-
-    // Load main.tde from . or provided project path
-    // Format:
-    // - Serialized scene or define list of scenes paths & default scene name
-
-    auto gameEngine = std::make_shared<GameEngine>();
-
-    // Initialize Window
-    gameEngine->window().create(sf::VideoMode::getDesktopMode(), "TooDeeEngine");
-    gameEngine->window().setFramerateLimit(60);
-
-    // Enable rendering
-    gameEngine->m_shouldRender = true;
-    if (gameEngine->renderTarget().resize(gameEngine->window().getSize())) {}
-    auto scene = std::make_shared<Scene>(gameEngine);
-
-    gameEngine->changeScene("SceneName", scene);
-
-    while (gameEngine->window().isOpen()) {
-        while (auto event = gameEngine->window().pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                std::exit(0);
-            }
+            Renderer::render(gameEngine);
+            gameEngine->window().clear();
+            gameEngine->window().draw(sf::Sprite(gameEngine->renderTarget().getTexture()));
+            gameEngine->window().display();
         }
-
-        gameEngine->update();
-        Renderer::render(gameEngine);
-
-        gameEngine->window().clear();
-        sf::Sprite sprite(gameEngine->renderTarget().getTexture());
-        gameEngine->window().draw(sprite);
-        gameEngine->window().display();
+    }
+    catch (const std::exception& error) {
+        spdlog::error("{}", error.what());
+        return 1;
     }
 }

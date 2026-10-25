@@ -22,12 +22,10 @@ just example hello_world
 - Simple sprite rendering
 - Main game loop structure
 
-## Source Files
-
-- `HelloWorld.hpp` - Header file with game setup
-- `HelloWorld.cpp` - Implementation file
-
 ## Next Steps
 
 Once you've run this example, check out the more complex examples:
 - [MovingShapes](../MovingShapes/README.md) - Learn about physics-based movement and collision
+- [JavaScript](../javascript_scripting/README.md) - JavaScript scripting
+- [Lua](../lua_scripting/README.md) - Lua scripting
+- [Config](../tde_project/README.md) - TooDee configuration files

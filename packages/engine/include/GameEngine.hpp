@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
@@ -16,12 +17,20 @@
 
 typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
 
+class RuntimeSerializer;
+
 class GameEngine {
+	friend class RuntimeSerializer;
+
 protected:
 	SceneMap            m_sceneMap;
 	sf::RenderWindow    m_window;
 	sf::RenderTexture	m_renderTarget;
 	std::string         m_currentScene;
+	sf::Vector2u        m_windowSize{};
+	unsigned int        m_frameRateLimit = 60;
+	bool                m_fullscreen = false;
+	std::filesystem::path m_windowIconPath;
 	size_t              m_simulationSpeed = 1;
 	bool                m_running = true;
 
@@ -41,6 +50,8 @@ public:
 	~GameEngine();
 
 	void init();
+	void loadSettingsFromFile(const std::filesystem::path& path);
+	void createWindow(const std::string& title);
 	void update();
 	void quit();
 
@@ -58,6 +69,7 @@ public:
 	}
 
 	std::shared_ptr<Scene> currentScene();
+	std::shared_ptr<Scene> getScene(const std::string& name) const;
 
 	bool getIsRunning() const;
 

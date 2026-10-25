@@ -17,6 +17,21 @@ target_link_libraries(
   GTest::gtest_main
 )
 
+add_executable(
+  project_loader_test
+  project_loader_test.cpp
+  ../apps/cli/src/Project.cpp
+)
+target_include_directories(project_loader_test PRIVATE ../apps/cli/include)
+target_link_libraries(
+  project_loader_test
+  PRIVATE
+  GTest::gtest_main
+  unofficial::inih::inireader
+  TooDeeEngine
+)
+
 include(GoogleTest)
 
 gtest_discover_tests(hello_test)
+gtest_discover_tests(project_loader_test)
